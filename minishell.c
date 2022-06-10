@@ -6,7 +6,7 @@
 /*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/09 21:35:49 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/10 22:19:53 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,10 @@ int main(int argc, char **argv,char **envp)
 				return 0;
 			if (ft_strncmp(line, "env", ft_strlen(line)))
 				printenv(envp);
+			printf("--before = %s\n", line);
+			
+			line = putspace(line);
+			//printf("==after = %c\n", '\"');
 		}
 	}
 	return 0;
