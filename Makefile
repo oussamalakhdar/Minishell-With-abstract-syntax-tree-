@@ -6,7 +6,7 @@
 #    By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/02 10:46:18 by olakhdar          #+#    #+#              #
-#    Updated: 2022/06/09 14:22:32 by olakhdar         ###   ########.fr        #
+#    Updated: 2022/06/10 21:54:33 by olakhdar         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,9 +14,9 @@ NAME = minishell
 
 CC = gcc
 
-FLAGS =  -Wall -Werror -Wextra -lreadline
+FLAGS =  -Wall -Werror -Wextra -lreadline -g
 
-FILES = minishell.c ft_split.c lists.c minishell_utils.c \
+FILES = minishell.c ft_split.c lists.c minishell_utils.c lexer.c \
 
 OBJ=$(FILES:.c=.o)
 

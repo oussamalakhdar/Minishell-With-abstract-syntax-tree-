@@ -6,7 +6,7 @@
 /*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/09 21:38:42 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/10 21:39:10 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,8 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
-#include <readline/readline.h>
-#include <readline/history.h>
+# include <readline/readline.h>
+# include <readline/history.h>
 
 typedef struct s_env
 {
@@ -27,10 +27,10 @@ typedef struct s_env
 	struct s_env	*next;
 }	t_env;
 
-typedef struct s_cmd
-{
-	;
-}	t_cmd;
+// typedef struct s_cmd
+// {
+// 	;
+// }	t_cmd;
 
 t_env	*ft_lstnew(char *name, char *value);
 void	ft_lstadd_back(t_env **lst, t_env *new);
@@ -38,5 +38,8 @@ void    createnv(t_env **env, char **envp);
 char	**ft_split(char const *s, char c);
 int		ft_strlen(char *str);
 int		ft_strncmp(char *s1, char *s2, int n);
+char	*putspace(char *s);
+char	*ft_strdup(const char *s1);
+char	*charjoin(char *s, char c);
 
 #endif
