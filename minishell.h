@@ -6,7 +6,7 @@
 /*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/10 21:39:10 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/11 11:42:42 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,5 +41,6 @@ int		ft_strncmp(char *s1, char *s2, int n);
 char	*putspace(char *s);
 char	*ft_strdup(const char *s1);
 char	*charjoin(char *s, char c);
+char	*remove_space(char *s);
 
 #endif
