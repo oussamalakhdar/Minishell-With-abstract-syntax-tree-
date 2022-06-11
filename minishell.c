@@ -6,7 +6,7 @@
 /*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/10 22:19:53 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/11 12:33:37 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ void	printenv(char **envp)
 int main(int argc, char **argv,char **envp)
 {
 	char *line;
+	char **str;
 	(void)argv;
 
 	int i = 0;
@@ -42,10 +43,11 @@ int main(int argc, char **argv,char **envp)
 				return 0;
 			if (ft_strncmp(line, "env", ft_strlen(line)))
 				printenv(envp);
-			printf("--before = %s\n", line);
-			
 			line = putspace(line);
-			//printf("==after = %c\n", '\"');
+			printf("~~ %s\n", line);
+			str = ft_split(line, ' ');
+			while(str[i])
+				printf("-- %s\n", str[i++]);
 		}
 	}
 	return 0;
