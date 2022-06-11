@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/11 15:41:12 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/11 21:48:35 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ void	undo(char **s)
 
 	i = 0;
 	j = 0;
-	while (s[i][j])
+	while (s[i])
 	{
 		if (s[i][0] == '\"')
 		{
@@ -63,6 +63,7 @@ int main(int argc, char **argv,char **envp)
 	(void)argv;
 
 	int i = 0;
+	//char **s=ft_split("echo ali bayar", ' ');
 	if (argc == 1)
 	{
 		while(1)
@@ -73,9 +74,11 @@ int main(int argc, char **argv,char **envp)
 			if (ft_strncmp(line, "env", ft_strlen(line)))
 				printenv(envp);
 			if (line[0] == 'c' && line[1] == 'd' && line[2] == ' ')
+			{
 				chdir(line + 3);
+				//execve("/bin/echo", s, NULL);
+			}
 			line = putspace(line);
-			//printf("~~ %s\n", line);
 			str = ft_split(line, ' ');
 			undo(str);
 			// while(str[i])
