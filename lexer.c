@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 21:37:16 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/11 12:22:09 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/11 15:23:08 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,13 +66,13 @@ char	*remove_space(char *s)
 			while(s[i] != '\"')
 			{
 				if (s[i] == ' ')
-					str = charjoin(str, '*');
+					str = charjoin(str, SPACE);
 				else if (s[i] == '|')
-					str = charjoin(str, '+');
+					str = charjoin(str, PIPE);
 				else if (s[i] == '>')
-					str = charjoin(str, '=');
+					str = charjoin(str, REDR);
 				else if (s[i] == '<')
-					str = charjoin(str, '^');
+					str = charjoin(str, REDL);
 				else
 					str = charjoin(str, s[i]);
 				i++;

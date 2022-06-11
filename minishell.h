@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/11 11:42:42 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/11 15:20:25 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,14 @@ typedef struct s_env
 	char	*var_value;
 	struct s_env	*next;
 }	t_env;
+
+enum def
+{
+	SPACE = 23,
+	PIPE = 24,
+	REDR = 25,
+	REDL = 26,
+}	;
 
 // typedef struct s_cmd
 // {
