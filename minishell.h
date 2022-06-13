@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/11 15:20:25 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/13 01:59:54 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,8 @@
 
 typedef struct s_env
 {
-	char	*var_name;
-	char	*var_value;
+	char			*var_name;
+	char			*var_value;
 	struct s_env	*next;
 }	t_env;
 
@@ -35,10 +35,32 @@ enum def
 	REDL = 26,
 }	;
 
-// typedef struct s_cmd
-// {
-// 	;
-// }	t_cmd;
+typedef struct s_cmd
+{
+	int	type;
+}	cmd;
+
+typedef struct s_execcmd
+{
+	int		type;
+	char	**argv;
+}	execcmd;
+
+typedef struct s_pipe
+{
+	int				type;
+	struct cmd	*left;
+	struct cmd	*right;
+}	ppipe;
+
+typedef struct s_redir
+{
+	int				type;
+	char			*file;
+	int				mode;
+	int				fd;
+	struct cmd	*cmd;
+}	redir;
 
 t_env	*ft_lstnew(char *name, char *value);
 void	ft_lstadd_back(t_env **lst, t_env *new);

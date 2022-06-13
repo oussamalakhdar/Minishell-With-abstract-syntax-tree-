@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/11 15:41:12 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/13 02:46:51 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ void	undo(char **s)
 
 	i = 0;
 	j = 0;
-	while (s[i][j])
+	while (s[i])
 	{
 		if (s[i][0] == '\"')
 		{
@@ -56,30 +56,104 @@ void	undo(char **s)
 	}
 }
 
+int	chrr(char **s, int *i)
+{
+	while (s[*i])
+	{
+		if (s[*i][0] == '|')
+			return (1);
+		(*i)++;
+	}
+	return (0);
+}
+
+char	**parceline(char **s, int *i)
+{
+	char	**n;
+	int		j;
+	int		tmp;
+
+	j = 0;
+	tmp = (*i);
+	chrr(s, i);
+	n = malloc(sizeof(char *) * ((*i) - tmp) + 1);
+	while (j <= (*i) - tmp)
+	{
+		n[j] = ft_strdup(s[tmp]);
+		tmp++;
+		j++;
+	}
+	n[j] = 0;
+	(*i)++;
+	return (n);
+}
+
+struct cmd	*pipecmd(struct cmd *left, struct cmd *right)
+{
+	ppipe	*cmd;
+
+	cmd = malloc(sizeof(*cmd));
+	cmd->type = '|';
+	cmd->left = left;
+	cmd->right = right;
+	return ((struct cmd*) cmd);
+}
+
+
+struct	cmd	*execnode(char **s)
+{
+	execcmd	*cmd;
+	
+	cmd = malloc(sizeof(*cmd));
+	cmd->type = ' ';
+	cmd->argv = s;
+	return ((struct cmd*) cmd);
+}
+
+struct cmd	*magic_time(char **s, int *i)
+{
+	struct cmd		*cmd;
+	struct cmd		*pcmd;
+
+	cmd	= execnode(parceline(s, i));
+	if (chrr(s, 0) == 0)
+		return ((struct cmd*) cmd);
+	else
+		pcmd = pipecmd(cmd, magic_time(s, i));
+	return ((struct cmd*) pcmd);
+}
+
 int main(int argc, char **argv,char **envp)
 {
-	char *line;
-	char **str;
+	char 			*line;
+	char 			**str;
+	struct cmd				*cmd;
 	(void)argv;
+	
 
 	int i = 0;
+	char **S;
 	if (argc == 1)
 	{
 		while(1)
 		{
+			i = 0;
 			line =  readline("𝖒𝖎𝖓𝖎𝖘𝖍𝖊𝖑𝖑➜ ");
 			if (line == NULL)
 				return 0;
 			if (ft_strncmp(line, "env", ft_strlen(line)))
 				printenv(envp);
 			if (line[0] == 'c' && line[1] == 'd' && line[2] == ' ')
+			{
+				//execve("/bin/cat", S, NULL);
 				chdir(line + 3);
+			}
 			line = putspace(line);
-			//printf("~~ %s\n", line);
 			str = ft_split(line, ' ');
 			undo(str);
-			// while(str[i])
-			// 	printf("-- %s\n", str[i++]);
+			cmd = magic_time(str, &i);
+			//S = parceline(str, &i);
+			//int	f=parceline(str, &i);
 		}
 	}
 	return 0;
