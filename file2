@@ -1,0 +1,7 @@
+drwxr-xr-x   3 olakhdar  2019   102 Jun 11 08:57 .vscode
+-rw-r--r--   1 olakhdar  2019  1207 Jun 11 21:18 Makefile
+-rw-r--r--   1 olakhdar  2019     0 Jun 11 21:34 file2
+-rw-r--r--   1 olakhdar  2019  2083 Jun 11 15:45 lexer.c
+-rw-r--r--   1 olakhdar  2019  1987 Jun 11 21:24 minishell.c
+-rw-r--r--   1 olakhdar  2019  1634 Jun 11 15:45 minishell.h
+-rw-r--r--   1 olakhdar  2019  1700 Jun 10 22:06 minishell_utils.c
