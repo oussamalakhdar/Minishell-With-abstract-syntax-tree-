@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/13 02:46:51 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/13 02:53:49 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,7 +151,7 @@ int main(int argc, char **argv,char **envp)
 			line = putspace(line);
 			str = ft_split(line, ' ');
 			undo(str);
-			cmd = magic_time(str, &i);
+			//cmd = magic_time(str, &i);
 			//S = parceline(str, &i);
 			//int	f=parceline(str, &i);
 		}
