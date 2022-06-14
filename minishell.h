@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/14 17:34:24 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/14 19:26:54 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
+# include <fcntl.h>
 # include <readline/readline.h>
 # include <readline/history.h>
 
@@ -47,8 +48,8 @@ typedef struct s_execcmd
 {
 	int		type;
 	char	**argv;
-	char	**infile;
-	char	**outfile;
+	char	*infile;
+	char	*outfile;
 }	execcmd;
 
 typedef struct s_pipe
@@ -61,10 +62,9 @@ typedef struct s_pipe
 typedef struct s_redir
 {
 	int				type;
-	char			*file;
-	int				mode;
-	//int				fd;
-	struct s_cmd		*cmd;
+	int				infd;
+	int				outfd;
+	struct s_cmd		*cmdn;
 }	redir;
 
 t_env	*ft_lstnew(char *name, char *value);
