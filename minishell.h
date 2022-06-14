@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/13 01:59:54 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/14 12:59:29 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,8 +49,8 @@ typedef struct s_execcmd
 typedef struct s_pipe
 {
 	int				type;
-	struct cmd	*left;
-	struct cmd	*right;
+	struct s_cmd	*left;
+	struct s_cmd	*right;
 }	ppipe;
 
 typedef struct s_redir
@@ -59,7 +59,7 @@ typedef struct s_redir
 	char			*file;
 	int				mode;
 	int				fd;
-	struct cmd	*cmd;
+	struct s_cmd		*cmd;
 }	redir;
 
 t_env	*ft_lstnew(char *name, char *value);
@@ -72,5 +72,6 @@ char	*putspace(char *s);
 char	*ft_strdup(const char *s1);
 char	*charjoin(char *s, char c);
 char	*remove_space(char *s);
+void	undo(char **s);
 
 #endif

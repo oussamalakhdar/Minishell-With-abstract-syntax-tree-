@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/13 02:53:49 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/14 13:07:36 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,44 +27,25 @@ void	printenv(char **envp)
 	}
 }
 
-void	undo(char **s)
-{
-	int	i;
-	int	j;
-
-	i = 0;
-	j = 0;
-	while (s[i])
-	{
-		if (s[i][0] == '\"')
-		{
-			j = 0;
-			while (s[i][j])
-			{
-				if (s[i][j] == PIPE)
-					s[i][j] = '|';
-				if (s[i][j] == SPACE)
-					s[i][j] = ' ';
-				if (s[i][j] == REDR)
-					s[i][j] = '>';
-				if (s[i][j] == REDL)
-					s[i][j] = '<';
-				j++;
-			}
-		}
-		i++;
-	}
-}
-
 int	chrr(char **s, int *i)
 {
 	while (s[*i])
 	{
-		if (s[*i][0] == '|')
+		if (s[*i][0] == '|')//&& s[*i][0] == '\n')
 			return (1);
 		(*i)++;
 	}
 	return (0);
+}
+
+int	tablen(char **s)
+{
+	int	i;
+
+	i = 0;
+	while (s[i])
+		i++;
+	return (i);
 }
 
 char	**parceline(char **s, int *i)
@@ -75,9 +56,18 @@ char	**parceline(char **s, int *i)
 
 	j = 0;
 	tmp = (*i);
-	chrr(s, i);
+	if (s[*i] == NULL || tablen(s) <= (*i))
+		return (NULL);
+	//chrr(s, i);
+	while (s[*i])
+	{
+		if (s[*i][0] == '|')
+			break ;
+		(*i)++;
+	}
 	n = malloc(sizeof(char *) * ((*i) - tmp) + 1);
-	while (j <= (*i) - tmp)
+	int k = (*i) - tmp;
+	while (j < k)
 	{
 		n[j] = ft_strdup(s[tmp]);
 		tmp++;
@@ -88,57 +78,83 @@ char	**parceline(char **s, int *i)
 	return (n);
 }
 
-struct cmd	*pipecmd(struct cmd *left, struct cmd *right)
+cmd	*pipecmd(cmd *left, cmd *right)
 {
-	ppipe	*cmd;
+	ppipe	*cmdd;
 
-	cmd = malloc(sizeof(*cmd));
-	cmd->type = '|';
-	cmd->left = left;
-	cmd->right = right;
-	return ((struct cmd*) cmd);
+	cmdd = malloc(sizeof(*cmdd));
+	cmdd->type = '|';
+	cmdd->left = left;
+	cmdd->right = right;
+	return ((cmd*) cmdd);
 }
 
 
-struct	cmd	*execnode(char **s)
+cmd	*execnode(char **s)
 {
-	execcmd	*cmd;
+	execcmd	*cmdd;
 	
-	cmd = malloc(sizeof(*cmd));
-	cmd->type = ' ';
-	cmd->argv = s;
-	return ((struct cmd*) cmd);
+	cmdd = malloc(sizeof(*cmdd));
+	cmdd->type = ' ';
+	cmdd->argv = s;
+	return ((cmd*) cmdd);
 }
 
-struct cmd	*magic_time(char **s, int *i)
+cmd	*parce_redir(char **s)
 {
-	struct cmd		*cmd;
-	struct cmd		*pcmd;
+	cmd		*cmdd;
+	redir	*rcmd;
 
-	cmd	= execnode(parceline(s, i));
-	if (chrr(s, 0) == 0)
-		return ((struct cmd*) cmd);
-	else
-		pcmd = pipecmd(cmd, magic_time(s, i));
-	return ((struct cmd*) pcmd);
+	cmdd = (cmd *)execnode(s);
+	//--------check
+	return ((cmd *)cmdd);
 }
 
+cmd *parce_pipe(char **str, int *i)
+{
+	cmd		*cmdd;
+	//cmd		*pcmd;
+
+	printf("**********\n");
+	cmdd = parce_redir(parceline(str, i));
+	if (str[(*i) - 1][0] == '|')
+	{
+		cmdd = pipecmd(cmdd, parce_pipe(str, i));
+	}
+	//printf("%s\n", str[(*i) - 1]);
+	return ((cmd *)cmdd);
+}
+
+
+cmd	*magic_time(char **s, int *i)
+{
+	cmd			*cmdd;
+	cmd		*pcmd;
+
+	cmdd	= parce_pipe(s, i);
+	// if (chrr(s, 0) == 0)
+	// 	pcmd = pipecmd(cmdd, magic_time(s, i));
+	return ((cmd*) pcmd);
+}
+
+#include <string.h>
 int main(int argc, char **argv,char **envp)
 {
 	char 			*line;
 	char 			**str;
-	struct cmd				*cmd;
+	cmd				*cmd;
 	(void)argv;
 	
 
 	int i = 0;
-	char **S;
+	char **S = NULL;
 	if (argc == 1)
 	{
 		while(1)
 		{
 			i = 0;
 			line =  readline("𝖒𝖎𝖓𝖎𝖘𝖍𝖊𝖑𝖑➜ ");
+			add_history(line);
 			if (line == NULL)
 				return 0;
 			if (ft_strncmp(line, "env", ft_strlen(line)))
@@ -151,10 +167,26 @@ int main(int argc, char **argv,char **envp)
 			line = putspace(line);
 			str = ft_split(line, ' ');
 			undo(str);
+			int j=0,p=0;
+			magic_time(str, &i);
+			// while ((S = parceline(str, &i)) > 0)
+			// {
+			// 	j = 0;
+			// 	while (S[j])
+			// 	{
+			// 		printf("%s\n",S[j]);
+			// 		//printf("%d\n",j);
+			// 		j++;
+			// 	}
+			// 	//printf("_______________%d______________\n",p++);
+			// }
+			
 			//cmd = magic_time(str, &i);
-			//S = parceline(str, &i);
+			//parceline(str, &i);
 			//int	f=parceline(str, &i);
+			
 		}
 	}
+	// system("leaks minishell");
 	return 0;
 }
