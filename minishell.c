@@ -6,7 +6,7 @@
 /*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/14 13:07:36 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/14 17:40:28 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,22 @@ int	tablen(char **s)
 	return (i);
 }
 
+int	checker(char **s, char c, int *i)
+{
+	int j;
+
+	j = (*i);
+	if (tablen(s) <= (*i))
+		return 0;
+	while (s[j])
+	{
+		if (s[j][0] == c)
+			return 1;
+		j++;
+	}
+	return 0;
+}
+
 char	**parceline(char **s, int *i)
 {
 	char	**n;
@@ -78,6 +94,52 @@ char	**parceline(char **s, int *i)
 	return (n);
 }
 
+char **getfiles(char **s, char c, int *i)
+{
+	int		j;
+	int		k;
+	int		count;
+	char	**str;
+	
+	j = (*i);
+	k = 0;
+	count = 0;
+	if (tablen(s) <= (*i))
+		return 0;
+	while(s[j])
+	{
+		if (s[j][0] == c && s[j + 1][0] != c)
+			count++;
+		j++;
+	}
+	str = malloc(count * sizeof(char*) + 1);
+	j = (*i);
+	while (s[j])
+	{
+		if (s[j][0] == c && s[j + 1][0] != c)
+			str[k++] = ft_strdup(s[++j]);
+		j++;
+	}
+	str[k] = NULL;
+	return (str);
+}
+
+cmd	*redirect_cmd(char **s, int *i, int type, char *file)
+{
+	redir	*cmdd;
+
+	cmdd = malloc(sizeof(*cmdd));
+	cmdd->type = type;
+	cmdd->file = file;
+	if (type == '>')
+		cmdd->mode = OUT;
+	else
+		cmdd->mode = IN;
+		
+	//cmdd->fd = ;
+	return ((cmd*) cmdd);
+}
+
 cmd	*pipecmd(cmd *left, cmd *right)
 {
 	ppipe	*cmdd;
@@ -105,24 +167,27 @@ cmd	*parce_redir(char **s)
 	cmd		*cmdd;
 	redir	*rcmd;
 
-	cmdd = (cmd *)execnode(s);
+	cmdd = execnode(s);
 	//--------check
-	return ((cmd *)cmdd);
+	return (cmdd);
 }
+
 
 cmd *parce_pipe(char **str, int *i)
 {
 	cmd		*cmdd;
 	//cmd		*pcmd;
 
-	printf("**********\n");
-	cmdd = parce_redir(parceline(str, i));
-	if (str[(*i) - 1][0] == '|')
+	if (checker(str, '|', i))
 	{
-		cmdd = pipecmd(cmdd, parce_pipe(str, i));
+		cmdd = pipecmd(parce_redir(parceline(str, i)), parce_pipe(str, i));
 	}
+	else
+		cmdd = parce_redir(parceline(str, i));
+	// else
+	// 	printf("hiyahadii\n");
 	//printf("%s\n", str[(*i) - 1]);
-	return ((cmd *)cmdd);
+	return (cmdd);
 }
 
 
@@ -134,7 +199,46 @@ cmd	*magic_time(char **s, int *i)
 	cmdd	= parce_pipe(s, i);
 	// if (chrr(s, 0) == 0)
 	// 	pcmd = pipecmd(cmdd, magic_time(s, i));
-	return ((cmd*) pcmd);
+	return ((cmd*) cmdd);
+}
+
+void	runcmd(cmd *cmdd)
+{
+	ppipe		*pcmd;
+	execcmd		*execcmdd;
+
+	printf("**********\n");
+	//printf("%c\n",cmdd->type);
+	if (cmdd->type == '|')
+	{
+		pcmd = (ppipe *)cmdd;
+		int pid = fork();
+		if (pid == 0)
+		{
+			if (pcmd->left->type == ' ')
+			{
+				execcmdd = (execcmd *)pcmd->left;
+				printf("lisser ------> awel string %s\n", execcmdd->argv[0]);
+				exit(0);
+			}
+		}
+		wait(0);
+		if (pcmd->right->type == '|')
+			runcmd(pcmd->right);
+		else if (pcmd->right->type == ' ')
+		{
+			execcmdd = (execcmd *)pcmd->right;
+			printf("liMEN ------> awel string %s\n", execcmdd->argv[0]);
+		}
+	}
+	else
+	{
+		printf("type ---> %c\n", cmdd->type);
+		execcmdd = (execcmd *)cmdd;
+		printf("--<%c>\n", execcmdd->type);
+		printf("--%s\n--%s", execcmdd->argv[0], execcmdd->argv[1]);
+		printf("***************\n");
+	}
 }
 
 #include <string.h>
@@ -168,7 +272,11 @@ int main(int argc, char **argv,char **envp)
 			str = ft_split(line, ' ');
 			undo(str);
 			int j=0,p=0;
-			magic_time(str, &i);
+			S = getfiles(str, '>', &i);
+			while(S[j])
+				printf("--%s\n",S[j++]);
+		//	magic_time(str, &i);
+			// runcmd(magic_time(str, &i));
 			// while ((S = parceline(str, &i)) > 0)
 			// {
 			// 	j = 0;
