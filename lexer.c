@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 21:37:16 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/11 15:23:08 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/14 11:13:52 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ char	*putspace(char *s)
 	s = remove_space(s);
 	while (s[i])
 	{
-		if (s[i + 1] == '|' || s[i + 1] == '<' || s[i + 1] == '>')
+		if (s[i + 1] == '|' || (s[i + 1] == '<' && s[i] != '<') || (s[i + 1] == '>' && s[i] != '>'))
 		{
 		   if (s[i] != ' ')
 			{    
@@ -36,7 +36,7 @@ char	*putspace(char *s)
 		}
 		else if (s[i] == '|' || s[i] == '<' || s[i] == '>')
 		{
-			if (s[i + 1] != ' ')
+			if (s[i + 1] != ' ' && s[i + 1] != '>' && s[i + 1] != '<')
 			{
 				str = charjoin(str, s[i]);
 				str = charjoin(str, ' ');
@@ -85,3 +85,41 @@ char	*remove_space(char *s)
 	}
 	return (str);
 }
+
+void	undo(char **s)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	j = 0;
+	while (s[i])
+	{
+		if (s[i][0] == '\"')
+		{
+			j = 0;
+			while (s[i][j])
+			{
+				if (s[i][j] == PIPE)
+					s[i][j] = '|';
+				if (s[i][j] == SPACE)
+					s[i][j] = ' ';
+				if (s[i][j] == REDR)
+					s[i][j] = '>';
+				if (s[i][j] == REDL)
+					s[i][j] = '<';
+				j++;
+			}
+		}
+		i++;
+	}
+}
+
+// int gettoken(char **start, char *end, char  **fw,char **ew)
+// {
+// 	char *s;
+// 	int ret;
+
+// 	s = *start;
+// 	while(
+// }

@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: abayar <abayar@student.42.fr>              +#+  +:+       +#+         #
+#    By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/02 10:46:18 by olakhdar          #+#    #+#              #
-#    Updated: 2022/06/13 02:53:19 by abayar           ###   ########.fr        #
+#    Updated: 2022/06/14 13:02:52 by olakhdar         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,7 +23,7 @@ OBJ=$(FILES:.c=.o)
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	$(CC) $(FLAGS) $(OBJ) -o $(NAME)
+	@$(CC) $(FLAGS) $(OBJ) -o $(NAME)
 
 clean:
 	rm -f $(OBJ)
