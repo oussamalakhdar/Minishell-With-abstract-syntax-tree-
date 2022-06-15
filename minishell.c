@@ -6,11 +6,64 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/15 12:47:06 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/15 22:46:22 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+char	*ft_strjoin(char *s1, char *s2)
+{
+	char	*pt;
+	char	*ss1;
+	char	*ss2;
+	int		i;
+	int		j;
+
+	i = 0;
+	j = 0;
+	ss1 = (char *)s1;
+	ss2 = (char *)s2;
+	if (!ss1 || !ss2)
+		return (NULL);
+	pt = malloc(sizeof(char ) * (ft_strlen(s1) + ft_strlen(s2)) + 1);
+	if (pt == NULL)
+		return (NULL);
+	while (ss1[i])
+	{
+		pt[i] = ss1[i];
+		i++;
+	}
+	while (ss2[j])
+		pt[i++] = ss2[j++];
+	pt[i] = '\0';
+	free(s1);
+	return (pt);
+}
+
+char	**get_path(char **env)
+{
+	int		i;
+	char	**tmp;
+	char	**str;
+
+	i = 0;
+	while (env[i])
+	{
+		if (env[i][0] == 'P' && env[i][2] == 'T')
+		{
+			str = ft_split(env[i], '=');
+			tmp = str;
+			str = ft_split(str[1], ':');
+			free_all(tmp);
+			return (str);
+		}
+		i++;
+	}
+	str = NULL;
+	//perror("PATH not found\n");
+	exit(1);
+}
 
 void	printenv(char **envp)
 {
@@ -192,7 +245,7 @@ cmd	*pipecmd(cmd *left, cmd *right)
 }
 
 
-cmd	*execnode(char **s, int *i)
+cmd	*execnode(char **s, int *i,char **env)
 {
 	execcmd	*cmdd;
 	
@@ -201,50 +254,32 @@ cmd	*execnode(char **s, int *i)
 	cmdd->argv = scan_arg(s);//------------------------------------------------------------
 	cmdd->infile = getfiles(s, '<');
 	cmdd->outfile = getfiles(s, '>');
-	//printf("infile --> %s\noutfile -->  %s\n", cmdd->infile,cmdd->outfile);
+	cmdd->path = get_path(env);
 	cmdd = (execcmd*)redirect_cmd((cmd *)cmdd, s, i);
-	// if (cmdd->infile != NULL)// || cmdd->outfile != NULL)
-	// 	return ((cmd*)redirect_cmd(cmdd, s, i, '<'));
-	// if (cmdd->outfile != NULL)// || cmdd->outfile != NULL)
-	// 	return ((cmd*)redirect_cmd(cmdd, s, i, '>'));
 	return ((cmd*) cmdd);
 }
 
-// cmd	*parce_redir(char **s)
-// {
-// 	cmd		*cmdd;
-// 	redir	*rcmd;
-
-// 	cmdd = execnode(s);
-// 	//--------check
-// 	return (cmdd);
-// }
-
-
-cmd *parce_pipe(char **str, int *i)
+cmd *parce_pipe(char **str, int *i, char **env)
 {
 	cmd		*cmdd;
 	//cmd		*pcmd;
 
 	if (checker(str, '|', i))
 	{
-		cmdd = pipecmd(execnode(parceline(str, i), i), parce_pipe(str, i));
+		cmdd = pipecmd(execnode(parceline(str, i), i, env), parce_pipe(str, i, env));
 	}
 	else
-		cmdd = execnode(parceline(str, i), i);
-	// else
-	// 	printf("hiyahadii\n");
-	//printf("%s\n", str[(*i) - 1]);
+		cmdd = execnode(parceline(str, i), i, env);
 	return (cmdd);
 }
 
 
-cmd	*magic_time(char **s, int *i)
+cmd	*magic_time(char **s, int *i, char **env)
 {
 	cmd			*cmdd;
 	cmd		*pcmd;
 
-	cmdd	= parce_pipe(s, i);
+	cmdd	= parce_pipe(s, i, env);
 	// if (chrr(s, 0) == 0)
 	// 	pcmd = pipecmd(cmdd, magic_time(s, i));
 	return ((cmd*) cmdd);
@@ -255,7 +290,10 @@ void	runcmd(cmd *cmdd)
 	ppipe		*pcmd;
 	execcmd		*execcmdd;
 	redir		*rcmd;
+	int			i;
+	char		*str;
 
+	i = 0;
 	if (cmdd->type == '|')
 	{
 		printf("****  PIPE  ******\n");
@@ -264,50 +302,36 @@ void	runcmd(cmd *cmdd)
 		if (pid == 0)
 		{
 			runcmd(pcmd->left);
-			// printf("******************\n");
-			// if (pcmd->left)
-			// {
-			// 	execcmdd = (execcmd *)pcmd->left;
-			// 	printf("lisser ------> awel string %s\n", execcmdd->argv[0]);
-			// 	exit(0);
-			// }
-			// else if (pcmd->left->type == '>')
-			// {
-			// 	execcmdd = (execcmd *)pcmd->right;
-			// 	printf("liMEN ------> awel string %s\n", execcmdd->argv[0]);
-			// }
 		}
 		wait(0);
 		runcmd(pcmd->right);
-		// if (pcmd->right->type == '|')
-		// 	runcmd(pcmd->right);
-		// else if (pcmd->right->type == ' ')
-		// {
-		// 	execcmdd = (execcmd *)pcmd->right;
-		// 	printf("liMEN ------> awel string %s\n", execcmdd->argv[0]);
-		// }
-		// else if (pcmd->right->type == '>')
-		// {
-		// 	execcmdd = (execcmd *)pcmd->right;
-		// 	printf("liMEN ------> awel string %s\n", execcmdd->argv[0]);
-		// }
 	}
 	else if (cmdd->type == ' ')
 	{
 		printf("****  EXEC  ******\n");
-		printf("type ---> execution\n");
 		execcmdd = (execcmd *)cmdd;
-		//printf("--<%c>\n", execcmdd->type);
-		printf("--%s\n--%s\n", execcmdd->argv[0], execcmdd->argv[1]);
-		printf("infile --> %s\noutfile -->  %s\n", execcmdd->infile,execcmdd->outfile);//, execcmdd->argv[1]);
-		//printf("***************\n");
+		int id = fork();
+		if (id == 0)
+		{
+			while (execcmdd->path[i])
+			{
+				str = ft_strjoin(execcmdd->path[i], "/");
+				str = ft_strjoin(str, execcmdd->argv[0]);
+				if (access(str, F_OK) != -1)
+					execve(str, execcmdd->argv, NULL);
+				free(str);
+				i++;
+			}
+		}
+		wait(0);
 	}
 	else if (cmdd->type == '>')
 	{
 		printf("****  REDERIC  ******\n");
 		rcmd = (redir *)cmdd;
+		dup2(rcmd->infd, STDIN_FILENO);
+		dup2(rcmd->outfd, STDOUT_FILENO);
 		runcmd(rcmd->cmdn);
-		//printf("---------hadi redir -----> o hadi l type d exec node  \"%c\"\n", rcmd->cmdn->type);
 	}
 }
 
@@ -335,36 +359,13 @@ int main(int argc, char **argv,char **envp)
 				printenv(envp);
 			if (line[0] == 'c' && line[1] == 'd' && line[2] == ' ')
 			{
-				//execve("/bin/cat", S, NULL);
 				chdir(line + 3);
+				continue ;
 			}
 			line = putspace(line);
 			str = ft_split(line, ' ');
 			undo(str);
-			int j=0,p=0;
-
-			 //printf("infile  ==  %s\noutfile   ===  %s\n",getfiles(str, '<', &i), getfiles(str, '>', &i));
-			// S = getfiles(str, '>', &i);
-			// while(str[j])
-			// 	printf("--%s\n",str[j++]);
-			// magic_time(str, &i);
-			runcmd(magic_time(str, &i));
-			// while ((S = parceline(str, &i)) > 0)
-			// {
-			// 	j = 0;
-			// 	while (S[j])
-			// 	{
-			// 		printf("%s\n",S[j]);
-			// 		//printf("%d\n",j);
-			// 		j++;
-			// 	}
-			// 	//printf("_______________%d______________\n",p++);
-			// }
-			
-			//cmd = magic_time(str, &i);
-			//parceline(str, &i);
-			//int	f=parceline(str, &i);
-			
+			runcmd(magic_time(str, &i, envp));
 		}
 	}
 	// system("leaks minishell");
