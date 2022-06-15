@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/14 20:55:02 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/15 12:47:06 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,37 @@ void	printenv(char **envp)
 		printf("%s=%s\n", temp->var_name, temp->var_value);		
 		temp = temp->next;
 	}
+}
+
+char	**scan_arg(char **s)
+{
+	int		j;
+	int		count;
+	char	**ss;
+
+	j = 0;
+	count = 0;
+	while(s[j])
+	{
+		if ((s[j][0] == '>') || (s[j][0] == '<'))
+			count++;
+		j++;
+	}
+	ss = malloc(sizeof(char *) * (j - (count * 2) + 1));
+	j = 0;
+	count = 0;
+	while (s[j])
+	{
+		if (s[j][0] == '<' || s[j][0] == '>')
+		{
+			j+=2;
+			continue ;
+		}
+		else
+			ss[count++] = s[j++];
+	}
+	ss[count] = 0;
+	return (ss);
 }
 
 int	chrr(char **s, int *i)
@@ -94,18 +125,19 @@ char	**parceline(char **s, int *i)
 	return (n);
 }
 
-char *getfiles(char **s, char c, int *i)
+char *getfiles(char **s, char c)
 {
 	int		j;
 	int		k;
-	int		count;
+	// int		count;
 	char	*str;
 	
-	j = (*i);
+	j = 0;
 	k = 0;
-	count = 0;
-	if (tablen(s) <= (*i))
-		return 0;
+	// count = 0;
+	str = ft_strdup("");
+	// if (tablen(s) <= (*i))
+	// 	return 0;
 	// while(s[j])
 	// {
 	// 	if (s[j][0] == c && s[j + 1][0] != c)
@@ -113,13 +145,14 @@ char *getfiles(char **s, char c, int *i)
 	// 	j++;
 	// }
 	//str = malloc(count * sizeof(char*) + 1);
-	j = (*i);
+	// j = (*i);
 	while (s[j])
 	{
 		if (s[j][0] == c && s[j][1] != c && s[j + 1][0] != c)
 		{
 			free(str);
 			str = ft_strdup(s[++j]);
+			//printf("\nstr ==== %s\n--\n", str);
 		}
 		j++;
 	}
@@ -135,11 +168,11 @@ cmd	*redirect_cmd(cmd *exec, char **s, int *i)//, char *file)
 	excmd = (execcmd *)exec;
 	cmdd = malloc(sizeof(*cmdd));
 	cmdd->type = '>';
-	if (!excmd->infile)
+	if (excmd->infile)
 		cmdd->infd = open(excmd->infile, O_RDONLY);
 	else
 		cmdd->infd = 0;
-	if (!excmd->outfile)
+	if (excmd->outfile)
 		cmdd->infd = open(excmd->outfile, O_CREAT | O_WRONLY | O_TRUNC);
 	else
 		cmdd->outfd = 1;
@@ -165,9 +198,10 @@ cmd	*execnode(char **s, int *i)
 	
 	cmdd = malloc(sizeof(*cmdd));
 	cmdd->type = ' ';
-	cmdd->argv = s;//------------------------------------------------------------
-	cmdd->infile = getfiles(s, '<', i);
-	cmdd->outfile = getfiles(s, '>', i);
+	cmdd->argv = scan_arg(s);//------------------------------------------------------------
+	cmdd->infile = getfiles(s, '<');
+	cmdd->outfile = getfiles(s, '>');
+	//printf("infile --> %s\noutfile -->  %s\n", cmdd->infile,cmdd->outfile);
 	cmdd = (execcmd*)redirect_cmd((cmd *)cmdd, s, i);
 	// if (cmdd->infile != NULL)// || cmdd->outfile != NULL)
 	// 	return ((cmd*)redirect_cmd(cmdd, s, i, '<'));
@@ -224,17 +258,19 @@ void	runcmd(cmd *cmdd)
 
 	if (cmdd->type == '|')
 	{
-		printf("**********\n");
+		printf("****  PIPE  ******\n");
 		pcmd = (ppipe *)cmdd;
 		int pid = fork();
 		if (pid == 0)
 		{
-			if (pcmd->left->type == ' ')
-			{
-				execcmdd = (execcmd *)pcmd->left;
-				printf("lisser ------> awel string %s\n", execcmdd->argv[0]);
-				exit(0);
-			}
+			runcmd(pcmd->left);
+			// printf("******************\n");
+			// if (pcmd->left)
+			// {
+			// 	execcmdd = (execcmd *)pcmd->left;
+			// 	printf("lisser ------> awel string %s\n", execcmdd->argv[0]);
+			// 	exit(0);
+			// }
 			// else if (pcmd->left->type == '>')
 			// {
 			// 	execcmdd = (execcmd *)pcmd->right;
@@ -242,30 +278,35 @@ void	runcmd(cmd *cmdd)
 			// }
 		}
 		wait(0);
-		if (pcmd->right->type == '|')
-			runcmd(pcmd->right);
-		else if (pcmd->right->type == ' ')
-		{
-			execcmdd = (execcmd *)pcmd->right;
-			printf("liMEN ------> awel string %s\n", execcmdd->argv[0]);
-		}
-		else if (pcmd->right->type == '>')
-		{
-			execcmdd = (execcmd *)pcmd->right;
-			printf("liMEN ------> awel string %s\n", execcmdd->argv[0]);
-		}
+		runcmd(pcmd->right);
+		// if (pcmd->right->type == '|')
+		// 	runcmd(pcmd->right);
+		// else if (pcmd->right->type == ' ')
+		// {
+		// 	execcmdd = (execcmd *)pcmd->right;
+		// 	printf("liMEN ------> awel string %s\n", execcmdd->argv[0]);
+		// }
+		// else if (pcmd->right->type == '>')
+		// {
+		// 	execcmdd = (execcmd *)pcmd->right;
+		// 	printf("liMEN ------> awel string %s\n", execcmdd->argv[0]);
+		// }
 	}
 	else if (cmdd->type == ' ')
 	{
-		printf("type ---> %c\n", cmdd->type);
+		printf("****  EXEC  ******\n");
+		printf("type ---> execution\n");
 		execcmdd = (execcmd *)cmdd;
-		printf("--<%c>\n", execcmdd->type);
-		printf("--%s\n--%s", execcmdd->argv[0], execcmdd->argv[1]);
+		//printf("--<%c>\n", execcmdd->type);
+		printf("--%s\n--%s\n", execcmdd->argv[0], execcmdd->argv[1]);
+		printf("infile --> %s\noutfile -->  %s\n", execcmdd->infile,execcmdd->outfile);//, execcmdd->argv[1]);
 		//printf("***************\n");
 	}
 	else if (cmdd->type == '>')
 	{
+		printf("****  REDERIC  ******\n");
 		rcmd = (redir *)cmdd;
+		runcmd(rcmd->cmdn);
 		//printf("---------hadi redir -----> o hadi l type d exec node  \"%c\"\n", rcmd->cmdn->type);
 	}
 }
@@ -301,10 +342,12 @@ int main(int argc, char **argv,char **envp)
 			str = ft_split(line, ' ');
 			undo(str);
 			int j=0,p=0;
+
+			 //printf("infile  ==  %s\noutfile   ===  %s\n",getfiles(str, '<', &i), getfiles(str, '>', &i));
 			// S = getfiles(str, '>', &i);
-			// while(S[j])
-			// 	printf("--%s\n",S[j++]);
-		//	magic_time(str, &i);
+			// while(str[j])
+			// 	printf("--%s\n",str[j++]);
+			// magic_time(str, &i);
 			runcmd(magic_time(str, &i));
 			// while ((S = parceline(str, &i)) > 0)
 			// {
