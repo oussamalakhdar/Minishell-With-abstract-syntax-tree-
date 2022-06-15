@@ -3,14 +3,27 @@
 /*                                                        :::      ::::::::   */
 /*   lists.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 12:08:52 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/10 19:31:07 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/15 16:21:56 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+void	free_all(char **s)
+{
+	int	i;
+
+	i = 0;
+	while (s[i])
+	{
+		free(s[i]);
+		i++;
+	}
+	free(s);
+}
 
 t_env	*ft_lstnew(char *name, char *value)
 {
@@ -41,7 +54,7 @@ void	ft_lstadd_back(t_env **lst, t_env *new)
 	temp->next = new;
 }
 
-void    createnv(t_env **env, char **envp)
+void	createnv(t_env **env, char **envp)
 {
     int     i;
     t_env   *new;
