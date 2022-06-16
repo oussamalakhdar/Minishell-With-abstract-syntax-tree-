@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/16 12:26:23 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/16 18:54:12 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,6 @@ enum def
 	REDL = 26,
 }	;
 
-
 typedef struct s_cmd
 {
 	int	type;
@@ -49,6 +48,8 @@ typedef struct s_execcmd
 	int		type;
 	char	**path;
 	char	**argv;
+	int		infd;
+	int		outfd;
 	char	*infile;
 	char	*outfile;
 }	execcmd;
@@ -80,6 +81,6 @@ char	*charjoin(char *s, char c);
 char	*remove_space(char *s);
 void	undo(char **s);
 void	free_all(char **s);
-int	ft_strcmp(char *s1, char *s2);
+int		ft_strcmp(char *s1, char *s2);
 
 #endif

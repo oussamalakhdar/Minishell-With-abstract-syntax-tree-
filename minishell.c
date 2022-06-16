@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/16 12:43:12 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/16 23:49:09 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,19 +181,39 @@ char	**parceline(char **s, int *i)
 char *getfiles(char **s, char c)
 {
 	int		j;
+	int		fd;
 	char	*str;
 	
 	j = 0;
+	fd = 0;
 	str = ft_strdup("");
 	while (s[j])
 	{
 		if (s[j][0] == c && s[j][1] != c && s[j + 1][0] != c)
 		{
+			// j++;
+			// if (c == '<')
+			// 	fd = open(s[j], O_RDONLY);
+			// else
+			// 	fd = open(s[j], O_CREAT | O_WRONLY | O_TRUNC, 777);
 			free(str);
+			//printf("%d\n", tmp);
 			str = ft_strdup(s[++j]);
 		}
+		// if (c == '>')
+		// {
+		// 	if (s[j][0] == '>' && s[j][1] == '>' && s[j + 1][0] != '>')
+		// 	{
+		// 		fd = open(s[++j], O_CREAT | O_WRONLY | O_APPEND, 777);
+		// 		if (fd < 0)
+		// 			write(2, "open fail\n", 10);
+		// 	}
+		// }
+		// tmp = fd;
 		j++;
 	}
+	// while (--tmp >= 3)
+	// 	close(tmp);
 	return (str);
 }
 
@@ -210,7 +230,7 @@ cmd	*redirect_cmd(cmd *exec, char **s, int *i)
 	else
 		cmdd->infd = 0;
 	if (excmd->outfile)
-		cmdd->infd = open(excmd->outfile, O_CREAT | O_WRONLY | O_TRUNC);
+		cmdd->infd = open(excmd->outfile, O_CREAT | O_WRONLY | O_TRUNC, 777);
 	else
 		cmdd->outfd = 1;
 	cmdd->cmdn = exec;
@@ -238,6 +258,8 @@ cmd	*execnode(char **s, int *i,char **env)
 	cmdd->argv = scan_arg(s);//------------------------------------------------------------
 	cmdd->infile = getfiles(s, '<');
 	cmdd->outfile = getfiles(s, '>');
+	// if (cmdd->outfd == 0)
+	// 	cmdd->outfd = 1;
 	cmdd->path = get_path(env);
 	cmdd = (execcmd*)redirect_cmd((cmd *)cmdd, s, i);
 	return ((cmd*) cmdd);
@@ -277,19 +299,31 @@ void	runcmd(cmd *cmdd)
 	int			i;
 	char		*str;
 	char		*temp;
+	int			pp[2];
 
 	i = 0;
 	if (cmdd->type == '|')
 	{
 		printf("****  PIPE  ******\n");
 		pcmd = (ppipe *)cmdd;
+		pipe(pp);
 		int pid = fork();
 		if (pid == 0)
 		{
+			close(pp[0]);
+			dup2(pp[1], STDOUT_FILENO);
+			//printf("****   ******\n");
 			runcmd(pcmd->left);
+			//close(pp[1]);
 		}
+		// else
+		// {
 		wait(0);
+		close(pp[1]);
+		dup2(pp[0], STDIN_FILENO);
 		runcmd(pcmd->right);
+		close(pp[0]);
+		//}
 	}
 	else if (cmdd->type == ' ')
 	{
@@ -298,6 +332,8 @@ void	runcmd(cmd *cmdd)
 		int id = fork();
 		if (id == 0)
 		{
+			// dup2(execcmdd->infd, STDIN_FILENO);
+			// dup2(execcmdd->outfd, STDOUT_FILENO);
 			while (execcmdd->path[i])
 			{
 				str = ft_strjoin(execcmdd->path[i], "/");
@@ -315,9 +351,24 @@ void	runcmd(cmd *cmdd)
 	{
 		printf("****  REDERIC  ******\n");
 		rcmd = (redir *)cmdd;
-		dup2(rcmd->infd, STDIN_FILENO);
-		dup2(rcmd->outfd, STDOUT_FILENO);
+		execcmdd = (execcmd *)rcmd->cmdn;
+		// if (execcmdd->infile)
+		// 	rcmd->infd = open(execcmdd->infile, O_RDONLY);
+		// else
+		// 	rcmd->infd = 0;
+		// if (execcmdd->outfile)
+		// 	rcmd->outfd = open(execcmdd->outfile, O_CREAT | O_WRONLY | O_TRUNC, 755);
+		// else
+		// 	rcmd->outfd = 1;
+		if (execcmdd->infile)
+			dup2(rcmd->infd, STDIN_FILENO);
+		if (execcmdd->outfile)	
+			dup2(rcmd->outfd, STDOUT_FILENO);
 		runcmd(rcmd->cmdn);
+		dup2(0, STDOUT_FILENO);
+		dup2(1, STDIN_FILENO);
+		// close(rcmd->infd);
+		// close(rcmd->outfd);
 	}
 }
 
@@ -338,7 +389,7 @@ int main(int argc, char **argv,char **envp)
 		{
 			i = 0;
 			line =  readline("𝖒𝖎𝖓𝖎𝖘𝖍𝖊𝖑𝖑➜ ");
-			printf("line == %s",line);
+			//printf("line == %s",line);
 			if (!line || ft_strcmp(line, "exit") == 0)
 				return 0;
 			if (ft_strncmp(line, "\n", ft_strlen(line)))
