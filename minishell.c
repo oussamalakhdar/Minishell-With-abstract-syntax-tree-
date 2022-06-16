@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/15 22:46:22 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/16 12:43:12 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,39 +181,23 @@ char	**parceline(char **s, int *i)
 char *getfiles(char **s, char c)
 {
 	int		j;
-	int		k;
-	// int		count;
 	char	*str;
 	
 	j = 0;
-	k = 0;
-	// count = 0;
 	str = ft_strdup("");
-	// if (tablen(s) <= (*i))
-	// 	return 0;
-	// while(s[j])
-	// {
-	// 	if (s[j][0] == c && s[j + 1][0] != c)
-	// 		count++;
-	// 	j++;
-	// }
-	//str = malloc(count * sizeof(char*) + 1);
-	// j = (*i);
 	while (s[j])
 	{
 		if (s[j][0] == c && s[j][1] != c && s[j + 1][0] != c)
 		{
 			free(str);
 			str = ft_strdup(s[++j]);
-			//printf("\nstr ==== %s\n--\n", str);
 		}
 		j++;
 	}
-	//str[k] = NULL;
 	return (str);
 }
 
-cmd	*redirect_cmd(cmd *exec, char **s, int *i)//, char *file)
+cmd	*redirect_cmd(cmd *exec, char **s, int *i)
 {
 	redir	*cmdd;
 	execcmd	*excmd;
@@ -292,6 +276,7 @@ void	runcmd(cmd *cmdd)
 	redir		*rcmd;
 	int			i;
 	char		*str;
+	char		*temp;
 
 	i = 0;
 	if (cmdd->type == '|')
@@ -316,6 +301,7 @@ void	runcmd(cmd *cmdd)
 			while (execcmdd->path[i])
 			{
 				str = ft_strjoin(execcmdd->path[i], "/");
+				temp = str;
 				str = ft_strjoin(str, execcmdd->argv[0]);
 				if (access(str, F_OK) != -1)
 					execve(str, execcmdd->argv, NULL);
@@ -352,9 +338,12 @@ int main(int argc, char **argv,char **envp)
 		{
 			i = 0;
 			line =  readline("𝖒𝖎𝖓𝖎𝖘𝖍𝖊𝖑𝖑➜ ");
-			add_history(line);
-			if (line == NULL || ft_strncmp(line, "exit", ft_strlen(line)))
+			printf("line == %s",line);
+			if (!line || ft_strcmp(line, "exit") == 0)
 				return 0;
+			if (ft_strncmp(line, "\n", ft_strlen(line)))
+				continue;
+			add_history(line);
 			if (ft_strncmp(line, "env", ft_strlen(line)))
 				printenv(envp);
 			if (line[0] == 'c' && line[1] == 'd' && line[2] == ' ')
@@ -366,8 +355,10 @@ int main(int argc, char **argv,char **envp)
 			str = ft_split(line, ' ');
 			undo(str);
 			runcmd(magic_time(str, &i, envp));
+			free(line);
+			line = NULL;
+			free(str);
 		}
 	}
-	// system("leaks minishell");
 	return 0;
 }
