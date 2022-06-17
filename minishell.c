@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/17 15:04:39 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/17 20:04:20 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ char	**get_path(char **env)
 		i++;
 	}
 	str = NULL;
-	//perror("PATH not found\n");
+	perror("PATH not found\n");
 	exit(1);
 }
 
@@ -307,7 +307,7 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 	i = 0;
 	if (cmdd->type == '|')
 	{
-		///printf("****  PIPE  ******\n");
+		//printf("****  PIPE  ******\n");
 		(*c)++;
 		pcmd = (ppipe *)cmdd;
 		pipe(pp);
@@ -316,19 +316,30 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 		{
 			close(pp[0]);
 			dup2(pp[1], STDOUT_FILENO);
-			//printf("****   ******\n");
 			runcmd(pcmd->left, p, c);
-			//close(pp[1]);
+			close(pp[1]);
+			wait(0);
+			if (*c >= 1)
+			{
+				exit(0);
+			}
 		}
 		// else
 		// {
+		//wait(0);
 		(*p)++;
-		wait(0);
+		if (pcmd->right->type == '>')
+			*c = -1;
 		close(pp[1]);
+		//dup(pp[0]);
 		dup2(pp[0], STDIN_FILENO);
+		//printf("------------------>>\n");
 		runcmd(pcmd->right, p, c);
 		close(pp[0]);
-		//}
+	//	printf("------------------>>\n");
+		wait(0);
+		dup2(1, STDIN_FILENO);
+		// }
 	}
 	else if (cmdd->type == ' ')
 	{
@@ -358,8 +369,10 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 		rcmd = (redir *)cmdd;
 		execcmdd = (execcmd *)rcmd->cmdn;
 		//printf("**  infd -> %d    ****outfd -> %d****\n", rcmd->infd, rcmd->outfd);
-		if (*c == 0)
+		if (*c == 0 || *c == 1)
 		{
+
+			//printf("-------  c == %d\n", *c);
 			int id = myfork();
 			if (id == 0)
 			{
@@ -375,10 +388,32 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 			if (rcmd->infd)
 				close(rcmd->infd);
 		}
-		else
+		else if (*c == -1)
 		{
-			runcmd(rcmd->cmdn, p, c);	
+			//printf("-------  c == %d\n", *c);
+			int id = myfork();
+			if (id == 0)
+			{
+				if (rcmd->infd != -2)
+					dup2(rcmd->infd, STDIN_FILENO);
+				if (rcmd->outfd != -2)
+					dup2(rcmd->outfd, STDOUT_FILENO);
+				runcmd(rcmd->cmdn, p, c);
+			}
+			wait(0);
+			if (rcmd->outfd)
+				close(rcmd->outfd);
+			if (rcmd->infd)
+				close(rcmd->infd);
+			//printf("-------------,<>----------\n");
 		}
+		// else
+		// {
+		// 	// int id = fork();
+		// 	// if (id == 0)
+		// 		runcmd(rcmd->cmdn, p, c);	
+		// 	//wait(0);
+		// }
 		// if (*p == 0)
 		// {
 		// 	printf("**  infd -> %d    ****outfd -> %d****\n", rcmd->infd, rcmd->outfd);
@@ -419,6 +454,7 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 		// close(rcmd->infd);
 		// close(rcmd->outfd);
 	}
+	//exit(0);
 }
 
 #include <string.h>
@@ -438,7 +474,8 @@ int main(int argc, char **argv,char **envp)
 		{
 			i = 0;
 			line =  readline("𝖒𝖎𝖓𝖎𝖘𝖍𝖊𝖑𝖑➜ ");
-			//printf("line == %s",line);
+			if (!line)
+				printf("\n");
 			if (!line || ft_strcmp(line, "exit") == 0)
 				return 0;
 			if (ft_strncmp(line, "\n", ft_strlen(line)))
