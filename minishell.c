@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/17 14:48:24 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/17 15:04:39 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,7 +201,7 @@ char *getfiles(char **s, char c)
 			str = NULL;
 			//printf("%d\n", tmp);
 			str = ft_strdup(s[++j]);
-			printf("%s\n", str);
+			//printf("%s\n", str);
 		}
 		// if (c == '>')
 		// {
@@ -233,7 +233,7 @@ cmd	*redirect_cmd(cmd *exec, char **s, int *i)
 	else
 		cmdd->infd = -2;
 	if (excmd->outfile)
-		cmdd->outfd = open(excmd->outfile, O_CREAT | O_WRONLY | O_TRUNC, 644);
+		cmdd->outfd = open(excmd->outfile, O_CREAT | O_WRONLY | O_TRUNC, 0644);
 	else
 		cmdd->outfd = -2;
 	cmdd->cmdn = exec;
@@ -307,7 +307,7 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 	i = 0;
 	if (cmdd->type == '|')
 	{
-		printf("****  PIPE  ******\n");
+		///printf("****  PIPE  ******\n");
 		(*c)++;
 		pcmd = (ppipe *)cmdd;
 		pipe(pp);
@@ -332,7 +332,7 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 	}
 	else if (cmdd->type == ' ')
 	{
-		printf("****  EXEC  ******\n");
+		//printf("****  EXEC  ******\n");
 		execcmdd = (execcmd *)cmdd;
 		// int id = fork();
 		// if (id == 0)
@@ -354,10 +354,10 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 	}
 	else if (cmdd->type == '>')
 	{
-		printf("****  REDERIC  ******\n");
+		//printf("****  REDERIC  ******\n");
 		rcmd = (redir *)cmdd;
 		execcmdd = (execcmd *)rcmd->cmdn;
-		printf("**  infd -> %d    ****outfd -> %d****\n", rcmd->infd, rcmd->outfd);
+		//printf("**  infd -> %d    ****outfd -> %d****\n", rcmd->infd, rcmd->outfd);
 		if (*c == 0)
 		{
 			int id = myfork();
