@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/17 13:06:53 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/17 14:48:24 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -233,7 +233,7 @@ cmd	*redirect_cmd(cmd *exec, char **s, int *i)
 	else
 		cmdd->infd = -2;
 	if (excmd->outfile)
-		cmdd->outfd = open(excmd->outfile, O_CREAT | O_WRONLY | O_TRUNC, 777);
+		cmdd->outfd = open(excmd->outfile, O_CREAT | O_WRONLY | O_TRUNC, 644);
 	else
 		cmdd->outfd = -2;
 	cmdd->cmdn = exec;
@@ -358,7 +358,7 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 		rcmd = (redir *)cmdd;
 		execcmdd = (execcmd *)rcmd->cmdn;
 		printf("**  infd -> %d    ****outfd -> %d****\n", rcmd->infd, rcmd->outfd);
-		if (c == 0)
+		if (*c == 0)
 		{
 			int id = myfork();
 			if (id == 0)
