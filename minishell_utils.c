@@ -3,14 +3,27 @@
 /*                                                        :::      ::::::::   */
 /*   minishell_utils.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 14:13:37 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/16 12:26:12 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/17 11:51:17 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+int	myfork(void)
+{
+	int	pid;
+
+	pid = 0;
+	pid = fork();
+	if (pid < 0)
+	{
+		perror("fork fail");
+	}
+	return (pid);
+}
 
 int	ft_strcmp(char *s1, char *s2)
 {

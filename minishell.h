@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/16 18:54:12 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/17 12:23:26 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,8 +48,6 @@ typedef struct s_execcmd
 	int		type;
 	char	**path;
 	char	**argv;
-	int		infd;
-	int		outfd;
 	char	*infile;
 	char	*outfile;
 }	execcmd;
@@ -82,5 +80,6 @@ char	*remove_space(char *s);
 void	undo(char **s);
 void	free_all(char **s);
 int		ft_strcmp(char *s1, char *s2);
+int		myfork(void);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/16 23:49:09 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/17 13:06:53 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,19 +186,22 @@ char *getfiles(char **s, char c)
 	
 	j = 0;
 	fd = 0;
-	str = ft_strdup("");
+	str = NULL;
 	while (s[j])
 	{
 		if (s[j][0] == c && s[j][1] != c && s[j + 1][0] != c)
 		{
+			str = ft_strdup("");
 			// j++;
 			// if (c == '<')
 			// 	fd = open(s[j], O_RDONLY);
 			// else
 			// 	fd = open(s[j], O_CREAT | O_WRONLY | O_TRUNC, 777);
 			free(str);
+			str = NULL;
 			//printf("%d\n", tmp);
 			str = ft_strdup(s[++j]);
+			printf("%s\n", str);
 		}
 		// if (c == '>')
 		// {
@@ -228,11 +231,11 @@ cmd	*redirect_cmd(cmd *exec, char **s, int *i)
 	if (excmd->infile)
 		cmdd->infd = open(excmd->infile, O_RDONLY);
 	else
-		cmdd->infd = 0;
+		cmdd->infd = -2;
 	if (excmd->outfile)
-		cmdd->infd = open(excmd->outfile, O_CREAT | O_WRONLY | O_TRUNC, 777);
+		cmdd->outfd = open(excmd->outfile, O_CREAT | O_WRONLY | O_TRUNC, 777);
 	else
-		cmdd->outfd = 1;
+		cmdd->outfd = -2;
 	cmdd->cmdn = exec;
 	return ((cmd*) cmdd);
 }
@@ -291,7 +294,7 @@ cmd	*magic_time(char **s, int *i, char **env)
 	return ((cmd*) cmdd);
 }
 
-void	runcmd(cmd *cmdd)
+void	runcmd(cmd *cmdd, int *p, int *c)
 {
 	ppipe		*pcmd;
 	execcmd		*execcmdd;
@@ -305,6 +308,7 @@ void	runcmd(cmd *cmdd)
 	if (cmdd->type == '|')
 	{
 		printf("****  PIPE  ******\n");
+		(*c)++;
 		pcmd = (ppipe *)cmdd;
 		pipe(pp);
 		int pid = fork();
@@ -313,15 +317,16 @@ void	runcmd(cmd *cmdd)
 			close(pp[0]);
 			dup2(pp[1], STDOUT_FILENO);
 			//printf("****   ******\n");
-			runcmd(pcmd->left);
+			runcmd(pcmd->left, p, c);
 			//close(pp[1]);
 		}
 		// else
 		// {
+		(*p)++;
 		wait(0);
 		close(pp[1]);
 		dup2(pp[0], STDIN_FILENO);
-		runcmd(pcmd->right);
+		runcmd(pcmd->right, p, c);
 		close(pp[0]);
 		//}
 	}
@@ -329,9 +334,9 @@ void	runcmd(cmd *cmdd)
 	{
 		printf("****  EXEC  ******\n");
 		execcmdd = (execcmd *)cmdd;
-		int id = fork();
-		if (id == 0)
-		{
+		// int id = fork();
+		// if (id == 0)
+		// {
 			// dup2(execcmdd->infd, STDIN_FILENO);
 			// dup2(execcmdd->outfd, STDOUT_FILENO);
 			while (execcmdd->path[i])
@@ -344,14 +349,63 @@ void	runcmd(cmd *cmdd)
 				free(str);
 				i++;
 			}
-		}
-		wait(0);
+		// }
+		//wait(0);
 	}
 	else if (cmdd->type == '>')
 	{
 		printf("****  REDERIC  ******\n");
 		rcmd = (redir *)cmdd;
 		execcmdd = (execcmd *)rcmd->cmdn;
+		printf("**  infd -> %d    ****outfd -> %d****\n", rcmd->infd, rcmd->outfd);
+		if (c == 0)
+		{
+			int id = myfork();
+			if (id == 0)
+			{
+				if (rcmd->infd != -2)
+					dup2(rcmd->infd, STDIN_FILENO);
+				if (rcmd->outfd != -2)
+					dup2(rcmd->outfd, STDOUT_FILENO);
+				runcmd(rcmd->cmdn, p, c);
+			}
+			wait(0);
+			if (rcmd->outfd)
+				close(rcmd->outfd);
+			if (rcmd->infd)
+				close(rcmd->infd);
+		}
+		else
+		{
+			runcmd(rcmd->cmdn, p, c);	
+		}
+		// if (*p == 0)
+		// {
+		// 	printf("**  infd -> %d    ****outfd -> %d****\n", rcmd->infd, rcmd->outfd);
+		// 	if (rcmd->infd != -1)
+		// 		dup2(rcmd->infd, STDIN_FILENO);
+		// 	// else
+		// 	// 	dup2(0, STDIN_FILENO);
+		// 	if (rcmd->outfd != -1)
+		// 		dup2(rcmd->outfd, STDOUT_FILENO);
+		// 	// else if (c == 0)
+		// 	// 	dup2(1, STDOUT_FILENO);
+		// }	
+		// else
+		// {
+		// 	if (rcmd->outfd != -1)
+		// 		dup2(rcmd->outfd, STDIN_FILENO);
+		// 	else
+		// 		dup2(0, STDIN_FILENO);
+		// }
+		//runcmd(rcmd->cmdn, p, c);
+		// }
+		// if (rcmd->outfd)
+		// 	close(rcmd->outfd);
+		// if (rcmd->infd)
+		// 	close(rcmd->infd);
+		
+		// wait(0);
 		// if (execcmdd->infile)
 		// 	rcmd->infd = open(execcmdd->infile, O_RDONLY);
 		// else
@@ -360,13 +414,8 @@ void	runcmd(cmd *cmdd)
 		// 	rcmd->outfd = open(execcmdd->outfile, O_CREAT | O_WRONLY | O_TRUNC, 755);
 		// else
 		// 	rcmd->outfd = 1;
-		if (execcmdd->infile)
-			dup2(rcmd->infd, STDIN_FILENO);
-		if (execcmdd->outfile)	
-			dup2(rcmd->outfd, STDOUT_FILENO);
-		runcmd(rcmd->cmdn);
-		dup2(0, STDOUT_FILENO);
-		dup2(1, STDIN_FILENO);
+		// dup2(0, STDOUT_FILENO);
+		// dup2(1, STDIN_FILENO);
 		// close(rcmd->infd);
 		// close(rcmd->outfd);
 	}
@@ -405,10 +454,11 @@ int main(int argc, char **argv,char **envp)
 			line = putspace(line);
 			str = ft_split(line, ' ');
 			undo(str);
-			runcmd(magic_time(str, &i, envp));
-			free(line);
-			line = NULL;
-			free(str);
+			int	p = 0,c = 0;
+			runcmd(magic_time(str, &i, envp), &p, &c);
+			// free(line);
+			// line = NULL;
+			// free(str);
 		}
 	}
 	return 0;
