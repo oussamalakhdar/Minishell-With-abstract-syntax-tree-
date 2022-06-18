@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/18 18:37:01 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/18 21:46:13 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -243,7 +243,10 @@ char *getfiles(char **s, char c)
 			if (c == '>')
 				fd = open(str, O_CREAT | O_WRONLY | O_APPEND, 0644);
 			else
+			{
 				fd = open(str, O_CREAT | O_RDWR | O_TRUNC, 0777);
+				read_f(str, fd);
+			}
 			close(fd);
 		}
 		j++;
@@ -279,8 +282,8 @@ cmd	*redirect_cmd(cmd *exec, char **s, int *i)
 		cmdd->infd = open(excmd->infile, O_RDONLY);
 	else if (if_app(s, "<<"))
 	{
-		cmdd->infd = open(excmd->infile, O_CREAT | O_RDWR , 0777);
-		read_f(excmd->infile, cmdd->infd);
+		cmdd->infd = open(excmd->infile, O_RDWR , 0777);
+		//read_f(excmd->infile, cmdd->infd);
 	}
 	else
 		cmdd->infd = -2;
@@ -378,11 +381,16 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 		}
 		(*p)++;
 		if (pcmd->right->type == '>')
+		{
+			rcmd = (redir *)pcmd->right;
 			*c = -1;
+		}
 		close(pp[1]);
 		dup2(pp[0], STDIN_FILENO);
 		runcmd(pcmd->right, p, c);
 		close(pp[0]);
+		if (*c == -1)
+			kill(pid, SIGKILL);
 		wait(0);
 		dup2(1, STDIN_FILENO);
 	}
@@ -422,10 +430,13 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 				runcmd(rcmd->cmdn, p, c);
 			}
 			wait(0);
-			if (rcmd->outfd)
-				close(rcmd->outfd);
-			if (rcmd->infd)
-				close(rcmd->infd);
+			if (*c == 0)
+			{
+				if (rcmd->outfd)
+					close(rcmd->outfd);
+				if (rcmd->infd)
+					close(rcmd->infd);
+			}
 		}
 		else if (*c == -1)
 		{
