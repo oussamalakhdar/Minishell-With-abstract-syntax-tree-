@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/17 20:04:20 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/18 12:59:48 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -178,6 +178,34 @@ char	**parceline(char **s, int *i)
 	return (n);
 }
 
+// void	read_f(char *s, int fd)
+// {
+// 	char	*str;
+// 	int		l;
+
+// 	str = NULL;
+// 	l = ft_strlen(s);
+// 	write(1, "pipe heredoc> ", 14);
+// 	str = get_next_line(0);
+// 	if (str == NULL || (ft_strncmp(av[2], str, l) == 0 && str[l] == '\n'))
+// 		;
+// 	else
+// 	{
+// 		while (1)
+// 		{
+// 			putinfile(data->herfd, str);
+// 			free(str);
+// 			str = NULL;
+// 			write(1, "pipe heredoc> ", 14);
+// 			str = get_next_line(0);
+// 			if (str == NULL || (ft_strncmp(av[2], str, l) == 0
+// 					&& str[l] == '\n'))
+// 				break ;
+// 		}
+// 	}
+// 	close_read_f(data, str);
+// }
+
 char *getfiles(char **s, char c)
 {
 	int		j;
@@ -189,35 +217,49 @@ char *getfiles(char **s, char c)
 	str = NULL;
 	while (s[j])
 	{
+		str = ft_strdup("");
+		free(str);
+		str = NULL;
 		if (s[j][0] == c && s[j][1] != c && s[j + 1][0] != c)
 		{
-			str = ft_strdup("");
-			// j++;
-			// if (c == '<')
-			// 	fd = open(s[j], O_RDONLY);
-			// else
-			// 	fd = open(s[j], O_CREAT | O_WRONLY | O_TRUNC, 777);
-			free(str);
-			str = NULL;
-			//printf("%d\n", tmp);
 			str = ft_strdup(s[++j]);
-			//printf("%s\n", str);
+			if (c == '<')
+				fd = open(str, O_RDONLY);
+			else
+				fd = open(str, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+			close(fd);
 		}
-		// if (c == '>')
-		// {
-		// 	if (s[j][0] == '>' && s[j][1] == '>' && s[j + 1][0] != '>')
-		// 	{
-		// 		fd = open(s[++j], O_CREAT | O_WRONLY | O_APPEND, 777);
-		// 		if (fd < 0)
-		// 			write(2, "open fail\n", 10);
-		// 	}
-		// }
-		// tmp = fd;
+		else if (s[j][0] == c && s[j][1] == c && s[j][2] != c && s[j + 1][0] != c)
+		{
+			str = ft_strdup(s[++j]);
+			if (c == '>')
+				fd = open(str, O_CREAT | O_WRONLY | O_APPEND, 0644);
+			else
+			{
+				fd = open(str, O_CREAT | O_RDWR | O_APPEND, 0644);
+				//read_file();
+			}
+			close(fd);
+		}
 		j++;
 	}
 	// while (--tmp >= 3)
 	// 	close(tmp);
 	return (str);
+}
+
+int	if_app(char **s, char *s1)
+{
+	int	i;
+
+	i = 0;
+	while (s[i])
+	{
+		if (ft_strcmp(s[i], s1))
+			return (1);		
+		i++;
+	}
+	return (0);
 }
 
 cmd	*redirect_cmd(cmd *exec, char **s, int *i)
@@ -232,8 +274,10 @@ cmd	*redirect_cmd(cmd *exec, char **s, int *i)
 		cmdd->infd = open(excmd->infile, O_RDONLY);
 	else
 		cmdd->infd = -2;
-	if (excmd->outfile)
+	if (excmd->outfile && !if_app(s, ">>"))
 		cmdd->outfd = open(excmd->outfile, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	else if (if_app(s, ">>"))
+		cmdd->outfd = open(excmd->outfile, O_CREAT | O_WRONLY | O_APPEND, 0644);
 	else
 		cmdd->outfd = -2;
 	cmdd->cmdn = exec;
@@ -258,11 +302,9 @@ cmd	*execnode(char **s, int *i,char **env)
 	
 	cmdd = malloc(sizeof(*cmdd));
 	cmdd->type = ' ';
-	cmdd->argv = scan_arg(s);//------------------------------------------------------------
+	cmdd->argv = scan_arg(s);
 	cmdd->infile = getfiles(s, '<');
 	cmdd->outfile = getfiles(s, '>');
-	// if (cmdd->outfd == 0)
-	// 	cmdd->outfd = 1;
 	cmdd->path = get_path(env);
 	cmdd = (execcmd*)redirect_cmd((cmd *)cmdd, s, i);
 	return ((cmd*) cmdd);
@@ -271,7 +313,6 @@ cmd	*execnode(char **s, int *i,char **env)
 cmd *parce_pipe(char **str, int *i, char **env)
 {
 	cmd		*cmdd;
-	//cmd		*pcmd;
 
 	if (checker(str, '|', i))
 	{
@@ -289,8 +330,6 @@ cmd	*magic_time(char **s, int *i, char **env)
 	cmd		*pcmd;
 
 	cmdd	= parce_pipe(s, i, env);
-	// if (chrr(s, 0) == 0)
-	// 	pcmd = pipecmd(cmdd, magic_time(s, i));
 	return ((cmd*) cmdd);
 }
 
@@ -324,55 +363,39 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 				exit(0);
 			}
 		}
-		// else
-		// {
-		//wait(0);
 		(*p)++;
 		if (pcmd->right->type == '>')
 			*c = -1;
 		close(pp[1]);
-		//dup(pp[0]);
 		dup2(pp[0], STDIN_FILENO);
-		//printf("------------------>>\n");
 		runcmd(pcmd->right, p, c);
 		close(pp[0]);
-	//	printf("------------------>>\n");
 		wait(0);
 		dup2(1, STDIN_FILENO);
-		// }
 	}
 	else if (cmdd->type == ' ')
 	{
 		//printf("****  EXEC  ******\n");
 		execcmdd = (execcmd *)cmdd;
-		// int id = fork();
-		// if (id == 0)
-		// {
-			// dup2(execcmdd->infd, STDIN_FILENO);
-			// dup2(execcmdd->outfd, STDOUT_FILENO);
-			while (execcmdd->path[i])
-			{
-				str = ft_strjoin(execcmdd->path[i], "/");
-				temp = str;
-				str = ft_strjoin(str, execcmdd->argv[0]);
-				if (access(str, F_OK) != -1)
-					execve(str, execcmdd->argv, NULL);
-				free(str);
-				i++;
-			}
-		// }
-		//wait(0);
+		while (execcmdd->path[i])
+		{
+			str = ft_strjoin(execcmdd->path[i], "/");
+			temp = str;
+			str = ft_strjoin(str, execcmdd->argv[0]);
+			if (access(str, F_OK) != -1)
+				execve(str, execcmdd->argv, NULL);
+			free(str);
+			i++;
+		}
 	}
 	else if (cmdd->type == '>')
 	{
 		//printf("****  REDERIC  ******\n");
 		rcmd = (redir *)cmdd;
 		execcmdd = (execcmd *)rcmd->cmdn;
-		//printf("**  infd -> %d    ****outfd -> %d****\n", rcmd->infd, rcmd->outfd);
 		if (*c == 0 || *c == 1)
 		{
 
-			//printf("-------  c == %d\n", *c);
 			int id = myfork();
 			if (id == 0)
 			{
@@ -390,7 +413,6 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 		}
 		else if (*c == -1)
 		{
-			//printf("-------  c == %d\n", *c);
 			int id = myfork();
 			if (id == 0)
 			{
@@ -405,56 +427,16 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 				close(rcmd->outfd);
 			if (rcmd->infd)
 				close(rcmd->infd);
-			//printf("-------------,<>----------\n");
 		}
-		// else
-		// {
-		// 	// int id = fork();
-		// 	// if (id == 0)
-		// 		runcmd(rcmd->cmdn, p, c);	
-		// 	//wait(0);
-		// }
-		// if (*p == 0)
-		// {
-		// 	printf("**  infd -> %d    ****outfd -> %d****\n", rcmd->infd, rcmd->outfd);
-		// 	if (rcmd->infd != -1)
-		// 		dup2(rcmd->infd, STDIN_FILENO);
-		// 	// else
-		// 	// 	dup2(0, STDIN_FILENO);
-		// 	if (rcmd->outfd != -1)
-		// 		dup2(rcmd->outfd, STDOUT_FILENO);
-		// 	// else if (c == 0)
-		// 	// 	dup2(1, STDOUT_FILENO);
-		// }	
-		// else
-		// {
-		// 	if (rcmd->outfd != -1)
-		// 		dup2(rcmd->outfd, STDIN_FILENO);
-		// 	else
-		// 		dup2(0, STDIN_FILENO);
-		// }
-		//runcmd(rcmd->cmdn, p, c);
-		// }
-		// if (rcmd->outfd)
-		// 	close(rcmd->outfd);
-		// if (rcmd->infd)
-		// 	close(rcmd->infd);
-		
-		// wait(0);
-		// if (execcmdd->infile)
-		// 	rcmd->infd = open(execcmdd->infile, O_RDONLY);
-		// else
-		// 	rcmd->infd = 0;
-		// if (execcmdd->outfile)
-		// 	rcmd->outfd = open(execcmdd->outfile, O_CREAT | O_WRONLY | O_TRUNC, 755);
-		// else
-		// 	rcmd->outfd = 1;
-		// dup2(0, STDOUT_FILENO);
-		// dup2(1, STDIN_FILENO);
-		// close(rcmd->infd);
-		// close(rcmd->outfd);
+		if (*c > 1)
+		{
+			if (rcmd->infd != -2)
+				dup2(rcmd->infd, STDIN_FILENO);
+			if (rcmd->outfd != -2)
+				dup2(rcmd->outfd, STDOUT_FILENO);
+			runcmd(rcmd->cmdn, p, c);
+		}
 	}
-	//exit(0);
 }
 
 #include <string.h>
