@@ -6,11 +6,35 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 14:13:37 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/17 11:51:17 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/18 13:50:24 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+void	close_read_f(int fd, char *str)
+{
+	if (!str)
+		write(1, "\n", 1);
+	free(str);
+	if (close(fd) == -1)
+	{
+		perror("close fail\n");
+		exit(1);
+	}
+}
+
+void	putinfile(int fd, char *s)
+{
+	int	i;
+
+	i = 0;
+	while (s[i])
+	{
+		write(fd, &s[i], 1);
+		i++;
+	}
+}
 
 int	myfork(void)
 {

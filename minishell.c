@@ -6,11 +6,12 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/18 12:59:48 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/18 18:37:01 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+#include "getnextline/get_next_line.h"
 
 char	*ft_strjoin(char *s1, char *s2)
 {
@@ -178,33 +179,36 @@ char	**parceline(char **s, int *i)
 	return (n);
 }
 
-// void	read_f(char *s, int fd)
-// {
-// 	char	*str;
-// 	int		l;
+void	read_f(char *s, int fd)
+{
+	char	*str;
+	int		l;
 
-// 	str = NULL;
-// 	l = ft_strlen(s);
-// 	write(1, "pipe heredoc> ", 14);
-// 	str = get_next_line(0);
-// 	if (str == NULL || (ft_strncmp(av[2], str, l) == 0 && str[l] == '\n'))
-// 		;
-// 	else
-// 	{
-// 		while (1)
-// 		{
-// 			putinfile(data->herfd, str);
-// 			free(str);
-// 			str = NULL;
-// 			write(1, "pipe heredoc> ", 14);
-// 			str = get_next_line(0);
-// 			if (str == NULL || (ft_strncmp(av[2], str, l) == 0
-// 					&& str[l] == '\n'))
-// 				break ;
-// 		}
-// 	}
-// 	close_read_f(data, str);
-// }
+	str = NULL;
+	if (!s)
+		return ;
+	l = ft_strlen(s);
+	write(1, "heredoc> ", 9);
+	str = get_next_line(0);
+	if (str == NULL || (ft_strncmp(s, str, l) == 1 && str[l] == '\n'))
+		;
+	else
+	{
+		while (1)
+		{
+			//putinfile(fd, str);
+			write(fd, str, ft_strlen(str));
+			free(str);
+			str = NULL;
+			write(1, "heredoc> ", 9);
+			str = get_next_line(0);
+			if (str == NULL || (ft_strncmp(s, str, l) == 1
+					&& str[l] == '\n'))
+				break ;
+		}
+	}
+	close_read_f(fd, str);
+}
 
 char *getfiles(char **s, char c)
 {
@@ -217,34 +221,34 @@ char *getfiles(char **s, char c)
 	str = NULL;
 	while (s[j])
 	{
-		str = ft_strdup("");
-		free(str);
-		str = NULL;
 		if (s[j][0] == c && s[j][1] != c && s[j + 1][0] != c)
 		{
+			str = ft_strdup("");
+			free(str);
+			str = NULL;
 			str = ft_strdup(s[++j]);
+			// printf("str ---> %s\n", str);
 			if (c == '<')
 				fd = open(str, O_RDONLY);
 			else
-				fd = open(str, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+				fd = open(str, O_CREAT | O_WRONLY , 0644);
 			close(fd);
 		}
 		else if (s[j][0] == c && s[j][1] == c && s[j][2] != c && s[j + 1][0] != c)
 		{
+			str = ft_strdup("");
+			free(str);
+			str = NULL;
 			str = ft_strdup(s[++j]);
 			if (c == '>')
 				fd = open(str, O_CREAT | O_WRONLY | O_APPEND, 0644);
 			else
-			{
-				fd = open(str, O_CREAT | O_RDWR | O_APPEND, 0644);
-				//read_file();
-			}
+				fd = open(str, O_CREAT | O_RDWR | O_TRUNC, 0777);
 			close(fd);
 		}
 		j++;
 	}
-	// while (--tmp >= 3)
-	// 	close(tmp);
+	// printf("file == %s----- fd->%d\n", str, fd);
 	return (str);
 }
 
@@ -255,8 +259,8 @@ int	if_app(char **s, char *s1)
 	i = 0;
 	while (s[i])
 	{
-		if (ft_strcmp(s[i], s1))
-			return (1);		
+		if (ft_strcmp(s[i], s1) == 0)
+			return (1);
 		i++;
 	}
 	return (0);
@@ -270,14 +274,23 @@ cmd	*redirect_cmd(cmd *exec, char **s, int *i)
 	excmd = (execcmd *)exec;
 	cmdd = malloc(sizeof(*cmdd));
 	cmdd->type = '>';
-	if (excmd->infile)
+	cmdd->app = 0;
+	if (excmd->infile && !if_app(s, "<<"))
 		cmdd->infd = open(excmd->infile, O_RDONLY);
+	else if (if_app(s, "<<"))
+	{
+		cmdd->infd = open(excmd->infile, O_CREAT | O_RDWR , 0777);
+		read_f(excmd->infile, cmdd->infd);
+	}
 	else
 		cmdd->infd = -2;
 	if (excmd->outfile && !if_app(s, ">>"))
-		cmdd->outfd = open(excmd->outfile, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+		cmdd->outfd = open(excmd->outfile, O_CREAT | O_WRONLY, 0644);
 	else if (if_app(s, ">>"))
+	{
 		cmdd->outfd = open(excmd->outfile, O_CREAT | O_WRONLY | O_APPEND, 0644);
+		cmdd->app = 1;
+	}
 	else
 		cmdd->outfd = -2;
 	cmdd->cmdn = exec;
@@ -326,7 +339,7 @@ cmd *parce_pipe(char **str, int *i, char **env)
 
 cmd	*magic_time(char **s, int *i, char **env)
 {
-	cmd			*cmdd;
+	cmd		*cmdd;
 	cmd		*pcmd;
 
 	cmdd	= parce_pipe(s, i, env);
@@ -375,7 +388,7 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 	}
 	else if (cmdd->type == ' ')
 	{
-		//printf("****  EXEC  ******\n");
+		// printf("****  EXEC  ******\n");
 		execcmdd = (execcmd *)cmdd;
 		while (execcmdd->path[i])
 		{
@@ -393,16 +406,19 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 		//printf("****  REDERIC  ******\n");
 		rcmd = (redir *)cmdd;
 		execcmdd = (execcmd *)rcmd->cmdn;
+		if (rcmd->outfd != -2 && rcmd->app == 0)
+			open(execcmdd->outfile, O_CREAT | O_WRONLY | O_TRUNC, 0644);
 		if (*c == 0 || *c == 1)
 		{
-
 			int id = myfork();
 			if (id == 0)
 			{
+				// printf("c ---------------> %d // infd->%d --------- outfd->%d\n", *c, rcmd->infd, rcmd->outfd);
 				if (rcmd->infd != -2)
 					dup2(rcmd->infd, STDIN_FILENO);
 				if (rcmd->outfd != -2)
 					dup2(rcmd->outfd, STDOUT_FILENO);
+				//printf("----- in file fd = %d /// out file fd = %d----\n", rcmd->infd, rcmd->outfd);
 				runcmd(rcmd->cmdn, p, c);
 			}
 			wait(0);

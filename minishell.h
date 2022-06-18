@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/17 12:23:26 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/18 18:23:52 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ typedef struct s_pipe
 typedef struct s_redir
 {
 	int				type;
+	int				app;
 	int				infd;
 	int				outfd;
 	struct s_cmd		*cmdn;
@@ -81,5 +82,7 @@ void	undo(char **s);
 void	free_all(char **s);
 int		ft_strcmp(char *s1, char *s2);
 int		myfork(void);
+void	putinfile(int fd, char *s);
+void	close_read_f(int fd, char *str);
 
 #endif
