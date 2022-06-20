@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/20 11:11:07 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/20 15:06:09 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,10 +62,11 @@ typedef struct s_pipe
 
 typedef struct s_redir
 {
-	int				type;
-	int				app;
-	int				infd;
-	int				outfd;
+	int					type;
+	int					app;
+	int					herd;
+	int					infd;
+	int					outfd;
 	struct s_cmd		*cmdn;
 }	redir;
 
@@ -85,6 +86,7 @@ int		ft_strcmp(char *s1, char *s2);
 int		myfork(void);
 void	putinfile(int fd, char *s);
 void	close_read_f(int fd, char *str);
-void	pwd();
+char	*pwd();
+int		scanner(char *s);
 
 #endif

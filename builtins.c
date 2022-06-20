@@ -3,21 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   builtins.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/19 14:53:09 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/20 10:16:27 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/20 12:42:50 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	pwd()
+char	*pwd()
 {
 	char	pwd[1000];
 
 	getcwd(pwd, sizeof(pwd));
-	printf("%s\n", pwd);
+	return (ft_strdup(pwd));
 }
 
 // void	echo(char *line)
