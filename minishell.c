@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/18 21:46:13 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/20 11:38:19 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,7 +159,6 @@ char	**parceline(char **s, int *i)
 	tmp = (*i);
 	if (s[*i] == NULL || tablen(s) <= (*i))
 		return (NULL);
-	//chrr(s, i);
 	while (s[*i])
 	{
 		if (s[*i][0] == '|')
@@ -196,7 +195,6 @@ void	read_f(char *s, int fd)
 	{
 		while (1)
 		{
-			//putinfile(fd, str);
 			write(fd, str, ft_strlen(str));
 			free(str);
 			str = NULL;
@@ -227,7 +225,6 @@ char *getfiles(char **s, char c)
 			free(str);
 			str = NULL;
 			str = ft_strdup(s[++j]);
-			// printf("str ---> %s\n", str);
 			if (c == '<')
 				fd = open(str, O_RDONLY);
 			else
@@ -251,7 +248,6 @@ char *getfiles(char **s, char c)
 		}
 		j++;
 	}
-	// printf("file == %s----- fd->%d\n", str, fd);
 	return (str);
 }
 
@@ -281,10 +277,7 @@ cmd	*redirect_cmd(cmd *exec, char **s, int *i)
 	if (excmd->infile && !if_app(s, "<<"))
 		cmdd->infd = open(excmd->infile, O_RDONLY);
 	else if (if_app(s, "<<"))
-	{
 		cmdd->infd = open(excmd->infile, O_RDWR , 0777);
-		//read_f(excmd->infile, cmdd->infd);
-	}
 	else
 		cmdd->infd = -2;
 	if (excmd->outfile && !if_app(s, ">>"))
@@ -375,9 +368,7 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 			close(pp[1]);
 			wait(0);
 			if (*c >= 1)
-			{
 				exit(0);
-			}
 		}
 		(*p)++;
 		if (pcmd->right->type == '>')
@@ -389,8 +380,8 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 		dup2(pp[0], STDIN_FILENO);
 		runcmd(pcmd->right, p, c);
 		close(pp[0]);
-		if (*c == -1)
-			kill(pid, SIGKILL);
+		// if (*c == -1)
+		// 	kill(pid, SIGKILL);
 		wait(0);
 		dup2(1, STDIN_FILENO);
 	}
@@ -408,6 +399,7 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 			free(str);
 			i++;
 		}
+		perror("Path Not Found!");
 	}
 	else if (cmdd->type == '>')
 	{
@@ -421,12 +413,10 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 			int id = myfork();
 			if (id == 0)
 			{
-				// printf("c ---------------> %d // infd->%d --------- outfd->%d\n", *c, rcmd->infd, rcmd->outfd);
 				if (rcmd->infd != -2)
 					dup2(rcmd->infd, STDIN_FILENO);
 				if (rcmd->outfd != -2)
 					dup2(rcmd->outfd, STDOUT_FILENO);
-				//printf("----- in file fd = %d /// out file fd = %d----\n", rcmd->infd, rcmd->outfd);
 				runcmd(rcmd->cmdn, p, c);
 			}
 			wait(0);
@@ -474,9 +464,9 @@ int main(int argc, char **argv,char **envp)
 	cmd				*cmd;
 	(void)argv;
 	
-
 	int i = 0;
 	char **S = NULL;
+	
 	if (argc == 1)
 	{
 		while(1)
@@ -500,7 +490,14 @@ int main(int argc, char **argv,char **envp)
 			line = putspace(line);
 			str = ft_split(line, ' ');
 			undo(str);
+			if (ft_strncmp(str[0], "pwdd", ft_strlen(str[0])))
+				pwd();
+			// else if (ft_strncmp(str[0], "echoo", ft_strlen(str[0])))
+			// 	echo(str);
 			int	p = 0,c = 0;
+			// while(str[c])
+			// 	printf("%s\n", str[c++]);
+			// return 0;
 			runcmd(magic_time(str, &i, envp), &p, &c);
 			// free(line);
 			// line = NULL;

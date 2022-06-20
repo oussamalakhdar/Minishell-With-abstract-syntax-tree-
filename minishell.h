@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/18 21:21:48 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/20 11:11:07 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,12 +78,13 @@ int		ft_strncmp(char *s1, char *s2, int n);
 char	*putspace(char *s);
 char	*ft_strdup(const char *s1);
 char	*charjoin(char *s, char c);
-char	*remove_space(char *s);
+char	*remove_space(char *s, char c, int *j);
 void	undo(char **s);
 void	free_all(char **s);
 int		ft_strcmp(char *s1, char *s2);
 int		myfork(void);
 void	putinfile(int fd, char *s);
 void	close_read_f(int fd, char *str);
+void	pwd();
 
 #endif
