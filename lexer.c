@@ -6,7 +6,7 @@
 /*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 21:37:16 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/14 11:13:52 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/20 11:21:32 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,13 @@ char	*putspace(char *s)
 	i = 0;
 	cot = 0;
 	str = ft_strdup("");
-	s = remove_space(s);
+	while (s[i])
+	{
+		s = remove_space(s, '\"', &i);
+		s = remove_space(s, '\'', &i);
+		i++;
+	}
+	i = 0;
 	while (s[i])
 	{
 		if (s[i + 1] == '|' || (s[i + 1] == '<' && s[i] != '<') || (s[i + 1] == '>' && s[i] != '>'))
@@ -51,37 +57,46 @@ char	*putspace(char *s)
 	return (str);
 }
 
-char	*remove_space(char *s)
+char	*remove_space(char *s,char c, int *i)
 {
-	int		i;
 	char	*str;
 
-	i = 0;
 	str = ft_strdup("");
-	while(s[i])	
+	if ((*i) >= ft_strlen(str))
+		return (s);
+	while(s[(*i)])	
 	{
-		if (s[i] == '\"')
+		if (s[(*i)] == c)
 		{
-			str = charjoin(str, s[i++]);
-			while(s[i] != '\"')
+			(*i)++;
+			while(s[(*i)] != c)
 			{
-				if (s[i] == ' ')
+				if (c == '\"' && s[(*i)] == '\'')
+				{
+					perror("syntax error");
+					return (NULL);
+				}
+				else if (s[(*i)] == '\"')
+				{
+					perror("syntax error");
+					return (NULL);
+				}
+				if (s[(*i)] == ' ')
 					str = charjoin(str, SPACE);
-				else if (s[i] == '|')
+				else if (s[(*i)] == '|')
 					str = charjoin(str, PIPE);
-				else if (s[i] == '>')
+				else if (s[(*i)] == '>')
 					str = charjoin(str, REDR);
-				else if (s[i] == '<')
+				else if (s[(*i)] == '<')
 					str = charjoin(str, REDL);
 				else
-					str = charjoin(str, s[i]);
-				i++;
+					str = charjoin(str, s[(*i)]);
+				(*i)++;
 			}
-			str = charjoin(str, s[i]);
 		}
 		else
-			str = charjoin(str, s[i]);
-		i++;
+			str = charjoin(str, s[(*i)]);
+		(*i)++;
 	}
 	return (str);
 }
@@ -95,31 +110,19 @@ void	undo(char **s)
 	j = 0;
 	while (s[i])
 	{
-		if (s[i][0] == '\"')
+		j = 0;
+		while (s[i][j])
 		{
-			j = 0;
-			while (s[i][j])
-			{
-				if (s[i][j] == PIPE)
-					s[i][j] = '|';
-				if (s[i][j] == SPACE)
-					s[i][j] = ' ';
-				if (s[i][j] == REDR)
-					s[i][j] = '>';
-				if (s[i][j] == REDL)
-					s[i][j] = '<';
-				j++;
-			}
+			if (s[i][j] == PIPE)
+				s[i][j] = '|';
+			if (s[i][j] == SPACE)
+				s[i][j] = ' ';
+			if (s[i][j] == REDR)
+				s[i][j] = '>';
+			if (s[i][j] == REDL)
+				s[i][j] = '<';
+			j++;
 		}
 		i++;
 	}
 }
-
-// int gettoken(char **start, char *end, char  **fw,char **ew)
-// {
-// 	char *s;
-// 	int ret;
-
-// 	s = *start;
-// 	while(
-// }
