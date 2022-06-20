@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/20 11:38:19 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/20 15:08:16 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,18 +66,21 @@ char	**get_path(char **env)
 	exit(1);
 }
 
-void	printenv(char **envp)
+void	printenv(char **envp, char *s)
 {
 	t_env *env;
 	t_env *temp;
 
 	env = NULL;
 	createnv(&env, envp);
-	temp = env;
-	while(temp)
+	if (ft_strcmp(s, "env") == 0)
 	{
-		printf("%s=%s\n", temp->var_name, temp->var_value);		
-		temp = temp->next;
+		temp = env;
+		while(temp)
+		{
+			printf("%s=%s\n", temp->var_name, temp->var_value);		
+			temp = temp->next;
+		}
 	}
 }
 
@@ -274,10 +277,14 @@ cmd	*redirect_cmd(cmd *exec, char **s, int *i)
 	cmdd = malloc(sizeof(*cmdd));
 	cmdd->type = '>';
 	cmdd->app = 0;
+	cmdd->herd = 0;
 	if (excmd->infile && !if_app(s, "<<"))
 		cmdd->infd = open(excmd->infile, O_RDONLY);
 	else if (if_app(s, "<<"))
+	{
 		cmdd->infd = open(excmd->infile, O_RDWR , 0777);
+		cmdd->herd = 1;
+	}
 	else
 		cmdd->infd = -2;
 	if (excmd->outfile && !if_app(s, ">>"))
@@ -480,18 +487,22 @@ int main(int argc, char **argv,char **envp)
 			if (ft_strncmp(line, "\n", ft_strlen(line)))
 				continue;
 			add_history(line);
-			if (ft_strncmp(line, "env", ft_strlen(line)))
-				printenv(envp);
+			printenv(envp, line);
 			if (line[0] == 'c' && line[1] == 'd' && line[2] == ' ')
 			{
 				chdir(line + 3);
 				continue ;
 			}
 			line = putspace(line);
+			if (!line)
+				continue ;
 			str = ft_split(line, ' ');
 			undo(str);
 			if (ft_strncmp(str[0], "pwdd", ft_strlen(str[0])))
-				pwd();
+			{
+				printf("%s\n", pwd());
+				continue ;
+			}
 			// else if (ft_strncmp(str[0], "echoo", ft_strlen(str[0])))
 			// 	echo(str);
 			int	p = 0,c = 0;
