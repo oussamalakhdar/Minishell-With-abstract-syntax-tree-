@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/21 10:36:16 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/21 15:02:22 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,13 @@ int		ft_strcmp(char *s1, char *s2);
 int		myfork(void);
 void	putinfile(int fd, char *s);
 void	close_read_f(int fd, char *str);
-char	*pwd();
+char	*pwd(void);
 int		scanner(char *s);
 int		tablen(char **str);
+void	builtins(char **s, t_env **env, t_env **exportt);
+char	check_cmd(char *s);
+void	printenv(t_env **env, char *s);
+void	export(char **s, t_env **env, t_env **export);
+void	printexport(t_env **export, char *s);
+
 #endif
