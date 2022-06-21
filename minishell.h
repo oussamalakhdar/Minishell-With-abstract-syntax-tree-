@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/20 15:06:09 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/21 10:36:16 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,5 +88,5 @@ void	putinfile(int fd, char *s);
 void	close_read_f(int fd, char *str);
 char	*pwd();
 int		scanner(char *s);
-
+int		tablen(char **str);
 #endif
