@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/21 12:11:37 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/21 14:44:22 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,19 +121,19 @@ char	**get_path(char **env)
 	exit(1);
 }
 
-void	printenv(char **envp, char *s)
+void	printenv(t_env **env, char *s)
 {
-	t_env *env;
 	t_env *temp;
 
-	env = NULL;
-	createnv(&env, envp);
 	if (ft_strcmp(s, "env") == 0)
 	{
-		temp = env;
+		temp = *env;
 		while(temp)
 		{
-			printf("%s=%s\n", temp->var_name, temp->var_value);		
+			if (ft_strcmp(temp->var_name, "PWD") != 0)
+				printf("%s=%s\n", temp->var_name, temp->var_value);		
+			else
+				printf("%s=%s\n", temp->var_name, pwd());		
 			temp = temp->next;
 		}
 	}
@@ -404,7 +404,7 @@ cmd	*magic_time(char **s, int *i, char **env)
 	return ((cmd*) cmdd);
 }
 
-void	runcmd(cmd *cmdd, int *p, int *c)
+void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 {
 	ppipe		*pcmd;
 	execcmd		*execcmdd;
@@ -426,13 +426,13 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 		{
 			close(pp[0]);
 			dup2(pp[1], STDOUT_FILENO);
-			runcmd(pcmd->left, p, c);
+			runcmd(pcmd->left, env, exportt, c);
 			close(pp[1]);
 			wait(0);
 			if (*c >= 1)
 				exit(0);
 		}
-		(*p)++;
+		// (*p)++;
 		if (pcmd->right->type == '>')
 		{
 			rcmd = (redir *)pcmd->right;
@@ -440,7 +440,7 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 		}
 		close(pp[1]);
 		dup2(pp[0], STDIN_FILENO);
-		runcmd(pcmd->right, p, c);
+		runcmd(pcmd->right, env, exportt, c);
 		close(pp[0]);
 		wait(0);
 		dup2(1, STDIN_FILENO);
@@ -449,6 +449,7 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 	{
 		// printf("****  EXEC  ******\n");
 		execcmdd = (execcmd *)cmdd;
+		builtins(execcmdd->argv, env, exportt);
 		while (execcmdd->path[i])
 		{
 			str = ft_strjoin(execcmdd->path[i], "/");
@@ -477,7 +478,7 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 					dup2(rcmd->infd, STDIN_FILENO);
 				if (rcmd->outfd != -2)
 					dup2(rcmd->outfd, STDOUT_FILENO);
-				runcmd(rcmd->cmdn, p, c);
+				runcmd(rcmd->cmdn, env, exportt, c);
 			}
 			wait(0);
 			if (*c == 0)
@@ -497,7 +498,7 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 					dup2(rcmd->infd, STDIN_FILENO);
 				if (rcmd->outfd != -2)
 					dup2(rcmd->outfd, STDOUT_FILENO);
-				runcmd(rcmd->cmdn, p, c);
+				runcmd(rcmd->cmdn, env, exportt, c);
 			}
 			wait(0);
 			if (rcmd->outfd)
@@ -511,7 +512,7 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 				dup2(rcmd->infd, STDIN_FILENO);
 			if (rcmd->outfd != -2)
 				dup2(rcmd->outfd, STDOUT_FILENO);
-			runcmd(rcmd->cmdn, p, c);
+			runcmd(rcmd->cmdn, env, exportt, c);
 		}
 	}
 }
@@ -522,13 +523,17 @@ int main(int argc, char **argv,char **envp)
 	char 			*line;
 	char 			**str;
 	cmd				*cmd;
+	t_env			*env;
+	t_env			*exportt;
 	(void)argv;
 	
 	int i = 0;
 	char **S = NULL;
-	
+	env = NULL;
 	if (argc == 1)
 	{
+		createnv(&env, envp);
+		createnv(&exportt, S);
 		while(1)
 		{
 			i = 0;
@@ -540,10 +545,11 @@ int main(int argc, char **argv,char **envp)
 			if (ft_strncmp(line, "\n", ft_strlen(line)))
 				continue;
 			add_history(line);
-			printenv(envp, line);
+			// printenv(envp, line, env);
 			if (line[0] == 'c' && line[1] == 'd' && line[2] == ' ')
 			{
-				chdir(line + 3);
+				if (chdir(line + 3) < 0)
+					perror("Error");
 				continue ;
 			}
 			line = putspace(line);
@@ -553,18 +559,8 @@ int main(int argc, char **argv,char **envp)
 			undo(str);
 			if (!checkerrors(str))
 				continue;
-			if (ft_strncmp(str[0], "pwdd", ft_strlen(str[0])))
-			{
-				printf("%s\n", pwd());
-				continue ;
-			}
-			// else if (ft_strncmp(str[0], "echoo", ft_strlen(str[0])))
-			// 	echo(str);
 			int	p = 0,c = 0;
-			// while(str[c])
-			// 	printf("%s\n", str[c++]);
-			// return 0;
-			runcmd(magic_time(str, &i, envp), &p, &c);
+			runcmd(magic_time(str, &i, envp), &env, &exportt, &c);
 			// free(line);
 			// line = NULL;
 			// free(str);

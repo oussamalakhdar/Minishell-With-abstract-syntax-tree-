@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 12:08:52 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/15 16:21:56 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/21 15:00:11 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,18 @@ void	free_all(char **s)
 	}
 	free(s);
 }
+
+// int	chrbool(t_env **export, char *s)
+// {
+// 	t_env	*tmp;
+
+// 	tmp = *export;
+// 	while (tmp)
+// 	{
+// 		if (ft_strcmp() == 0)
+// 		tmp = tmp->next;
+// 	}
+// }
 
 t_env	*ft_lstnew(char *name, char *value)
 {
@@ -61,10 +73,15 @@ void	createnv(t_env **env, char **envp)
     char **var;
 
     i = 0;
+	if (!envp)
+		return ;
     while(envp[i])
     {
         var = ft_split(envp[i], '=');
-        new = ft_lstnew(var[0], var[1]);
+		if (ft_strcmp(var[0], "PWD") == 0)
+        	new = ft_lstnew(var[0], pwd());
+		else	
+        	new = ft_lstnew(var[0], var[1]);
         ft_lstadd_back(env, new);
         i++;
     }
