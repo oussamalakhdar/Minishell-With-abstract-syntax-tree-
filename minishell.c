@@ -3,15 +3,70 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/20 15:08:16 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/21 12:11:37 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 #include "getnextline/get_next_line.h"
+
+int	checkerrors(char **s)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	j = 0;
+	while(s[i])
+	{
+		if ((s[i][0] == '>' || s[i][0] == '<') && (tablen(s) == (i + 1)))
+		{
+			perror("minishell: No file");
+			return 0;
+		}
+		if (s[0][0] == '|' || s[tablen(s) -1][0] == '|')
+		{
+			perror("minishell: syntax error");
+			return 0;
+		}
+		 if (s[i][0] == '<' && s[i + 1][0] == '>')
+		{
+			perror("minishell: syntax error");
+			return 0;
+		}
+		//printf("---------------->>>>>\n");
+		if (s[i][0] == '>' && s[i + 1][0] == '<')
+		{
+			perror("minishell: error");
+			return 0;
+		}
+		if ((s[i][0] == '<' && s[i][1] == '<' && s[i + 1][0] == '<') || (s[i][0] == '<' && s[i][1] == '<' && s[i + 1][0] == '>'))
+		{
+			perror("minishell: error");
+			return 0;
+		}
+		if ((s[i][0] == '>' && s[i][1] == '>' && s[i][2] == '>') || (s[i][0] == '>' && s[i][1] == '>' && s[i + 1][0] == '<'))
+		{
+			perror("minishell: error");
+			return 0;
+		}
+		if ((s[i][0] == '>' || s[i][0] == '<') && s[i + 1][0] == '|')
+		{
+			perror("minishell: error");
+			return 0;
+		}
+		if (s[i][0] == '<' && access(s[i + 1], F_OK) < 0)
+		{
+			perror("minishell: Invalid input file");
+			return 0;
+		}
+		i++;
+	}
+	return 1;
+}
 
 char	*ft_strjoin(char *s1, char *s2)
 {
@@ -387,8 +442,6 @@ void	runcmd(cmd *cmdd, int *p, int *c)
 		dup2(pp[0], STDIN_FILENO);
 		runcmd(pcmd->right, p, c);
 		close(pp[0]);
-		// if (*c == -1)
-		// 	kill(pid, SIGKILL);
 		wait(0);
 		dup2(1, STDIN_FILENO);
 	}
@@ -498,6 +551,8 @@ int main(int argc, char **argv,char **envp)
 				continue ;
 			str = ft_split(line, ' ');
 			undo(str);
+			if (!checkerrors(str))
+				continue;
 			if (ft_strncmp(str[0], "pwdd", ft_strlen(str[0])))
 			{
 				printf("%s\n", pwd());
