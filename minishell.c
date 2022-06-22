@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/21 14:44:22 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/22 10:46:05 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,6 +128,8 @@ void	printenv(t_env **env, char *s)
 	if (ft_strcmp(s, "env") == 0)
 	{
 		temp = *env;
+		printf("-------env var_name == %s\n",(*env)->var_name);
+		printf("-------env var_value == %s\n",(*env)->var_value);
 		while(temp)
 		{
 			if (ft_strcmp(temp->var_name, "PWD") != 0)
@@ -530,6 +532,7 @@ int main(int argc, char **argv,char **envp)
 	int i = 0;
 	char **S = NULL;
 	env = NULL;
+	exportt = NULL;
 	if (argc == 1)
 	{
 		createnv(&env, envp);
