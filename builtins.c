@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtins.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/19 14:53:09 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/22 11:05:25 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/22 13:15:02 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ void	printexport(t_env **export, char *s)
 
 void	unset(char **s, t_env **env)
 {
-	// t_env *temp;
+	t_env *temp;
 	t_env *tmp;
 
 	tmp = NULL;
@@ -123,35 +123,25 @@ void	unset(char **s, t_env **env)
 	{
 		tmp = *env;
 		*env = (*env)->next;
-		printf("*1var name  = %s *** var value %s*********\n", tmp->var_name, tmp->var_value);
 		free(tmp->var_name);
 		free(tmp->var_value);
-		tmp->next = NULL;
 		free(tmp);
-		printf("*1*********%s*********\n", (*env)->var_name);
-		printf("*2*********%s*********\n", (*env)->var_value);
-		printenv(env, "env");
 	}
-	// return (env);
-	// temp = *env;
-	// while(temp->next)
-	// {
-	// 	if (ft_strcmp(temp->next->var_name, s[1]) == 0)
-	// 	{
-	// 		printf("3**********1 ==%s*********\n", temp->next->var_name);
-	// 		tmp = temp->next;
-	// 		temp->next = temp->next->next;
-	// 		printf("*4*********2 ==%s*********\n", temp->next->var_name);
-	// 		free(tmp->var_name);
-	// 		free(tmp->var_value);
-	// 		tmp->next = NULL;
-	// 		free(tmp);
-	// 		printf("***5*******%s*********\n", tmp->var_name);
-	// 		printf("***6*******%s*********\n", tmp->var_value);
-	// 		tmp = NULL;
-	// 	}
-	// 	temp = temp->next;
-	// }
+	temp = *env;
+	while(temp->next)
+	{
+		if (ft_strcmp(temp->next->var_name, s[1]) == 0)
+		{
+			tmp = temp->next;
+			temp->next = temp->next->next;
+			free(tmp->var_name);
+			free(tmp->var_value);
+			tmp->next = NULL;
+			free(tmp);
+			tmp = NULL;
+		}
+		temp = temp->next;
+	}
 }
 
 char	check_cmd(char *s)
@@ -185,11 +175,6 @@ void	builtins(char **s, t_env **env, t_env **exportt)
 		echo(s);
 	if (c == 'v')
 		printenv(env, s[0]);;
-	if (c == 'u')
-	{	
-		unset(s, env);
-		exit(0);
-	}
 	if (c == 'x')
 	{
 		export(s, env, exportt);
