@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/22 13:12:27 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/22 22:00:16 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -497,6 +497,8 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 					dup2(rcmd->outfd, STDOUT_FILENO);
 				if (check_cmd(execcmdd->argv[0]) == 'u')
 					unset(execcmdd->argv, env);
+				else if (check_cmd(execcmdd->argv[0]) == 'x')
+					export(execcmdd->argv, env, exportt);
 				else
 					runcmd(rcmd->cmdn, env, exportt, c);
 			}
@@ -520,6 +522,8 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 					dup2(rcmd->outfd, STDOUT_FILENO);
 				if (check_cmd(execcmdd->argv[0]) == 'u')
 					unset(execcmdd->argv, env);
+				else if (check_cmd(execcmdd->argv[0]) == 'x')
+					export(execcmdd->argv, env, exportt);
 				else
 					runcmd(rcmd->cmdn, env, exportt, c);
 			}
@@ -536,6 +540,8 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 				dup2(rcmd->outfd, STDOUT_FILENO);
 			if (check_cmd(execcmdd->argv[0]) == 'u')
 				unset(execcmdd->argv, env);
+			else if (check_cmd(execcmdd->argv[0]) == 'x')
+				export(execcmdd->argv, env, exportt);
 			else
 				runcmd(rcmd->cmdn, env, exportt, c);
 		}

@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/19 14:53:09 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/22 13:15:02 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/22 22:41:27 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,9 +45,43 @@ void	echo(char **s)
 	exit(0);
 }
 
+char	*cut_value(char *str)
+{
+	int	i;
+
+	i = 0;
+	while (str[i])
+	{
+		if (str[i] == '=')
+		{
+			i++;
+			return (&str[i]);
+		}
+		i++;
+	}
+	// if (strchr(str, '='))
+	// 	return ("");
+	return (NULL);
+}
+
+// char	*tab_join(char **s)
+// {
+// 	char	*ret;
+// 	int		i;
+// 	int		r;
+
+// 	i = 1;
+// 	r = 0;
+// 	while (s[i])
+// 		r += ft_strlen(s[i++]) + 1;
+// 	printf("%d", r);
+// 	return (ret);
+// }
+
 void	export(char **s, t_env **env, t_env **export)
 {
 	int	i;
+	char	*value;
 	char	**var;
 	t_env	*new;
 
@@ -58,11 +92,23 @@ void	export(char **s, t_env **env, t_env **export)
 	{
 		while(s[i])
     	{
-    	    var = ft_split(s[i], '=');	
-    	    new = ft_lstnew(var[0], var[1]);
-    	    ft_lstadd_back(env, new);
+			printf("counter --> %d\n", i);
+    	    var = ft_split(s[i], '=');
+			value = ft_strdup(cut_value(s[i]));
+			//printf("name -> %s || value -> %s\n", var[0], cut_value(s[i]));
+			if (tablen(var) >= 2)
+				new = ft_lstnew(var[0], value);
+			else
+				new = ft_lstnew(var[0], NULL);
+			ft_lstadd_back(export, new);
+			// printf("8****  ==   %s   *****\n", new->var_name);
+			// if (tablen(var) >= 2)
+			// 	ft_lstadd_back(env, new);
+			// tab_join(var);
+			// while ()
     	    i++;
     	}
+	//	printexport(export, s[0]);
 	}
 }
 
@@ -72,44 +118,20 @@ void	printexport(t_env **export, char *s)
 
 	if (ft_strcmp(s, "export") == 0)
 	{
+		printf("achof okan \n");
 		temp = *export;
 		if (!temp)
 			return ;
 		while(temp)
 		{
-			printf("%s=%s\n", temp->var_name, pwd());
+			if (temp->var_value)
+				printf("declare -x %s=\"%s\"\n", temp->var_name, temp->var_value);
+			else
+				printf("declare -x %s\n", temp->var_name);
 			temp = temp->next;
 		}
 	}
 }
-
-// void	unset(char **s, t_env **env)
-// {
-// 	t_env *temp;
-// 	t_env *tmp;
-
-// 	temp = *env;
-// 	tmp = NULL;
-// 	if (!temp)
-// 		return ;
-// 	if (ft_strcmp((*env)->var_name, s[1]) == 0)
-// 	{
-// 		tmp = *env;
-// 		*env = (*env)->next;
-// 		free(tmp->var_name);
-// 		free(tmp->var_value);
-// 		free(tmp);
-// 	}
-// 	// while(temp)
-// 	// {
-		
-// 	// 	if (strcmp(temp->next->var_name, s[1]) == 0)
-// 	// 	{
-// 	// 		tmp =
-// 	// 	}
-// 	// 	temp = temp->next;
-// 	// }
-// }
 
 void	unset(char **s, t_env **env)
 {
@@ -174,10 +196,5 @@ void	builtins(char **s, t_env **env, t_env **exportt)
 	if (c == 'e')
 		echo(s);
 	if (c == 'v')
-		printenv(env, s[0]);;
-	if (c == 'x')
-	{
-		export(s, env, exportt);
-		exit(0);
-	}	
+		printenv(env, s[0]);
 }
