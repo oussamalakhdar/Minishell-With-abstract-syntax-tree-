@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 12:08:52 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/21 15:00:11 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/22 22:32:12 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ void	ft_lstadd_back(t_env **lst, t_env *new)
 	t_env	*temp;
 
 	temp = *lst;
+	//printf("8****  ==   %s   *****\n", new->var_name);
 	if ((*lst) == NULL)
 	{
 		*lst = new;

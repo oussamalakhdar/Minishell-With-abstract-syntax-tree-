@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/22 13:11:51 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/22 22:17:50 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 # include <fcntl.h>
 # include <readline/readline.h>
 # include <readline/history.h>
+# include <string.h>
 
 typedef struct s_env
 {
@@ -95,5 +96,6 @@ void	printenv(t_env **env, char *s);
 void	export(char **s, t_env **env, t_env **export);
 void	printexport(t_env **export, char *s);
 void	unset(char **s, t_env **env);
+// char	*tab_join(char **s);
 
 #endif
