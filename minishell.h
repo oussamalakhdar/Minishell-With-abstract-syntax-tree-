@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/21 15:02:22 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/22 13:11:51 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,5 +94,6 @@ char	check_cmd(char *s);
 void	printenv(t_env **env, char *s);
 void	export(char **s, t_env **env, t_env **export);
 void	printexport(t_env **export, char *s);
+void	unset(char **s, t_env **env);
 
 #endif

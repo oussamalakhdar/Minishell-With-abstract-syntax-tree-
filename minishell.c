@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/22 11:45:29 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/22 13:12:27 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,8 +128,8 @@ void	printenv(t_env **env, char *s)
 	if (ft_strcmp(s, "env") == 0)
 	{
 		temp = *env;
-		printf("-------env var_name == %s\n",(*env)->var_name);
-		printf("-------env var_value == %s\n",(*env)->var_value);
+		// printf("-------env var_name == %s\n",(*env)->var_name);
+		// printf("-------env var_value == %s\n",(*env)->var_value);
 		while(temp)
 		{
 			if (ft_strcmp(temp->var_name, "PWD") != 0)
@@ -495,7 +495,10 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 					dup2(rcmd->infd, STDIN_FILENO);
 				if (rcmd->outfd != -2)
 					dup2(rcmd->outfd, STDOUT_FILENO);
-				runcmd(rcmd->cmdn, env, exportt, c);
+				if (check_cmd(execcmdd->argv[0]) == 'u')
+					unset(execcmdd->argv, env);
+				else
+					runcmd(rcmd->cmdn, env, exportt, c);
 			}
 			if (*c == 0)
 			{
@@ -515,7 +518,10 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 					dup2(rcmd->infd, STDIN_FILENO);
 				if (rcmd->outfd != -2)
 					dup2(rcmd->outfd, STDOUT_FILENO);
-				runcmd(rcmd->cmdn, env, exportt, c);
+				if (check_cmd(execcmdd->argv[0]) == 'u')
+					unset(execcmdd->argv, env);
+				else
+					runcmd(rcmd->cmdn, env, exportt, c);
 			}
 			if (rcmd->outfd)
 				close(rcmd->outfd);
@@ -528,7 +534,10 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 				dup2(rcmd->infd, STDIN_FILENO);
 			if (rcmd->outfd != -2)
 				dup2(rcmd->outfd, STDOUT_FILENO);
-			runcmd(rcmd->cmdn, env, exportt, c);
+			if (check_cmd(execcmdd->argv[0]) == 'u')
+				unset(execcmdd->argv, env);
+			else
+				runcmd(rcmd->cmdn, env, exportt, c);
 		}
 	}
 }
