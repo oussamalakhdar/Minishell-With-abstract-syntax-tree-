@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/22 10:46:05 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/22 11:45:29 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,11 +58,11 @@ int	checkerrors(char **s)
 			perror("minishell: error");
 			return 0;
 		}
-		if (s[i][0] == '<' && access(s[i + 1], F_OK) < 0)
-		{
-			perror("minishell: Invalid input file");
-			return 0;
-		}
+		// if (s[i][0] == '<' && access(s[i + 1], F_OK) < 0)
+		// {
+		// 	perror("minishell: Invalid input file");
+		// 	return 0;
+		// }
 		i++;
 	}
 	return 1;
@@ -286,7 +286,14 @@ char *getfiles(char **s, char c)
 			str = NULL;
 			str = ft_strdup(s[++j]);
 			if (c == '<')
+			{
 				fd = open(str, O_RDONLY);
+				if (fd == -1)
+				{
+					perror("Error ");
+					//exit(1);
+				}
+			}
 			else
 				fd = open(str, O_CREAT | O_WRONLY , 0644);
 			close(fd);
@@ -430,7 +437,6 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 			dup2(pp[1], STDOUT_FILENO);
 			runcmd(pcmd->left, env, exportt, c);
 			close(pp[1]);
-			wait(0);
 			if (*c >= 1)
 				exit(0);
 		}
@@ -444,12 +450,13 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 		dup2(pp[0], STDIN_FILENO);
 		runcmd(pcmd->right, env, exportt, c);
 		close(pp[0]);
-		wait(0);
+		while (waitpid(-1, NULL, 0) > 0)
+			;
 		dup2(1, STDIN_FILENO);
 	}
 	else if (cmdd->type == ' ')
 	{
-		// printf("****  EXEC  ******\n");
+		//printf("****  EXEC  ******\n");
 		execcmdd = (execcmd *)cmdd;
 		builtins(execcmdd->argv, env, exportt);
 		while (execcmdd->path[i])
@@ -462,7 +469,13 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 			free(str);
 			i++;
 		}
-		perror("Path Not Found!");
+		if (execcmdd->argv[0][0] == '.' && execcmdd->argv[0][1] == '/')
+		{
+			if (access(execcmdd->argv[0] + 2, F_OK) == -1)
+				perror("Path Not Found!");
+		}
+		else
+			perror("Path Not Found!");
 	}
 	else if (cmdd->type == '>')
 	{
@@ -476,15 +489,17 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 			int id = myfork();
 			if (id == 0)
 			{
+				if (rcmd->infd == -1)
+					exit(1);
 				if (rcmd->infd != -2)
 					dup2(rcmd->infd, STDIN_FILENO);
 				if (rcmd->outfd != -2)
 					dup2(rcmd->outfd, STDOUT_FILENO);
 				runcmd(rcmd->cmdn, env, exportt, c);
 			}
-			wait(0);
 			if (*c == 0)
 			{
+				wait(0);
 				if (rcmd->outfd)
 					close(rcmd->outfd);
 				if (rcmd->infd)
@@ -502,7 +517,6 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 					dup2(rcmd->outfd, STDOUT_FILENO);
 				runcmd(rcmd->cmdn, env, exportt, c);
 			}
-			wait(0);
 			if (rcmd->outfd)
 				close(rcmd->outfd);
 			if (rcmd->infd)
