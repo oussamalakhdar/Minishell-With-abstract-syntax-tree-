@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 12:08:52 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/22 22:32:12 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/23 12:09:42 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ void	free_all(char **s)
 	free(s);
 }
 
+
 // int	chrbool(t_env **export, char *s)
 // {
 // 	t_env	*tmp;
@@ -37,6 +38,22 @@ void	free_all(char **s)
 // 	}
 // }
 
+int	scan_list(char **s, t_env **node)
+{
+	t_env	*new;
+
+	new = *node;
+	while (new)
+	{
+		if (ft_strcmp(new->var_name, s[0]) == 0)
+		{
+			return (1);
+		}	
+		new = new->next;
+	}
+	return (0);
+}
+
 t_env	*ft_lstnew(char *name, char *value)
 {
 	t_env	*ptr;
@@ -46,6 +63,7 @@ t_env	*ft_lstnew(char *name, char *value)
 		return (NULL);
 	ptr->var_name = name;
 	ptr->var_value = value;
+	ptr->flag = 0;
     ptr->next = NULL;
 	return (ptr);
 }
@@ -86,4 +104,17 @@ void	createnv(t_env **env, char **envp)
         ft_lstadd_back(env, new);
         i++;
     }
+}
+
+int	ft_lstsize(t_env *lst)
+{
+	int	i;
+
+	i = 0;
+	while (lst)
+	{
+		lst = lst->next;
+		i++;
+	}
+	return (i);
 }

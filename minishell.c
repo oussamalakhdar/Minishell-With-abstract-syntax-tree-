@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/22 22:00:16 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/23 14:23:17 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,10 +132,12 @@ void	printenv(t_env **env, char *s)
 		// printf("-------env var_value == %s\n",(*env)->var_value);
 		while(temp)
 		{
-			if (ft_strcmp(temp->var_name, "PWD") != 0)
+			if (!temp->var_value)
+				printf("%s=\n", temp->var_name);		
+			else if (ft_strcmp(temp->var_name, "PWD") != 0)
 				printf("%s=%s\n", temp->var_name, temp->var_value);		
 			else
-				printf("%s=%s\n", temp->var_name, pwd());		
+				printf("%s=%s\n", temp->var_name, pwd());	
 			temp = temp->next;
 		}
 	}
@@ -418,12 +420,13 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 	ppipe		*pcmd;
 	execcmd		*execcmdd;
 	redir		*rcmd;
-	int			i;
+	int			i,j;
 	char		*str;
 	char		*temp;
 	int			pp[2];
 
 	i = 0;
+	j = 1;
 	if (cmdd->type == '|')
 	{
 		//printf("****  PIPE  ******\n");
@@ -486,29 +489,39 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 			open(execcmdd->outfile, O_CREAT | O_WRONLY | O_TRUNC, 0644);
 		if (*c == 0 || *c == 1)
 		{
-			int id = myfork();
-			if (id == 0)
+			if (check_cmd(execcmdd->argv[0]) == 'u')
 			{
-				if (rcmd->infd == -1)
-					exit(1);
-				if (rcmd->infd != -2)
-					dup2(rcmd->infd, STDIN_FILENO);
-				if (rcmd->outfd != -2)
-					dup2(rcmd->outfd, STDOUT_FILENO);
-				if (check_cmd(execcmdd->argv[0]) == 'u')
-					unset(execcmdd->argv, env);
-				else if (check_cmd(execcmdd->argv[0]) == 'x')
-					export(execcmdd->argv, env, exportt);
-				else
-					runcmd(rcmd->cmdn, env, exportt, c);
+				j = 1;
+				while (execcmdd->argv[j])
+				{
+					unset(execcmdd->argv[j], env);
+					unset(execcmdd->argv[j], exportt);
+					j++;
+				}
 			}
-			if (*c == 0)
+			else if (check_cmd(execcmdd->argv[0]) == 'x')
+				export(execcmdd->argv, env, exportt);
+			else
 			{
-				wait(0);
-				if (rcmd->outfd)
-					close(rcmd->outfd);
-				if (rcmd->infd)
-					close(rcmd->infd);
+				int id = myfork();
+				if (id == 0)
+				{
+					if (rcmd->infd == -1)
+						exit(1);
+					if (rcmd->infd != -2)
+						dup2(rcmd->infd, STDIN_FILENO);
+					if (rcmd->outfd != -2)
+						dup2(rcmd->outfd, STDOUT_FILENO);
+					runcmd(rcmd->cmdn, env, exportt, c);
+				}
+				if (*c == 0)
+				{
+					wait(0);
+					if (rcmd->outfd)
+						close(rcmd->outfd);
+					if (rcmd->infd)
+						close(rcmd->infd);
+				}
 			}
 		}
 		else if (*c == -1)
@@ -521,7 +534,15 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 				if (rcmd->outfd != -2)
 					dup2(rcmd->outfd, STDOUT_FILENO);
 				if (check_cmd(execcmdd->argv[0]) == 'u')
-					unset(execcmdd->argv, env);
+				{
+					j = 1;
+					while (execcmdd->argv[j])
+					{
+						unset(execcmdd->argv[j], env);
+						unset(execcmdd->argv[j], exportt);
+						j++;
+					}
+				}
 				else if (check_cmd(execcmdd->argv[0]) == 'x')
 					export(execcmdd->argv, env, exportt);
 				else
@@ -539,7 +560,15 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 			if (rcmd->outfd != -2)
 				dup2(rcmd->outfd, STDOUT_FILENO);
 			if (check_cmd(execcmdd->argv[0]) == 'u')
-				unset(execcmdd->argv, env);
+			{
+				j = 1;
+				while (execcmdd->argv[j])
+				{
+					unset(execcmdd->argv[j], env);
+					unset(execcmdd->argv[j], exportt);
+					j++;
+				}
+			}
 			else if (check_cmd(execcmdd->argv[0]) == 'x')
 				export(execcmdd->argv, env, exportt);
 			else

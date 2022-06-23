@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/19 14:53:09 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/22 22:41:27 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/23 14:14:50 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,7 @@ void	export(char **s, t_env **env, t_env **export)
 	char	*value;
 	char	**var;
 	t_env	*new;
+	t_env	*new2;
 
 	i = 1;
 	if (tablen(s) == 1)
@@ -92,16 +93,43 @@ void	export(char **s, t_env **env, t_env **export)
 	{
 		while(s[i])
     	{
-			printf("counter --> %d\n", i);
+			// printf("counter --> %d\n", i);
     	    var = ft_split(s[i], '=');
-			value = ft_strdup(cut_value(s[i]));
-			//printf("name -> %s || value -> %s\n", var[0], cut_value(s[i]));
+			value = cut_value(s[i]);
+			scan_list(var, export);
+			// printf("name ->%s %s|| value ->[%s]\n",var[0],var[1], value);
 			if (tablen(var) >= 2)
-				new = ft_lstnew(var[0], value);
+			{
+				new = ft_lstnew(var[0], ft_strdup(value));
+				new2 = ft_lstnew(ft_strdup(var[0]), ft_strdup(value));
+				if (scan_list(var, env))
+					unset(var[0], env);
+				ft_lstadd_back(env, new);
+				
+			}
 			else
+			{
 				new = ft_lstnew(var[0], NULL);
-			ft_lstadd_back(export, new);
-			// printf("8****  ==   %s   *****\n", new->var_name);
+				new2 = ft_lstnew(var[0], NULL);
+				if (ft_strchr(s[i], '=') != -1)
+				{
+					new2->flag = 1;
+					//printf("%s\n",s[i]);
+					if (scan_list(var, env))//dsfdsfjadhsflkadsjfladsjfldsfkl hna kan khassni nchof mal had lqlawi kit3edel wakha exportit ghir name bla value
+						unset(var[0], env);
+					ft_lstadd_back(env, new);
+				}
+			}
+			if (strchr(s[i], '='))
+			{
+				if (scan_list(var, export))
+						unset(var[0], export);
+				// printf("%s,,%s\n",new->var_name, new->var_ft_strdup(value));
+			}
+			if (!scan_list(var, export))
+				ft_lstadd_back(export, new2);
+			// new2 = ft_lstcopy(new);
+			// // printf("8****  ==   %s   *****\n", new->var_name);
 			// if (tablen(var) >= 2)
 			// 	ft_lstadd_back(env, new);
 			// tab_join(var);
@@ -118,51 +146,67 @@ void	printexport(t_env **export, char *s)
 
 	if (ft_strcmp(s, "export") == 0)
 	{
-		printf("achof okan \n");
+		//printf("achof okan \n");
 		temp = *export;
 		if (!temp)
 			return ;
 		while(temp)
 		{
+			//printf("%s\n", temp->var_name);
+			if (temp->var_name[0] == '\0')
+				return ;
 			if (temp->var_value)
 				printf("declare -x %s=\"%s\"\n", temp->var_name, temp->var_value);
-			else
+			else if (temp->flag)
+				printf("declare -x %s=\"\"\n", temp->var_name);
+			else	
 				printf("declare -x %s\n", temp->var_name);
 			temp = temp->next;
 		}
 	}
 }
 
-void	unset(char **s, t_env **env)
+void	unset(char *s, t_env **env)
 {
-	t_env *temp;
-	t_env *tmp;
+	t_env	*temp;
+	t_env	*tmp;
+	// int		i;
 
+	// i = 0;
 	tmp = NULL;
-	if (!env)
+	if (!env || !s)
 		return ;
-	if (ft_strcmp((*env)->var_name, s[1]) == 0)
+	if (ft_strcmp((*env)->var_name, s) == 0)
 	{
 		tmp = *env;
 		*env = (*env)->next;
 		free(tmp->var_name);
 		free(tmp->var_value);
+		tmp->flag = 0;
 		free(tmp);
 	}
 	temp = *env;
-	while(temp->next)
+	while (temp)
 	{
-		if (ft_strcmp(temp->next->var_name, s[1]) == 0)
+		//printf("--%s----%s--------\n",temp->var_name,s);
+		if (!temp->next)
+			break ;
+		if (ft_strcmp(temp->next->var_name, s) == 0)
 		{
 			tmp = temp->next;
-			temp->next = temp->next->next;
+			if (temp->next->next)
+				temp->next = temp->next->next;
+			else
+				temp->next = NULL;
 			free(tmp->var_name);
 			free(tmp->var_value);
+			tmp->flag = 0;
 			tmp->next = NULL;
 			free(tmp);
 			tmp = NULL;
 		}
 		temp = temp->next;
+		// i++;
 	}
 }
 
