@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtins.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/19 14:53:09 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/24 11:09:35 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/24 15:36:18 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,14 +146,12 @@ void	printexport(t_env **export, char *s)
 
 	if (ft_strcmp(s, "export") == 0)
 	{
-		//printf("achof okan \n");
 		temp = *export;
 		if (!temp)
 			return ;
 		temp = temp->next;
 		while(temp)
 		{
-			//printf("%s\n", temp->var_name);
 			if (temp->var_name[0] == '\0')
 				return ;
 			if (temp->var_value)
@@ -171,11 +169,8 @@ void	unset(char *s, t_env **env)
 {
 	t_env	*temp;
 	t_env	*tmp;
-	// int		i;
 
-	// i = 0;
 	tmp = NULL;
-	//printf("----------------------------------\n");
 	if (!env || !s)
 		return ;
 	if (ft_strcmp((*env)->var_name, s) == 0)
@@ -190,7 +185,6 @@ void	unset(char *s, t_env **env)
 	temp = *env;
 	while (temp)
 	{
-		//printf("--%s----%s--------\n",temp->var_name,s);
 		if (!temp->next)
 			break ;
 		if (ft_strcmp(temp->next->var_name, s) == 0)
@@ -208,7 +202,6 @@ void	unset(char *s, t_env **env)
 			tmp = NULL;
 		}
 		temp = temp->next;
-		// i++;
 	}
 }
 

@@ -6,7 +6,7 @@
 /*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/24 15:29:27 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/24 15:34:54 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,8 +128,6 @@ void	printenv(t_env **env, char *s)
 	if (ft_strcmp(s, "env") == 0)
 	{
 		temp = *env;
-		// printf("-------env var_name == %s\n",(*env)->var_name);
-		// printf("-------env var_value == %s\n",(*env)->var_value);
 		while(temp)
 		{
 			if (!temp->var_value)
@@ -578,11 +576,10 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 }
 void handle(int sig)
 {
-	// write(STDOUT_FILENO ,"helloo\n", 7);
-	// rl_replace_line(0, "");
-	// rl_on_new_line();
-	// rl_redisplay();
-	// write(1, "\n", 1);
+	rl_replace_line(0, "");
+	rl_on_new_line();
+	rl_redisplay();
+	write(1, "\n", 1);
 }
 
 #include <string.h>
@@ -609,8 +606,8 @@ int main(int argc, char **argv,char **envp)
 		createnv(&exportt, S);
 		while(1)
 		{
-			sigaction(SIGINT, &sig, NULL);
 			i = 0;
+			sigaction(SIGINT, &sig, NULL);
 			line =  readline("𝖒𝖎𝖓𝖎𝖘𝖍𝖊𝖑𝖑➜ ");
 			sigaction(SIGINT, SIG_IGN, NULL);
 			if (!line)
@@ -632,10 +629,6 @@ int main(int argc, char **argv,char **envp)
 				continue ;
 			printf("-->%s<---\n", line);
 			str = ft_split(line, ' ');
-			// for (int j = 0; str[j]; j++)
-			// {
-			// 	printf("-->%s<---\n", str[j]);
-			// }
 			undo(str);
 			if (!checkerrors(str))
 				continue;
