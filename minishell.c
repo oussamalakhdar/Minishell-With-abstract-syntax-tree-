@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/24 11:03:22 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/24 15:29:27 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -576,11 +576,20 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 		}
 	}
 }
+void handle(int sig)
+{
+	// write(STDOUT_FILENO ,"helloo\n", 7);
+	// rl_replace_line(0, "");
+	// rl_on_new_line();
+	// rl_redisplay();
+	// write(1, "\n", 1);
+}
 
 #include <string.h>
 int main(int argc, char **argv,char **envp)
 {
 	char 			*line;
+	struct sigaction	sig;
 	char 			**str;
 	cmd				*cmd;
 	t_env			*env;
@@ -591,14 +600,19 @@ int main(int argc, char **argv,char **envp)
 	char **S = ft_split("export", ' ');
 	env = NULL;
 	exportt = NULL;
+	sig.sa_handler = &handle;
+	sig.sa_flags = SA_RESTART;
+	sigaction(SIGCONT, SIG_IGN, NULL);
 	if (argc == 1)
 	{
 		createnv(&env, envp);
 		createnv(&exportt, S);
 		while(1)
 		{
+			sigaction(SIGINT, &sig, NULL);
 			i = 0;
 			line =  readline("𝖒𝖎𝖓𝖎𝖘𝖍𝖊𝖑𝖑➜ ");
+			sigaction(SIGINT, SIG_IGN, NULL);
 			if (!line)
 				printf("\n");
 			if (!line || ft_strcmp(line, "exit") == 0)
