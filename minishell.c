@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/23 14:23:17 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/24 11:03:22 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -588,7 +588,7 @@ int main(int argc, char **argv,char **envp)
 	(void)argv;
 	
 	int i = 0;
-	char **S = NULL;
+	char **S = ft_split("export", ' ');
 	env = NULL;
 	exportt = NULL;
 	if (argc == 1)
@@ -616,7 +616,12 @@ int main(int argc, char **argv,char **envp)
 			line = putspace(line);
 			if (!line)
 				continue ;
+			printf("-->%s<---\n", line);
 			str = ft_split(line, ' ');
+			// for (int j = 0; str[j]; j++)
+			// {
+			// 	printf("-->%s<---\n", str[j]);
+			// }
 			undo(str);
 			if (!checkerrors(str))
 				continue;
