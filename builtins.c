@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/19 14:53:09 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/23 14:14:50 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/24 11:09:35 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,6 +150,7 @@ void	printexport(t_env **export, char *s)
 		temp = *export;
 		if (!temp)
 			return ;
+		temp = temp->next;
 		while(temp)
 		{
 			//printf("%s\n", temp->var_name);
@@ -174,6 +175,7 @@ void	unset(char *s, t_env **env)
 
 	// i = 0;
 	tmp = NULL;
+	//printf("----------------------------------\n");
 	if (!env || !s)
 		return ;
 	if (ft_strcmp((*env)->var_name, s) == 0)
