@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 21:37:16 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/25 19:55:31 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/25 21:04:06 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,6 +107,17 @@ char	*add_value(char *s, t_env **env)
 					ret = charjoin(ret, s[i]);
 					i++;
 				}
+			}
+			else
+			{
+				while (s[i] && (s[i] == SPACE2 || s[i] == ' '))
+					i++;
+				while (s[i] && s[i] != SPACE2 && s[i] != ' ')
+				{
+					ret = charjoin(ret, s[i]);
+					i++;
+				}
+				
 			}
 		}
 		if (s[i] == '$')
