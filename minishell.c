@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/25 13:39:06 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/25 16:03:42 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -636,7 +636,7 @@ int main(int argc, char **argv,char **envp)
 			line = putspace(line, &env);
 			if (!line)
 				continue ;
-			printf("-->%s<---\n", line);
+			//printf("-->%s<---\n", line);
 			str = ft_split(line, ' ');
 			undo(str);
 			if (!checkerrors(str))
