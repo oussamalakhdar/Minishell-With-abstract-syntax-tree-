@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/25 12:31:53 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/25 13:39:06 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -451,8 +451,9 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 		dup2(pp[0], STDIN_FILENO);
 		runcmd(pcmd->right, env, exportt, c);
 		close(pp[0]);
-		while (waitpid(-1, NULL, 0) > 0)
-			;
+		waitpid(pid, NULL, 0);
+		// while (waitpid(-1, NULL, 0) > 0)
+		// 	;
 		dup2(1, STDIN_FILENO);
 	}
 	else if (cmdd->type == ' ')
@@ -512,9 +513,10 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 						dup2(rcmd->outfd, STDOUT_FILENO);
 					runcmd(rcmd->cmdn, env, exportt, c);
 				}
+					waitpid(id, NULL, 0);
 				if (*c == 0)
 				{
-					wait(0);
+					// wait(0);
 					if (rcmd->outfd)
 						close(rcmd->outfd);
 					if (rcmd->infd)
@@ -546,6 +548,7 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 				else
 					runcmd(rcmd->cmdn, env, exportt, c);
 			}
+			waitpid(id, NULL, 0);
 			if (rcmd->outfd)
 				close(rcmd->outfd);
 			if (rcmd->infd)
