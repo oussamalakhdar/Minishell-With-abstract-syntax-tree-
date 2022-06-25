@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtins.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/19 14:53:09 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/24 15:36:18 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/25 12:27:46 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,13 +96,13 @@ void	export(char **s, t_env **env, t_env **export)
 			// printf("counter --> %d\n", i);
     	    var = ft_split(s[i], '=');
 			value = cut_value(s[i]);
-			scan_list(var, export);
+			scan_list(var[0], export);
 			// printf("name ->%s %s|| value ->[%s]\n",var[0],var[1], value);
 			if (tablen(var) >= 2)
 			{
 				new = ft_lstnew(var[0], ft_strdup(value));
 				new2 = ft_lstnew(ft_strdup(var[0]), ft_strdup(value));
-				if (scan_list(var, env))
+				if (scan_list(var[0], env))
 					unset(var[0], env);
 				ft_lstadd_back(env, new);
 				
@@ -115,18 +115,18 @@ void	export(char **s, t_env **env, t_env **export)
 				{
 					new2->flag = 1;
 					//printf("%s\n",s[i]);
-					if (scan_list(var, env))//dsfdsfjadhsflkadsjfladsjfldsfkl hna kan khassni nchof mal had lqlawi kit3edel wakha exportit ghir name bla value
+					if (scan_list(var[0], env))//dsfdsfjadhsflkadsjfladsjfldsfkl hna kan khassni nchof mal had lqlawi kit3edel wakha exportit ghir name bla value
 						unset(var[0], env);
 					ft_lstadd_back(env, new);
 				}
 			}
 			if (strchr(s[i], '='))
 			{
-				if (scan_list(var, export))
+				if (scan_list(var[0], export))
 						unset(var[0], export);
 				// printf("%s,,%s\n",new->var_name, new->var_ft_strdup(value));
 			}
-			if (!scan_list(var, export))
+			if (!scan_list(var[0], export))
 				ft_lstadd_back(export, new2);
 			// new2 = ft_lstcopy(new);
 			// // printf("8****  ==   %s   *****\n", new->var_name);

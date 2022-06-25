@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 12:08:52 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/24 10:46:28 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/25 12:52:47 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,14 +38,14 @@ void	free_all(char **s)
 // 	}
 // }
 
-char	*scan_list(char **s, t_env **node)
+char	*scan_list(char *s, t_env **node)
 {
 	t_env	*new;
 
 	new = *node;
 	while (new)
 	{
-		if (ft_strcmp(new->var_name, s[0]) == 0)
+		if (ft_strncmp(new->var_name, s, ft_strlen(new->var_name)))
 		{
 			if (!new->var_value)
 				return ("btata");
@@ -108,7 +108,7 @@ void	createnv(t_env **env, char **envp)
     }
 }
 
-int	ft_lstsize(t_env *lst)
+int	ft_lstsize2(t_env *lst)
 {
 	int	i;
 

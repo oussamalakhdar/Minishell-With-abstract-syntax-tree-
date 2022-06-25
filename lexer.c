@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 21:37:16 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/20 14:50:11 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/25 12:58:08 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,13 +48,37 @@ int	scanner(char *s)
 	}
 	if (d == 1 || ss == 1)
 	{
-		perror("hadchi machi me3qol");
+		perror("wa sed hadik quote ra mhandlinha");
 		return (-1);
 	}
 	return (0);
 }
 
-char	*putspace(char *s)
+char	*find_dollar(char *s)
+{
+	int	i;
+
+	i = 0;
+	while (s[i])
+	{
+		if (s[i] == '$')
+			return (&s[i + 1]);
+		i++;
+	}
+	return (NULL);	
+}
+
+char	*add_value(char *s, t_env **env)
+{
+	char	*ret;
+	
+	ret = scan_list(find_dollar(s), env);
+	// if (ret)
+	printf("******* ->>>>>. %s  .<<<<<<<-\n", ret);
+	return (NULL);
+}
+
+char	*putspace(char *s, t_env **env)
 {
 	int		i;
 	int		j;
@@ -69,9 +93,10 @@ char	*putspace(char *s)
 	while (i <= ft_strlen(s))
 	{
 		//printf("%s     %d\n",s, i);
-		s = remove_space(s, '\'', &i);
-		i = 0;
 		s = remove_space(s, '\"', &i);
+		add_value(s, env);
+		i = 0;
+		s = remove_space(s, '\'', &i);
 		i++;
 	}
 	i = 0;
@@ -112,13 +137,14 @@ char	*remove_space(char *s,char c, int *i)
 	str = ft_strdup("");
 	if ((*i) >= ft_strlen(s))
 		return (s);
-	while(s[(*i)])	
+	while(s[(*i)])
 	{
 		if (s[(*i)] == c)
 		{
 			(*i)++;
 			while(s[(*i)] != c && s[(*i)])
 			{
+				// printf("in \" %d\n", *i);
 				if (c == '\"' && s[(*i)] == '\'')
 				{
 					perror("syntax error");
@@ -130,7 +156,7 @@ char	*remove_space(char *s,char c, int *i)
 					return (NULL);
 				}
 				if (s[(*i)] == ' ')
-					str = charjoin(str, SPACE);
+					str = charjoin(str, SPACE2);
 				else if (s[(*i)] == '|')
 					str = charjoin(str, PIPE);
 				else if (s[(*i)] == '>')
@@ -141,12 +167,16 @@ char	*remove_space(char *s,char c, int *i)
 					str = charjoin(str, s[(*i)]);
 				(*i)++;
 			}
-			//return (str);
 		}
+		// else if (s[(*i)] == '$')
+		// {
+		// 	add_value(&s[(*i)+1], s);
+		// }
 		else
 			str = charjoin(str, s[(*i)]);
 		(*i)++;
 	}
+	printf(" out      -> %s\n", str);
 	return (str);
 }
 
@@ -164,7 +194,7 @@ void	undo(char **s)
 		{
 			if (s[i][j] == PIPE)
 				s[i][j] = '|';
-			if (s[i][j] == SPACE)
+			if (s[i][j] == SPACE2)
 				s[i][j] = ' ';
 			if (s[i][j] == REDR)
 				s[i][j] = '>';

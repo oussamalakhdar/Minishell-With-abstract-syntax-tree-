@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/24 15:34:54 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/25 12:31:53 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -574,12 +574,12 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 		}
 	}
 }
-void handle(int sig)
+void	handlle(int sig)
 {
-	rl_replace_line(0, "");
+	write(1, "\n", 1);
+	rl_replace_line("", 0);
 	rl_on_new_line();
 	rl_redisplay();
-	write(1, "\n", 1);
 }
 
 #include <string.h>
@@ -597,9 +597,11 @@ int main(int argc, char **argv,char **envp)
 	char **S = ft_split("export", ' ');
 	env = NULL;
 	exportt = NULL;
-	sig.sa_handler = &handle;
+	sig.sa_handler = &handlle;
 	sig.sa_flags = SA_RESTART;
-	sigaction(SIGCONT, SIG_IGN, NULL);
+	// sigaction(SIGQUIT, &sig, NULL);
+	signal(SIGQUIT, SIG_IGN);
+	// signal(SIGCON÷T, SIG_IGN);
 	if (argc == 1)
 	{
 		createnv(&env, envp);
@@ -607,11 +609,15 @@ int main(int argc, char **argv,char **envp)
 		while(1)
 		{
 			i = 0;
+			//sigaction(SIGPIPE, &sig, NULL);
 			sigaction(SIGINT, &sig, NULL);
+			// signal(SIGINT, &handlle);
+			//sigaction(SIGQUIT, &sig, NULL);
 			line =  readline("𝖒𝖎𝖓𝖎𝖘𝖍𝖊𝖑𝖑➜ ");
-			sigaction(SIGINT, SIG_IGN, NULL);
-			if (!line)
-				printf("\n");
+			// signal(SIGINT, &handlle);
+			sigaction(SIGINT, &sig, NULL);
+			// if (!line)
+			// 	printf("\n");
 			if (!line || ft_strcmp(line, "exit") == 0)
 				return 0;
 			if (ft_strncmp(line, "\n", ft_strlen(line)))
@@ -624,7 +630,7 @@ int main(int argc, char **argv,char **envp)
 					perror("Error");
 				continue ;
 			}
-			line = putspace(line);
+			line = putspace(line, &env);
 			if (!line)
 				continue ;
 			printf("-->%s<---\n", line);

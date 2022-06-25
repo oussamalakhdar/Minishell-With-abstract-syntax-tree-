@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 14:13:37 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/18 13:50:24 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/25 13:02:23 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,6 +121,8 @@ int	ft_strncmp(char *s1, char *s2, int n)
 	int	i;
 
 	i = 0;
+	if (!s2 && s1)
+		return (0);
 	while ((s1[i] || s2[i]) && i < n)
 	{
 		if (s1[i] != s2[i])
