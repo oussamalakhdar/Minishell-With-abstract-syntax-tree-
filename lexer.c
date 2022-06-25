@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 21:37:16 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/25 12:58:08 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/25 19:55:31 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,19 @@ int	scanner(char *s)
 	return (0);
 }
 
+int	is_specialchar(char s)
+{
+	if (s == '_')
+		return (0);
+	if (s < 'A' || (s > 'Z' && s < 'a') || s > 'z')
+	{
+		if (s >= '0' && s <= '9')
+			return (0);
+		return (1);
+	}
+	return (0);
+}
+
 char	*find_dollar(char *s)
 {
 	int	i;
@@ -71,11 +84,63 @@ char	*find_dollar(char *s)
 char	*add_value(char *s, t_env **env)
 {
 	char	*ret;
+	char	*name;
+	char	*value;
+	int		i;
+	int		j;
+	int		p;
 	
-	ret = scan_list(find_dollar(s), env);
-	// if (ret)
-	printf("******* ->>>>>. %s  .<<<<<<<-\n", ret);
-	return (NULL);
+	i = 0;
+	p = 0;
+	ret = ft_strdup("");
+	if (!find_dollar(s))
+		return (s);
+	while (s[i])
+	{
+		if (s[i] == '\'' || (i > 1 && s[i - 1] == '<' && s[i - 2] == '<'))
+		{
+			if (s[i - 1] != '<')
+			{
+				i++;
+				while (s[i] != '\'' && s[i])
+				{
+					ret = charjoin(ret, s[i]);
+					i++;
+				}
+			}
+		}
+		if (s[i] == '$')
+		{
+			name = ft_strdup(find_dollar(&s[i]));
+			p = 0;
+			while (name[p])
+			{
+				if (is_specialchar(name[p]))
+					name[p] = '\0';
+				p++;
+			}
+			value = scan_list(name, env);
+			i++;
+			j = 0;
+			if (value != NULL)
+			{
+				while (value[j])
+				{
+					ret = charjoin(ret, value[j]);
+					j++;
+				}
+			}
+			else if (is_specialchar(s[i]))
+				ret = charjoin(ret, '$');
+			while (s[i] && !is_specialchar(s[i]))
+				i++;
+			i--;
+		}
+		else
+			ret = charjoin(ret, s[i]);
+		i++;
+	}
+	return (ret);
 }
 
 char	*putspace(char *s, t_env **env)
@@ -93,8 +158,8 @@ char	*putspace(char *s, t_env **env)
 	while (i <= ft_strlen(s))
 	{
 		//printf("%s     %d\n",s, i);
+		s = add_value(s, env);
 		s = remove_space(s, '\"', &i);
-		add_value(s, env);
 		i = 0;
 		s = remove_space(s, '\'', &i);
 		i++;
@@ -176,7 +241,7 @@ char	*remove_space(char *s,char c, int *i)
 			str = charjoin(str, s[(*i)]);
 		(*i)++;
 	}
-	printf(" out      -> %s\n", str);
+	//printf(" out      -> %s\n", str);
 	return (str);
 }
 

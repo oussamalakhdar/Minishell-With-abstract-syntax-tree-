@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 12:08:52 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/25 12:52:47 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/25 15:37:23 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,11 +41,19 @@ void	free_all(char **s)
 char	*scan_list(char *s, t_env **node)
 {
 	t_env	*new;
+	int		i;
 
+	i = 0;
 	new = *node;
+	// while (s[i])
+	// {
+	// 	if (!ft_strchr(" \t\v\r\f\b", s[i]))
+	// 		s[i] = '\0';
+	// 	i++;
+	// }
 	while (new)
 	{
-		if (ft_strncmp(new->var_name, s, ft_strlen(new->var_name)))
+		if (ft_strcmp(new->var_name, s) == 0)//, ft_strlen(new->var_name)))
 		{
 			if (!new->var_value)
 				return ("btata");
