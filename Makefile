@@ -3,33 +3,38 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+         #
+#    By: abayar <abayar@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/02 10:46:18 by olakhdar          #+#    #+#              #
-#    Updated: 2022/06/20 11:35:14 by olakhdar         ###   ########.fr        #
+#    Updated: 2022/06/25 12:59:10 by abayar           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = minishell
 
-CC = gcc
+CC = gcc -g
 
-FLAGS =  -Wall -Werror -Wextra -lreadline -g #-fsanitize=address
+# READLINE = -lreadline -I/Users/abayar/goinfre/abayar/.brew/Cellar/readline/8.1.2/include \
+# 			-L/Users/abayar/goinfre/abayar/.brew/Cellar/readline/8.1.2/lib \
+
+READLINE = -lreadline -L/goinfre/abayar/abayar/.brew/opt/readline/lib -I/goinfre/abayar/abayar/.brew/opt/readline/include
+
+FLAGS =  $(READLINE)
 
 FILES = minishell.c ft_split.c lists.c minishell_utils.c lexer.c getnextline/get_next_line.c getnextline/get_next_line_utils.c \
 		builtins.c \
 
-OBJ=$(FILES:.c=.o)
+# OBJ=$(FILES:.c=.o)
 
 all: $(NAME)
 
-$(NAME): $(OBJ)
-	@$(CC) $(FLAGS) $(OBJ) -o $(NAME)
+$(NAME):
+	@$(CC) $(FLAGS) $(FILES) -o $(NAME)
 
 clean:
-	rm -f $(OBJ)
+	@rm -f
 
 fclean: clean
-	rm -rf $(NAME)
+	@rm -rf $(NAME)
 
 re: fclean all

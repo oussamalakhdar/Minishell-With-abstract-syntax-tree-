@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/24 12:29:48 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/25 12:32:28 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ enum def
 {
 	OUT = 21,
 	IN = 22,
-	SPACE = 23,
+	SPACE2 = 23,
 	PIPE = 24,
 	REDR = 25,
 	REDL = 26,
@@ -80,10 +80,10 @@ void	createnv(t_env **env, char **envp);
 char	**ft_split(char const *s, char c);
 int		ft_strlen(char *str);
 int		ft_strncmp(char *s1, char *s2, int n);
-char	*putspace(char *s);
+char	*putspace(char *s, t_env **env);
 char	*ft_strdup(const char *s1);
 char	*charjoin(char *s, char c);
-char	*remove_space(char *s, char c, int *j);
+char	*remove_space(char *s, char c, int *b);
 void	undo(char **s);
 void	free_all(char **s);
 int		ft_strcmp(char *s1, char *s2);
@@ -99,8 +99,9 @@ void	printenv(t_env **env, char *s);
 void	export(char **s, t_env **env, t_env **export);
 void	printexport(t_env **export, char *s);
 void	unset(char *s, t_env **env);
-char	*scan_list(char **s, t_env **node);
-int	ft_lstsize(t_env *lst);
+char	*scan_list(char *s, t_env **node);
+int		ft_lstsize2(t_env *lst);
+void	handlle(int sig);
 //t_env	*ft_lstcopy(t_env *orig);
 // char	*tab_join(char **s);
 
