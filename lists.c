@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lists.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 12:08:52 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/25 15:37:23 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/27 15:30:17 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,18 +26,6 @@ void	free_all(char **s)
 }
 
 
-// int	chrbool(t_env **export, char *s)
-// {
-// 	t_env	*tmp;
-
-// 	tmp = *export;
-// 	while (tmp)
-// 	{
-// 		if (ft_strcmp() == 0)
-// 		tmp = tmp->next;
-// 	}
-// }
-
 char	*scan_list(char *s, t_env **node)
 {
 	t_env	*new;
@@ -45,18 +33,12 @@ char	*scan_list(char *s, t_env **node)
 
 	i = 0;
 	new = *node;
-	// while (s[i])
-	// {
-	// 	if (!ft_strchr(" \t\v\r\f\b", s[i]))
-	// 		s[i] = '\0';
-	// 	i++;
-	// }
 	while (new)
 	{
-		if (ft_strcmp(new->var_name, s) == 0)//, ft_strlen(new->var_name)))
+		if (ft_strcmp(new->var_name, s) == 0)
 		{
 			if (!new->var_value)
-				return ("btata");
+				return ("");
 			return (new->var_value);
 		}	
 		new = new->next;

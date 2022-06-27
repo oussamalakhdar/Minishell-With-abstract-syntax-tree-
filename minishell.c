@@ -3,15 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/25 16:03:42 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/27 15:27:36 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-#include "getnextline/get_next_line.h"
 
 int	checkerrors(char **s)
 {
@@ -37,7 +36,6 @@ int	checkerrors(char **s)
 			perror("minishell: syntax error");
 			return 0;
 		}
-		//printf("---------------->>>>>\n");
 		if (s[i][0] == '>' && s[i + 1][0] == '<')
 		{
 			perror("minishell: error");
@@ -58,11 +56,6 @@ int	checkerrors(char **s)
 			perror("minishell: error");
 			return 0;
 		}
-		// if (s[i][0] == '<' && access(s[i + 1], F_OK) < 0)
-		// {
-		// 	perror("minishell: Invalid input file");
-		// 	return 0;
-		// }
 		i++;
 	}
 	return 1;
@@ -238,12 +231,35 @@ char	**parceline(char **s, int *i)
 	return (n);
 }
 
-void	read_f(char *s, int fd)
+char *find(char *ss, char c)
 {
+	int	i;
+
+	i = 0;
+	while(ss[i])
+	{
+		if (ss[i] == c || ss[i] == '\n')
+			ss[i] = '\0';
+		i++;
+	}
+	return (ss);
+}
+
+void	read_f(char *s, int fd, t_env **env)
+{
+	int		i;
+	int		j;
 	char	*str;
 	int		l;
+	char	*ss;
+	char	*value;
+	char 	*newstr;
 
+	i = 0;
+	j = 0;
+	ss = NULL;
 	str = NULL;
+	newstr = ft_strdup("");
 	if (!s)
 		return ;
 	l = ft_strlen(s);
@@ -255,7 +271,43 @@ void	read_f(char *s, int fd)
 	{
 		while (1)
 		{
-			write(fd, str, ft_strlen(str));
+			i = 0;
+			if (find_dollar(str))
+			{
+				ss = ft_strdup(find_dollar(str));
+				ss = find(ss, ' ');
+				if (scan_list(ss, env))
+				{
+					value = scan_list(ss, env);
+					while(i < ft_strlen(str))
+					{
+						if (str[i] == '$')
+						{
+							while (value[j])
+							{
+								newstr = charjoin(newstr, value[j]);
+								j++;
+							}
+							while(str[i] && str[i] != ' ')
+								i++;
+							i--;
+						}
+						else
+							newstr = charjoin(newstr, str[i]);
+						i++;
+					}
+				}
+				else if (scan_list(ss, env) == NULL)
+				{
+					i++;
+					newstr = ft_strdup(find(str, '$'));
+					newstr = charjoin(newstr, '\n');
+				}
+			}
+			if (i > 0)
+				write(fd, newstr, ft_strlen(newstr));
+			else	
+				write(fd, str, ft_strlen(str));
 			free(str);
 			str = NULL;
 			write(1, "heredoc> ", 9);
@@ -268,7 +320,7 @@ void	read_f(char *s, int fd)
 	close_read_f(fd, str);
 }
 
-char *getfiles(char **s, char c)
+char *getfiles(char **s, char c, t_env **env)
 {
 	int		j;
 	int		fd;
@@ -309,7 +361,7 @@ char *getfiles(char **s, char c)
 			else
 			{
 				fd = open(str, O_CREAT | O_RDWR | O_TRUNC, 0777);
-				read_f(str, fd);
+				read_f(str, fd, env);
 			}
 			close(fd);
 		}
@@ -376,40 +428,40 @@ cmd	*pipecmd(cmd *left, cmd *right)
 }
 
 
-cmd	*execnode(char **s, int *i,char **env)
+cmd	*execnode(char **s, int *i,char **envp, t_env **env)
 {
 	execcmd	*cmdd;
 	
 	cmdd = malloc(sizeof(*cmdd));
 	cmdd->type = ' ';
 	cmdd->argv = scan_arg(s);
-	cmdd->infile = getfiles(s, '<');
-	cmdd->outfile = getfiles(s, '>');
-	cmdd->path = get_path(env);
+	cmdd->infile = getfiles(s, '<',env);
+	cmdd->outfile = getfiles(s, '>', env);
+	cmdd->path = get_path(envp);
 	cmdd = (execcmd*)redirect_cmd((cmd *)cmdd, s, i);
 	return ((cmd*) cmdd);
 }
 
-cmd *parce_pipe(char **str, int *i, char **env)
+cmd *parce_pipe(char **str, int *i, char **envp, t_env **env)
 {
 	cmd		*cmdd;
 
 	if (checker(str, '|', i))
 	{
-		cmdd = pipecmd(execnode(parceline(str, i), i, env), parce_pipe(str, i, env));
+		cmdd = pipecmd(execnode(parceline(str, i), i, envp, env), parce_pipe(str, i, envp, env));
 	}
 	else
-		cmdd = execnode(parceline(str, i), i, env);
+		cmdd = execnode(parceline(str, i), i, envp, env);
 	return (cmdd);
 }
 
 
-cmd	*magic_time(char **s, int *i, char **env)
+cmd	*magic_time(char **s, int *i, char **envp, t_env **env)
 {
 	cmd		*cmdd;
 	cmd		*pcmd;
 
-	cmdd	= parce_pipe(s, i, env);
+	cmdd	= parce_pipe(s, i, envp, env);
 	return ((cmd*) cmdd);
 }
 
@@ -418,7 +470,7 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 	ppipe		*pcmd;
 	execcmd		*execcmdd;
 	redir		*rcmd;
-	int			i,j;
+	int			i,j, exstatus;
 	char		*str;
 	char		*temp;
 	int			pp[2];
@@ -451,7 +503,10 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 		dup2(pp[0], STDIN_FILENO);
 		runcmd(pcmd->right, env, exportt, c);
 		close(pp[0]);
-		waitpid(pid, NULL, 0);
+		close(pp[1]);
+		waitpid(pid, &exstatus, 0);
+		g_status = WEXITSTATUS(exstatus);
+		// printf("exit status = %d\n", g_status);
 		// while (waitpid(-1, NULL, 0) > 0)
 		// 	;
 		dup2(1, STDIN_FILENO);
@@ -513,7 +568,9 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 						dup2(rcmd->outfd, STDOUT_FILENO);
 					runcmd(rcmd->cmdn, env, exportt, c);
 				}
-					waitpid(id, NULL, 0);
+				waitpid(id, &exstatus, 0);
+				g_status = WEXITSTATUS(exstatus);
+				// printf("exit status = %d\n", g_status);
 				if (*c == 0)
 				{
 					// wait(0);
@@ -548,7 +605,9 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 				else
 					runcmd(rcmd->cmdn, env, exportt, c);
 			}
-			waitpid(id, NULL, 0);
+			waitpid(id, &exstatus, 0);
+			g_status = WEXITSTATUS(exstatus);
+			// printf("exit status = %d\n", g_status);
 			if (rcmd->outfd)
 				close(rcmd->outfd);
 			if (rcmd->infd)
@@ -642,7 +701,7 @@ int main(int argc, char **argv,char **envp)
 			if (!checkerrors(str))
 				continue;
 			int	p = 0,c = 0;
-			runcmd(magic_time(str, &i, envp), &env, &exportt, &c);
+			runcmd(magic_time(str, &i, envp, &env), &env, &exportt, &c);
 			// free(line);
 			// line = NULL;
 			// free(str);

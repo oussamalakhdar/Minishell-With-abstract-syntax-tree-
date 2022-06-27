@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/25 12:32:28 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/27 10:41:44 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,8 @@ typedef struct s_redir
 	struct s_cmd		*cmdn;
 }	redir;
 
+int g_status;
+
 t_env	*ft_lstnew(char *name, char *value);
 void	ft_lstadd_back(t_env **lst, t_env *new);
 void	createnv(t_env **env, char **envp);
@@ -102,7 +104,8 @@ void	unset(char *s, t_env **env);
 char	*scan_list(char *s, t_env **node);
 int		ft_lstsize2(t_env *lst);
 void	handlle(int sig);
-//t_env	*ft_lstcopy(t_env *orig);
-// char	*tab_join(char **s);
+char	*ft_strjoin(char *s1, char *s2);
+char	*ft_itoa(int n);
+char	*find_dollar(char *s);
 
 #endif
