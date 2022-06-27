@@ -6,7 +6,7 @@
 /*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/27 15:27:36 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/27 17:09:02 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -296,6 +296,7 @@ void	read_f(char *s, int fd, t_env **env)
 							newstr = charjoin(newstr, str[i]);
 						i++;
 					}
+					newstr = charjoin(newstr, '\n');
 				}
 				else if (scan_list(ss, env) == NULL)
 				{
@@ -306,7 +307,7 @@ void	read_f(char *s, int fd, t_env **env)
 			}
 			if (i > 0)
 				write(fd, newstr, ft_strlen(newstr));
-			else	
+			else
 				write(fd, str, ft_strlen(str));
 			free(str);
 			str = NULL;
@@ -360,8 +361,10 @@ char *getfiles(char **s, char c, t_env **env)
 				fd = open(str, O_CREAT | O_WRONLY | O_APPEND, 0644);
 			else
 			{
+				// fd = open("/tmp/str", O_CREAT | O_RDWR | O_TRUNC, 0777);
 				fd = open(str, O_CREAT | O_RDWR | O_TRUNC, 0777);
 				read_f(str, fd, env);
+				// str = ft_strdup("/tmp/str");
 			}
 			close(fd);
 		}
@@ -506,7 +509,6 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 		close(pp[1]);
 		waitpid(pid, &exstatus, 0);
 		g_status = WEXITSTATUS(exstatus);
-		// printf("exit status = %d\n", g_status);
 		// while (waitpid(-1, NULL, 0) > 0)
 		// 	;
 		dup2(1, STDIN_FILENO);
@@ -570,7 +572,6 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 				}
 				waitpid(id, &exstatus, 0);
 				g_status = WEXITSTATUS(exstatus);
-				// printf("exit status = %d\n", g_status);
 				if (*c == 0)
 				{
 					// wait(0);
@@ -607,7 +608,6 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 			}
 			waitpid(id, &exstatus, 0);
 			g_status = WEXITSTATUS(exstatus);
-			// printf("exit status = %d\n", g_status);
 			if (rcmd->outfd)
 				close(rcmd->outfd);
 			if (rcmd->infd)
@@ -638,8 +638,8 @@ void	runcmd(cmd *cmdd, t_env **env, t_env **exportt, int *c)
 }
 void	handlle(int sig)
 {
-	write(1, "\n", 1);
 	rl_replace_line("", 0);
+	write(1, "\n", 1);
 	rl_on_new_line();
 	rl_redisplay();
 }
@@ -648,22 +648,17 @@ void	handlle(int sig)
 int main(int argc, char **argv,char **envp)
 {
 	char 			*line;
-	struct sigaction	sig;
 	char 			**str;
 	cmd				*cmd;
 	t_env			*env;
 	t_env			*exportt;
 	(void)argv;
-	
+
 	int i = 0;
 	char **S = ft_split("export", ' ');
 	env = NULL;
 	exportt = NULL;
-	sig.sa_handler = &handlle;
-	sig.sa_flags = SA_RESTART;
-	// sigaction(SIGQUIT, &sig, NULL);
 	signal(SIGQUIT, SIG_IGN);
-	// signal(SIGCON÷T, SIG_IGN);
 	if (argc == 1)
 	{
 		createnv(&env, envp);
@@ -671,13 +666,8 @@ int main(int argc, char **argv,char **envp)
 		while(1)
 		{
 			i = 0;
-			//sigaction(SIGPIPE, &sig, NULL);
-			sigaction(SIGINT, &sig, NULL);
-			// signal(SIGINT, &handlle);
-			//sigaction(SIGQUIT, &sig, NULL);
 			line =  readline("𝖒𝖎𝖓𝖎𝖘𝖍𝖊𝖑𝖑➜ ");
-			// signal(SIGINT, &handlle);
-			sigaction(SIGINT, &sig, NULL);
+			signal(SIGINT, handlle);
 			// if (!line)
 			// 	printf("\n");
 			if (!line || ft_strcmp(line, "exit") == 0)
