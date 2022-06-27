@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 21:37:16 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/25 21:04:06 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/27 10:16:51 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,6 +122,13 @@ char	*add_value(char *s, t_env **env)
 		}
 		if (s[i] == '$')
 		{
+			if (s[i + 1] == '?')
+			{
+				name = ft_strdup(s);
+				name[i] = '\0';
+				ret = ft_strjoin(name, ft_itoa(g_status));
+				break ;
+			}
 			name = ft_strdup(find_dollar(&s[i]));
 			p = 0;
 			while (name[p])
