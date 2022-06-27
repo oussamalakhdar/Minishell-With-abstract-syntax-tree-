@@ -6,7 +6,7 @@
 /*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 21:37:16 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/27 10:16:51 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/27 17:35:48 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,7 +117,7 @@ char	*add_value(char *s, t_env **env)
 					ret = charjoin(ret, s[i]);
 					i++;
 				}
-				
+
 			}
 		}
 		if (s[i] == '$')
