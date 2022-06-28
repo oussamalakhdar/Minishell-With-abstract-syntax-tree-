@@ -6,7 +6,7 @@
 #    By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/26 14:33:38 by olakhdar          #+#    #+#              #
-#    Updated: 2022/06/27 10:18:46 by olakhdar         ###   ########.fr        #
+#    Updated: 2022/06/28 18:25:20 by olakhdar         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,7 +23,7 @@ READLINE = -lreadline -L/goinfre/olakhdar/olakhdar/.brew/opt/readline/lib -I/goi
 FLAGS =  $(READLINE)
 
 FILES = minishell.c ft_split.c lists.c minishell_utils.c lexer.c getnextline/get_next_line.c getnextline/get_next_line_utils.c \
-		builtins.c ft_itoa.c \
+		builtins.c ft_itoa.c minishell_utils1.c \
 
 # OBJ=$(FILES:.c=.o)
 

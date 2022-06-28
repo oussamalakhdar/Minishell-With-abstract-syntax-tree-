@@ -6,7 +6,7 @@
 /*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 21:37:16 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/27 17:35:48 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/28 17:36:11 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,6 @@ int	scanner(char *s)
 				d = 1;
 			else
 				d = 0;
-			//i++;
-			// if (ss == 1)
-			// 	perror("no such file or directory");
 		}
 		if (s[i] == '\'')
 		{
@@ -39,11 +36,7 @@ int	scanner(char *s)
 				ss = 1;
 			else
 				ss = 0;
-			//i++;
-			// if (d == 1)
-			// 	perror("no such file or directory");
 		}
-		//printf("i -->  %d  &&&  dd = %d  &&& s = %d\n", i, d, ss);
 		i++;
 	}
 	if (d == 1 || ss == 1)
@@ -78,7 +71,7 @@ char	*find_dollar(char *s)
 			return (&s[i + 1]);
 		i++;
 	}
-	return (NULL);	
+	return (NULL);
 }
 
 char	*add_value(char *s, t_env **env)
@@ -89,7 +82,7 @@ char	*add_value(char *s, t_env **env)
 	int		i;
 	int		j;
 	int		p;
-	
+
 	i = 0;
 	p = 0;
 	ret = ft_strdup("");
@@ -117,7 +110,6 @@ char	*add_value(char *s, t_env **env)
 					ret = charjoin(ret, s[i]);
 					i++;
 				}
-
 			}
 		}
 		if (s[i] == '$')
@@ -158,6 +150,7 @@ char	*add_value(char *s, t_env **env)
 			ret = charjoin(ret, s[i]);
 		i++;
 	}
+	// free(s);
 	return (ret);
 }
 
@@ -175,7 +168,6 @@ char	*putspace(char *s, t_env **env)
 		return (NULL);
 	while (i <= ft_strlen(s))
 	{
-		//printf("%s     %d\n",s, i);
 		s = add_value(s, env);
 		s = remove_space(s, '\"', &i);
 		i = 0;
@@ -183,13 +175,12 @@ char	*putspace(char *s, t_env **env)
 		i++;
 	}
 	i = 0;
-	//printf("----%s------\n",s);
 	while (s[i])
 	{
 		if (s[i + 1] == '|' || (s[i + 1] == '<' && s[i] != '<') || (s[i + 1] == '>' && s[i] != '>'))
 		{
-		   if (s[i] != ' ')
-			{    
+			if (s[i] != ' ')
+			{
 				str = charjoin(str, s[i]);
 				str = charjoin(str, ' ');
 			}
@@ -210,24 +201,24 @@ char	*putspace(char *s, t_env **env)
 			str = charjoin(str, s[i]);
 		i++;
 	}
+	// free(s);
 	return (str);
 }
 
-char	*remove_space(char *s,char c, int *i)
+char	*remove_space(char *s, char c, int *i)
 {
 	char	*str;
 
 	str = ft_strdup("");
 	if ((*i) >= ft_strlen(s))
 		return (s);
-	while(s[(*i)])
+	while (s[(*i)])
 	{
 		if (s[(*i)] == c)
 		{
 			(*i)++;
-			while(s[(*i)] != c && s[(*i)])
+			while (s[(*i)] != c && s[(*i)])
 			{
-				// printf("in \" %d\n", *i);
 				if (c == '\"' && s[(*i)] == '\'')
 				{
 					perror("syntax error");
@@ -251,15 +242,11 @@ char	*remove_space(char *s,char c, int *i)
 				(*i)++;
 			}
 		}
-		// else if (s[(*i)] == '$')
-		// {
-		// 	add_value(&s[(*i)+1], s);
-		// }
 		else
 			str = charjoin(str, s[(*i)]);
 		(*i)++;
 	}
-	//printf(" out      -> %s\n", str);
+	// free(s);
 	return (str);
 }
 
