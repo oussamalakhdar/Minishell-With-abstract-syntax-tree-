@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtins.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/19 14:53:09 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/25 12:27:46 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/28 17:44:42 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,28 +59,12 @@ char	*cut_value(char *str)
 		}
 		i++;
 	}
-	// if (strchr(str, '='))
-	// 	return ("");
 	return (NULL);
 }
 
-// char	*tab_join(char **s)
-// {
-// 	char	*ret;
-// 	int		i;
-// 	int		r;
-
-// 	i = 1;
-// 	r = 0;
-// 	while (s[i])
-// 		r += ft_strlen(s[i++]) + 1;
-// 	printf("%d", r);
-// 	return (ret);
-// }
-
 void	export(char **s, t_env **env, t_env **export)
 {
-	int	i;
+	int		i;
 	char	*value;
 	char	**var;
 	t_env	*new;
@@ -91,13 +75,11 @@ void	export(char **s, t_env **env, t_env **export)
 		printexport(export, s[0]);//printenv(export, s);
 	else
 	{
-		while(s[i])
-    	{
-			// printf("counter --> %d\n", i);
-    	    var = ft_split(s[i], '=');
+		while (s[i])
+		{
+			var = ft_split(s[i], '=');
 			value = cut_value(s[i]);
 			scan_list(var[0], export);
-			// printf("name ->%s %s|| value ->[%s]\n",var[0],var[1], value);
 			if (tablen(var) >= 2)
 			{
 				new = ft_lstnew(var[0], ft_strdup(value));
@@ -105,7 +87,6 @@ void	export(char **s, t_env **env, t_env **export)
 				if (scan_list(var[0], env))
 					unset(var[0], env);
 				ft_lstadd_back(env, new);
-				
 			}
 			else
 			{
@@ -114,8 +95,7 @@ void	export(char **s, t_env **env, t_env **export)
 				if (ft_strchr(s[i], '=') != -1)
 				{
 					new2->flag = 1;
-					//printf("%s\n",s[i]);
-					if (scan_list(var[0], env))//dsfdsfjadhsflkadsjfladsjfldsfkl hna kan khassni nchof mal had lqlawi kit3edel wakha exportit ghir name bla value
+					if (scan_list(var[0], env))
 						unset(var[0], env);
 					ft_lstadd_back(env, new);
 				}
@@ -123,26 +103,18 @@ void	export(char **s, t_env **env, t_env **export)
 			if (strchr(s[i], '='))
 			{
 				if (scan_list(var[0], export))
-						unset(var[0], export);
-				// printf("%s,,%s\n",new->var_name, new->var_ft_strdup(value));
+					unset(var[0], export);
 			}
 			if (!scan_list(var[0], export))
 				ft_lstadd_back(export, new2);
-			// new2 = ft_lstcopy(new);
-			// // printf("8****  ==   %s   *****\n", new->var_name);
-			// if (tablen(var) >= 2)
-			// 	ft_lstadd_back(env, new);
-			// tab_join(var);
-			// while ()
-    	    i++;
-    	}
-	//	printexport(export, s[0]);
+			i++;
+		}
 	}
 }
 
 void	printexport(t_env **export, char *s)
 {
-	t_env *temp;
+	t_env	*temp;
 
 	if (ft_strcmp(s, "export") == 0)
 	{
@@ -150,7 +122,7 @@ void	printexport(t_env **export, char *s)
 		if (!temp)
 			return ;
 		temp = temp->next;
-		while(temp)
+		while (temp)
 		{
 			if (temp->var_name[0] == '\0')
 				return ;
@@ -158,7 +130,7 @@ void	printexport(t_env **export, char *s)
 				printf("declare -x %s=\"%s\"\n", temp->var_name, temp->var_value);
 			else if (temp->flag)
 				printf("declare -x %s=\"\"\n", temp->var_name);
-			else	
+			else
 				printf("declare -x %s\n", temp->var_name);
 			temp = temp->next;
 		}

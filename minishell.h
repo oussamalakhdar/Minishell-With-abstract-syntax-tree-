@@ -6,13 +6,12 @@
 /*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/27 15:43:10 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/28 18:24:24 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
-#ifndef	MINISHELL_H
-# define	MINISHELL_H
+#ifndef MINISHELL_H
+# define MINISHELL_H
 
 # include <stdio.h>
 # include <stdlib.h>
@@ -33,7 +32,7 @@ typedef struct s_env
 	struct s_env	*next;
 }	t_env;
 
-enum def
+enum e_def
 {
 	OUT = 21,
 	IN = 22,
@@ -46,7 +45,7 @@ enum def
 typedef struct s_cmd
 {
 	int	type;
-}	cmd;
+}	t_cmd;
 
 typedef struct s_execcmd
 {
@@ -55,14 +54,14 @@ typedef struct s_execcmd
 	char	**argv;
 	char	*infile;
 	char	*outfile;
-}	execcmd;
+}	t_execcmd;
 
 typedef struct s_pipe
 {
 	int				type;
 	struct s_cmd	*left;
 	struct s_cmd	*right;
-}	ppipe;
+}	t_ppipe;
 
 typedef struct s_redir
 {
@@ -72,9 +71,9 @@ typedef struct s_redir
 	int					infd;
 	int					outfd;
 	struct s_cmd		*cmdn;
-}	redir;
+}	t_redir;
 
-int g_status;
+int	g_status;
 
 t_env	*ft_lstnew(char *name, char *value);
 void	ft_lstadd_back(t_env **lst, t_env *new);
@@ -107,5 +106,6 @@ void	handlle(int sig);
 char	*ft_strjoin(char *s1, char *s2);
 char	*ft_itoa(int n);
 char	*find_dollar(char *s);
+char	*ft_strjoin(char *s1, char *s2);
 
 #endif

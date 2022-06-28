@@ -3,65 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   minishell_utils.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 14:13:37 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/25 13:02:23 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/28 18:25:49 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-void	close_read_f(int fd, char *str)
-{
-	if (!str)
-		write(1, "\n", 1);
-	free(str);
-	if (close(fd) == -1)
-	{
-		perror("close fail\n");
-		exit(1);
-	}
-}
-
-void	putinfile(int fd, char *s)
-{
-	int	i;
-
-	i = 0;
-	while (s[i])
-	{
-		write(fd, &s[i], 1);
-		i++;
-	}
-}
-
-int	myfork(void)
-{
-	int	pid;
-
-	pid = 0;
-	pid = fork();
-	if (pid < 0)
-	{
-		perror("fork fail");
-	}
-	return (pid);
-}
-
-int	ft_strcmp(char *s1, char *s2)
-{
-	size_t	i;
-
-	i = 0;
-	while (s1[i] || s2[i])
-	{
-		if (s1[i] != s2[i])
-			return ((unsigned char)s1[i] - s2[i]);
-		i++;
-	}
-	return (0);
-}
 
 char	*ft_strdup(const char *s1)
 {

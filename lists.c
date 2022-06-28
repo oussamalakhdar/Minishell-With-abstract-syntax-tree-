@@ -6,7 +6,7 @@
 /*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 12:08:52 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/27 15:30:17 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/28 17:53:49 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,6 @@ void	free_all(char **s)
 	}
 	free(s);
 }
-
 
 char	*scan_list(char *s, t_env **node)
 {
@@ -56,7 +55,7 @@ t_env	*ft_lstnew(char *name, char *value)
 	ptr->var_name = name;
 	ptr->var_value = value;
 	ptr->flag = 0;
-    ptr->next = NULL;
+	ptr->next = NULL;
 	return (ptr);
 }
 
@@ -65,7 +64,6 @@ void	ft_lstadd_back(t_env **lst, t_env *new)
 	t_env	*temp;
 
 	temp = *lst;
-	//printf("8****  ==   %s   *****\n", new->var_name);
 	if ((*lst) == NULL)
 	{
 		*lst = new;
@@ -79,23 +77,23 @@ void	ft_lstadd_back(t_env **lst, t_env *new)
 
 void	createnv(t_env **env, char **envp)
 {
-    int     i;
-    t_env   *new;
-    char **var;
+	int		i;
+	t_env	*new;
+	char	**var;
 
-    i = 0;
+	i = 0;
 	if (!envp)
 		return ;
-    while(envp[i])
-    {
-        var = ft_split(envp[i], '=');
+	while (envp[i])
+	{
+		var = ft_split(envp[i], '=');
 		if (ft_strcmp(var[0], "PWD") == 0)
-        	new = ft_lstnew(var[0], pwd());
-		else	
-        	new = ft_lstnew(var[0], var[1]);
-        ft_lstadd_back(env, new);
-        i++;
-    }
+			new = ft_lstnew(var[0], pwd());
+		else
+			new = ft_lstnew(var[0], var[1]);
+		ft_lstadd_back(env, new);
+		i++;
+	}
 }
 
 int	ft_lstsize2(t_env *lst)
