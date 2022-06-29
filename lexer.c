@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 21:37:16 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/29 16:03:41 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/29 18:53:33 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,9 +37,9 @@ char	*add_value(char *s, t_env **env)
 
 	i = 0;
 	p = 0;
-	ret = ft_strdup("");
 	if (!find_dollar(s))
 		return (s);
+	ret = ft_strdup("");
 	while (s[i])
 	{
 		if (s[i] == '\'' || (i > 1 && s[i - 1] == '<' && s[i - 2] == '<'))
@@ -102,7 +102,8 @@ char	*add_value(char *s, t_env **env)
 			ret = charjoin(ret, s[i]);
 		i++;
 	}
-	// free(s);
+	free(name);
+	free(s);
 	return (ret);
 }
 
@@ -152,7 +153,7 @@ char	*putspace(char *s, t_env **env)
 			str = charjoin(str, s[i]);
 		i++;
 	}
-	// free(s);
+	free(s);
 	return (str);
 }
 
@@ -193,6 +194,6 @@ char	*remove_space(char *s, char c, int *i)
 			str = charjoin(str, s[(*i)]);
 		(*i)++;
 	}
-	// free(s);
+	free(s);
 	return (str);
 }

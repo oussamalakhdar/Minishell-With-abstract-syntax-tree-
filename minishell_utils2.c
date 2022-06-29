@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell_utils2.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/29 15:39:02 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/29 15:42:17 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/29 19:52:35 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ char	**scan_arg(char **s)
 			continue ;
 		}
 		else
-			ss[count++] = s[j++];
+			ss[count++] = ft_strdup(s[j++]);
 	}
 	ss[count] = 0;
 	return (ss);

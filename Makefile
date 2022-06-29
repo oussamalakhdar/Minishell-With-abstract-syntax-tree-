@@ -3,19 +3,19 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+         #
+#    By: abayar <abayar@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/26 14:33:38 by olakhdar          #+#    #+#              #
-#    Updated: 2022/06/29 16:10:38 by olakhdar         ###   ########.fr        #
+#    Updated: 2022/06/29 18:43:59 by abayar           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 
 NAME = minishell
 
-CC = gcc -g #-Wall -Werror -Wextra 
+CC = gcc -g3# -Wall -Werror -Wextra -L/opt/homebrew/opt/readline/lib -I/opt/homebrew/opt/readline/include
 
-READLINE = -lreadline -L/goinfre/olakhdar/olakhdar/.brew/opt/readline/lib -I/goinfre/olakhdar/olakhdar/.brew/opt/readline/include
+READLINE = -lreadline -L/opt/homebrew/opt/readline/lib -I/opt/homebrew/opt/readline/include
 
 FLAGS =  $(READLINE)
 
