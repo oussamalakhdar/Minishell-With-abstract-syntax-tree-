@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 21:37:16 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/28 17:36:11 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/28 23:54:12 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -217,18 +217,19 @@ char	*remove_space(char *s, char c, int *i)
 		if (s[(*i)] == c)
 		{
 			(*i)++;
+			if (s[(*i)] == c)
+				str = charjoin(str, NL);
 			while (s[(*i)] != c && s[(*i)])
 			{
 				if (c == '\"' && s[(*i)] == '\'')
-				{
-					perror("syntax error");
-					return (NULL);
-				}
-				else if (s[(*i)] == '\"')
-				{
-					perror("syntax error");
-					return (NULL);
-				}
+					str = charjoin(str, QUOT);
+				if (c == '\'' && s[(*i)] == '\"')
+					str = charjoin(str, QUOT2);
+				// else if (s[(*i)] == '\"')
+				// {
+				// 	perror("syntax error");
+				// 	return (NULL);
+				// }
 				if (s[(*i)] == ' ')
 					str = charjoin(str, SPACE2);
 				else if (s[(*i)] == '|')
@@ -270,6 +271,12 @@ void	undo(char **s)
 				s[i][j] = '>';
 			if (s[i][j] == REDL)
 				s[i][j] = '<';
+			if (s[i][j] == QUOT)
+				s[i][j] = '\'';
+			if (s[i][j] == QUOT2)
+				s[i][j] = '\"';
+			if (s[i][j] == NL)
+				s[i][j] = '\0';
 			j++;
 		}
 		i++;

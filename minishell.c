@@ -3,14 +3,57 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/28 18:24:48 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/29 00:32:50 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+int	is_degit(char *s)
+{
+	int	i;
+
+	i = 0;
+	while (s[i])
+	{
+		if (s[i] > '9' || s[i] < '0')
+			return (0);
+		i++;
+	}
+	return (1);
+}
+
+int	check_exit(char **s)
+{
+	if (ft_strcmp(s[0], "exit") == 0)
+	{
+		if (tablen(s) == 2)
+		{
+			if (is_degit(s[1]))
+			{
+				g_status = atoi(s[1]);
+				exit(g_status);
+			}
+			else
+			{
+				perror("exit: numeric argument required");
+				g_status = 1;
+				exit(g_status);
+			}
+		}
+		else if (tablen(s) > 2)
+		{
+			perror("exit: too many arguments");
+			g_status = 1;
+			//exit(g_status);
+			return (0);
+		}
+	}
+	return (1);
+}
 
 int	checkerrors(char **s)
 {
@@ -19,6 +62,8 @@ int	checkerrors(char **s)
 
 	i = 0;
 	j = 0;
+	if (!check_exit(s))
+		return 0;
 	while(s[i])
 	{
 		if ((s[i][0] == '>' || s[i][0] == '<') && (tablen(s) == (i + 1)))
@@ -489,6 +534,7 @@ void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
 		int pid = fork();
 		if (pid == 0)
 		{
+			signal(SIGQUIT, handlle);
 			close(pp[0]);
 			dup2(pp[1], STDOUT_FILENO);
 			runcmd(pcmd->left, env, exportt, c);
@@ -496,22 +542,26 @@ void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
 			if (*c >= 1)
 				exit(0);
 		}
-		// (*p)++;
-		if (pcmd->right->type == '>')
+		else
 		{
-			rcmd = (t_redir *)pcmd->right;
-			*c = -1;
-		}
-		close(pp[1]);
-		dup2(pp[0], STDIN_FILENO);
-		runcmd(pcmd->right, env, exportt, c);
-		close(pp[0]);
-		close(pp[1]);
-		waitpid(pid, &exstatus, 0);
-		g_status = WEXITSTATUS(exstatus);
+		//printf("one commande how many time code executed\n");
+		// (*p)++;
+			if (pcmd->right->type == '>')
+			{
+				rcmd = (t_redir *)pcmd->right;
+				*c = -1;
+			}
+			close(pp[1]);
+			dup2(pp[0], STDIN_FILENO);
+			runcmd(pcmd->right, env, exportt, c);
+			close(pp[0]);
+			close(pp[1]);
+			waitpid(pid, &exstatus, 0);
+			g_status = WEXITSTATUS(exstatus);
 		// while (waitpid(-1, NULL, 0) > 0)
 		// 	;
-		dup2(1, STDIN_FILENO);
+			dup2(1, STDIN_FILENO);
+		}
 	}
 	else if (cmdd->type == ' ')
 	{
@@ -562,6 +612,7 @@ void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
 				int id = myfork();
 				if (id == 0)
 				{
+					signal(SIGQUIT, handlle);
 					if (rcmd->infd == -1)
 						exit(1);
 					if (rcmd->infd != -2)
@@ -570,15 +621,18 @@ void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
 						dup2(rcmd->outfd, STDOUT_FILENO);
 					runcmd(rcmd->cmdn, env, exportt, c);
 				}
-				waitpid(id, &exstatus, 0);
-				g_status = WEXITSTATUS(exstatus);
-				if (*c == 0)
+				else
 				{
+					waitpid(id, &exstatus, 0);
+					g_status = WEXITSTATUS(exstatus);
+					if (*c == 0)
+					{
 					// wait(0);
-					if (rcmd->outfd)
-						close(rcmd->outfd);
-					if (rcmd->infd)
-						close(rcmd->infd);
+						if (rcmd->outfd)
+							close(rcmd->outfd);
+						if (rcmd->infd)
+							close(rcmd->infd);
+					}
 				}
 			}
 		}
@@ -587,6 +641,7 @@ void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
 			int id = myfork();
 			if (id == 0)
 			{
+				signal(SIGQUIT, handlle);
 				if (rcmd->infd != -2)
 					dup2(rcmd->infd, STDIN_FILENO);
 				if (rcmd->outfd != -2)
@@ -606,12 +661,15 @@ void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
 				else
 					runcmd(rcmd->cmdn, env, exportt, c);
 			}
-			waitpid(id, &exstatus, 0);
-			g_status = WEXITSTATUS(exstatus);
-			if (rcmd->outfd)
-				close(rcmd->outfd);
-			if (rcmd->infd)
-				close(rcmd->infd);
+			else
+			{
+				waitpid(id, &exstatus, 0);
+				g_status = WEXITSTATUS(exstatus);
+				if (rcmd->outfd)
+					close(rcmd->outfd);
+				if (rcmd->infd)
+					close(rcmd->infd);
+			}
 		}
 		if (*c > 1)
 		{
@@ -659,6 +717,7 @@ int main(int argc, char **argv,char **envp)
 	env = NULL;
 	exportt = NULL;
 	signal(SIGQUIT, SIG_IGN);
+	signal(SIGINT, handlle);
 	if (argc == 1)
 	{
 		createnv(&env, envp);
@@ -668,7 +727,6 @@ int main(int argc, char **argv,char **envp)
 			i = 0;
 			line =  readline("𝖒𝖎𝖓𝖎𝖘𝖍𝖊𝖑𝖑➜ ");
 			signal(SIGINT, handlle);
-			
 			// if (!line)
 			// 	printf("\n");
 			if (!line || ft_strcmp(line, "exit") == 0)
