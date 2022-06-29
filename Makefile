@@ -3,27 +3,25 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: abayar <abayar@student.42.fr>              +#+  +:+       +#+         #
+#    By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/26 14:33:38 by olakhdar          #+#    #+#              #
-#    Updated: 2022/06/28 23:00:09 by abayar           ###   ########.fr        #
+#    Updated: 2022/06/29 16:10:38 by olakhdar         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 
 NAME = minishell
 
-CC = gcc -g
+CC = gcc -g #-Wall -Werror -Wextra 
 
-# READLINE = -lreadline -I/Users/abayar/goinfre/abayar/.brew/Cellar/readline/8.1.2/include \
-# 			-L/Users/abayar/goinfre/abayar/.brew/Cellar/readline/8.1.2/lib \
-
-READLINE = -lreadline -L/opt/homebrew/opt/readline/lib -I/opt/homebrew/opt/readline/include
+READLINE = -lreadline -L/goinfre/olakhdar/olakhdar/.brew/opt/readline/lib -I/goinfre/olakhdar/olakhdar/.brew/opt/readline/include
 
 FLAGS =  $(READLINE)
 
 FILES = minishell.c ft_split.c lists.c minishell_utils.c lexer.c getnextline/get_next_line.c getnextline/get_next_line_utils.c \
-		builtins.c ft_itoa.c minishell_utils1.c \
+		builtins.c ft_itoa.c minishell_utils1.c minishell_utils2.c minishell_utils3.c \
+		builtins_extra.c \
 
 # OBJ=$(FILES:.c=.o)
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/28 23:52:34 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/29 16:08:58 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,11 +104,17 @@ void	export(char **s, t_env **env, t_env **export);
 void	printexport(t_env **export, char *s);
 void	unset(char *s, t_env **env);
 char	*scan_list(char *s, t_env **node);
-int		ft_lstsize2(t_env *lst);
 void	handlle(int sig);
 char	*ft_strjoin(char *s1, char *s2);
 char	*ft_itoa(int n);
 char	*find_dollar(char *s);
 char	*ft_strjoin(char *s1, char *s2);
+char	**get_path(char **env);
+char	**scan_arg(char **s);
+int		chrr(char **s, int *i);
+int		checker(char **s, char c, int *i);
+int		is_specialchar(char s);
+char	*pwd(void);
+void	echo(char **s);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 12:08:52 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/28 17:53:49 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/29 15:37:29 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,17 +94,4 @@ void	createnv(t_env **env, char **envp)
 		ft_lstadd_back(env, new);
 		i++;
 	}
-}
-
-int	ft_lstsize2(t_env *lst)
-{
-	int	i;
-
-	i = 0;
-	while (lst)
-	{
-		lst = lst->next;
-		i++;
-	}
-	return (i);
 }

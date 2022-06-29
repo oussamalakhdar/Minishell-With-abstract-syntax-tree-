@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/29 00:32:50 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/29 16:01:41 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,6 @@ int	check_exit(char **s)
 		{
 			perror("exit: too many arguments");
 			g_status = 1;
-			//exit(g_status);
 			return (0);
 		}
 	}
@@ -63,188 +62,69 @@ int	checkerrors(char **s)
 	i = 0;
 	j = 0;
 	if (!check_exit(s))
-		return 0;
-	while(s[i])
+		return (0);
+	while (s[i])
 	{
 		if ((s[i][0] == '>' || s[i][0] == '<') && (tablen(s) == (i + 1)))
 		{
 			perror("minishell: No file");
-			return 0;
+			return (0);
 		}
-		if (s[0][0] == '|' || s[tablen(s) -1][0] == '|')
+		if (s[0][0] == '|' || s[tablen(s) - 1][0] == '|')
 		{
 			perror("minishell: syntax error");
-			return 0;
+			return (0);
 		}
-		 if (s[i][0] == '<' && s[i + 1][0] == '>')
+		if (s[i][0] == '<' && s[i + 1][0] == '>')
 		{
 			perror("minishell: syntax error");
-			return 0;
+			return (0);
 		}
 		if (s[i][0] == '>' && s[i + 1][0] == '<')
 		{
 			perror("minishell: error");
-			return 0;
+			return (0);
 		}
-		if ((s[i][0] == '<' && s[i][1] == '<' && s[i + 1][0] == '<') || (s[i][0] == '<' && s[i][1] == '<' && s[i + 1][0] == '>'))
+		if ((s[i][0] == '<' && s[i][1] == '<' && s[i + 1][0] == '<')
+			|| (s[i][0] == '<' && s[i][1] == '<' && s[i + 1][0] == '>'))
 		{
 			perror("minishell: error");
-			return 0;
+			return (0);
 		}
-		if ((s[i][0] == '>' && s[i][1] == '>' && s[i][2] == '>') || (s[i][0] == '>' && s[i][1] == '>' && s[i + 1][0] == '<'))
+		if ((s[i][0] == '>' && s[i][1] == '>' && s[i][2] == '>')
+			|| (s[i][0] == '>' && s[i][1] == '>' && s[i + 1][0] == '<'))
 		{
 			perror("minishell: error");
-			return 0;
+			return (0);
 		}
 		if ((s[i][0] == '>' || s[i][0] == '<') && s[i + 1][0] == '|')
 		{
 			perror("minishell: error");
-			return 0;
+			return (0);
 		}
 		i++;
 	}
-	return 1;
-}
-
-// char	*ft_strjoin(char *s1, char *s2)
-// {
-// 	char	*pt;
-// 	char	*ss1;
-// 	char	*ss2;
-// 	int		i;
-// 	int		j;
-
-// 	i = 0;
-// 	j = 0;
-// 	ss1 = (char *)s1;
-// 	ss2 = (char *)s2;
-// 	if (!ss1 || !ss2)
-// 		return (NULL);
-// 	pt = malloc(sizeof(char ) * (ft_strlen(s1) + ft_strlen(s2)) + 1);
-// 	if (pt == NULL)
-// 		return (NULL);
-// 	while (ss1[i])
-// 	{
-// 		pt[i] = ss1[i];
-// 		i++;
-// 	}
-// 	while (ss2[j])
-// 		pt[i++] = ss2[j++];
-// 	pt[i] = '\0';
-// 	free(s1);
-// 	return (pt);
-// }
-
-char	**get_path(char **env)
-{
-	int		i;
-	char	**tmp;
-	char	**str;
-
-	i = 0;
-	while (env[i])
-	{
-		if (env[i][0] == 'P' && env[i][2] == 'T')
-		{
-			str = ft_split(env[i], '=');
-			tmp = str;
-			str = ft_split(str[1], ':');
-			free_all(tmp);
-			return (str);
-		}
-		i++;
-	}
-	str = NULL;
-	perror("PATH not found\n");
-	exit(1);
+	return (1);
 }
 
 void	printenv(t_env **env, char *s)
 {
-	t_env *temp;
+	t_env	*temp;
 
 	if (ft_strcmp(s, "env") == 0)
 	{
 		temp = *env;
-		while(temp)
+		while (temp)
 		{
 			if (!temp->var_value)
-				printf("%s=\n", temp->var_name);		
+				printf("%s=\n", temp->var_name);
 			else if (ft_strcmp(temp->var_name, "PWD") != 0)
-				printf("%s=%s\n", temp->var_name, temp->var_value);		
+				printf("%s=%s\n", temp->var_name, temp->var_value);
 			else
-				printf("%s=%s\n", temp->var_name, pwd());	
+				printf("%s=%s\n", temp->var_name, pwd());
 			temp = temp->next;
 		}
 	}
-}
-
-char	**scan_arg(char **s)
-{
-	int		j;
-	int		count;
-	char	**ss;
-
-	j = 0;
-	count = 0;
-	while(s[j])
-	{
-		if ((s[j][0] == '>') || (s[j][0] == '<'))
-			count++;
-		j++;
-	}
-	ss = malloc(sizeof(char *) * (j - (count * 2) + 1));
-	j = 0;
-	count = 0;
-	while (s[j])
-	{
-		if (s[j][0] == '<' || s[j][0] == '>')
-		{
-			j+=2;
-			continue ;
-		}
-		else
-			ss[count++] = s[j++];
-	}
-	ss[count] = 0;
-	return (ss);
-}
-
-int	chrr(char **s, int *i)
-{
-	while (s[*i])
-	{
-		if (s[*i][0] == '|')//&& s[*i][0] == '\n')
-			return (1);
-		(*i)++;
-	}
-	return (0);
-}
-
-int	tablen(char **s)
-{
-	int	i;
-
-	i = 0;
-	while (s[i])
-		i++;
-	return (i);
-}
-
-int	checker(char **s, char c, int *i)
-{
-	int j;
-
-	j = (*i);
-	if (tablen(s) <= (*i))
-		return 0;
-	while (s[j])
-	{
-		if (s[j][0] == c)
-			return 1;
-		j++;
-	}
-	return 0;
 }
 
 char	**parceline(char **s, int *i)
@@ -252,6 +132,7 @@ char	**parceline(char **s, int *i)
 	char	**n;
 	int		j;
 	int		tmp;
+	int		k;
 
 	j = 0;
 	tmp = (*i);
@@ -264,7 +145,7 @@ char	**parceline(char **s, int *i)
 		(*i)++;
 	}
 	n = malloc(sizeof(char *) * ((*i) - tmp) + 1);
-	int k = (*i) - tmp;
+	k = (*i) - tmp;
 	while (j < k)
 	{
 		n[j] = ft_strdup(s[tmp]);
@@ -276,12 +157,12 @@ char	**parceline(char **s, int *i)
 	return (n);
 }
 
-char *find(char *ss, char c)
+char	*find(char *ss, char c)
 {
 	int	i;
 
 	i = 0;
-	while(ss[i])
+	while (ss[i])
 	{
 		if (ss[i] == c || ss[i] == '\n')
 			ss[i] = '\0';
@@ -298,7 +179,7 @@ void	read_f(char *s, int fd, t_env **env)
 	int		l;
 	char	*ss;
 	char	*value;
-	char 	*newstr;
+	char	*newstr;
 
 	i = 0;
 	j = 0;
@@ -324,7 +205,7 @@ void	read_f(char *s, int fd, t_env **env)
 				if (scan_list(ss, env))
 				{
 					value = scan_list(ss, env);
-					while(i < ft_strlen(str))
+					while (i < ft_strlen(str))
 					{
 						if (str[i] == '$')
 						{
@@ -333,7 +214,7 @@ void	read_f(char *s, int fd, t_env **env)
 								newstr = charjoin(newstr, value[j]);
 								j++;
 							}
-							while(str[i] && str[i] != ' ')
+							while (str[i] && str[i] != ' ')
 								i++;
 							i--;
 						}
@@ -366,12 +247,12 @@ void	read_f(char *s, int fd, t_env **env)
 	close_read_f(fd, str);
 }
 
-char *getfiles(char **s, char c, t_env **env)
+char	*getfiles(char **s, char c, t_env **env)
 {
 	int		j;
 	int		fd;
 	char	*str;
-	
+
 	j = 0;
 	fd = 0;
 	str = NULL;
@@ -387,16 +268,14 @@ char *getfiles(char **s, char c, t_env **env)
 			{
 				fd = open(str, O_RDONLY);
 				if (fd == -1)
-				{
 					perror("Error ");
-					//exit(1);
-				}
 			}
 			else
-				fd = open(str, O_CREAT | O_WRONLY , 0644);
+				fd = open(str, O_CREAT | O_WRONLY, 0644);
 			close(fd);
 		}
-		else if (s[j][0] == c && s[j][1] == c && s[j][2] != c && s[j + 1][0] != c)
+		else if (s[j][0] == c && s[j][1] == c
+				&& s[j][2] != c && s[j + 1][0] != c)
 		{
 			str = ft_strdup("");
 			free(str);
@@ -434,7 +313,7 @@ int	if_app(char **s, char *s1)
 
 t_cmd	*redirect_cmd(t_cmd *exec, char **s, int *i)
 {
-	t_redir	*cmdd;
+	t_redir		*cmdd;
 	t_execcmd	*excmd;
 
 	excmd = (t_execcmd *)exec;
@@ -446,7 +325,7 @@ t_cmd	*redirect_cmd(t_cmd *exec, char **s, int *i)
 		cmdd->infd = open(excmd->infile, O_RDONLY);
 	else if (if_app(s, "<<"))
 	{
-		cmdd->infd = open(excmd->infile, O_RDWR , 0777);
+		cmdd->infd = open(excmd->infile, O_RDWR, 0777);
 		cmdd->herd = 1;
 	}
 	else
@@ -461,7 +340,7 @@ t_cmd	*redirect_cmd(t_cmd *exec, char **s, int *i)
 	else
 		cmdd->outfd = -2;
 	cmdd->cmdn = exec;
-	return ((t_cmd*) cmdd);
+	return ((t_cmd *)cmdd);
 }
 
 t_cmd	*pipecmd(t_cmd *left, t_cmd *right)
@@ -472,22 +351,21 @@ t_cmd	*pipecmd(t_cmd *left, t_cmd *right)
 	cmdd->type = '|';
 	cmdd->left = left;
 	cmdd->right = right;
-	return ((t_cmd*) cmdd);
+	return ((t_cmd *) cmdd);
 }
 
-
-t_cmd	*execnode(char **s, int *i,char **envp, t_env **env)
+t_cmd	*execnode(char **s, int *i, char **envp, t_env **env)
 {
 	t_execcmd	*cmdd;
-	
+
 	cmdd = malloc(sizeof(*cmdd));
 	cmdd->type = ' ';
 	cmdd->argv = scan_arg(s);
-	cmdd->infile = getfiles(s, '<',env);
+	cmdd->infile = getfiles(s, '<', env);
 	cmdd->outfile = getfiles(s, '>', env);
 	cmdd->path = get_path(envp);
-	cmdd = (t_execcmd*)redirect_cmd((t_cmd *)cmdd, s, i);
-	return ((t_cmd*) cmdd);
+	cmdd = (t_execcmd *)redirect_cmd((t_cmd *)cmdd, s, i);
+	return ((t_cmd *) cmdd);
 }
 
 t_cmd	*parce_pipe(char **str, int *i, char **envp, t_env **env)
@@ -496,13 +374,13 @@ t_cmd	*parce_pipe(char **str, int *i, char **envp, t_env **env)
 
 	if (checker(str, '|', i))
 	{
-		cmdd = pipecmd(execnode(parceline(str, i), i, envp, env), parce_pipe(str, i, envp, env));
+		cmdd = pipecmd(execnode(parceline(str, i), i, envp, env),
+				parce_pipe(str, i, envp, env));
 	}
 	else
 		cmdd = execnode(parceline(str, i), i, envp, env);
 	return (cmdd);
 }
-
 
 t_cmd	*magic_time(char **s, int *i, char **envp, t_env **env)
 {
@@ -510,7 +388,7 @@ t_cmd	*magic_time(char **s, int *i, char **envp, t_env **env)
 	t_cmd	*pcmd;
 
 	cmdd = parce_pipe(s, i, envp, env);
-	return ((t_cmd*) cmdd);
+	return ((t_cmd *) cmdd);
 }
 
 void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
@@ -518,7 +396,9 @@ void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
 	t_ppipe		*pcmd;
 	t_execcmd	*execcmdd;
 	t_redir		*rcmd;
-	int			i,j, exstatus;
+	int			i;
+	int			j;
+	int			exstatus;
 	char		*str;
 	char		*temp;
 	int			pp[2];
@@ -527,11 +407,10 @@ void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
 	j = 1;
 	if (cmdd->type == '|')
 	{
-		//printf("****  PIPE  ******\n");
 		(*c)++;
 		pcmd = (t_ppipe *)cmdd;
 		pipe(pp);
-		int pid = fork();
+		int	pid = fork();
 		if (pid == 0)
 		{
 			signal(SIGQUIT, handlle);
@@ -544,8 +423,6 @@ void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
 		}
 		else
 		{
-		//printf("one commande how many time code executed\n");
-		// (*p)++;
 			if (pcmd->right->type == '>')
 			{
 				rcmd = (t_redir *)pcmd->right;
@@ -558,14 +435,11 @@ void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
 			close(pp[1]);
 			waitpid(pid, &exstatus, 0);
 			g_status = WEXITSTATUS(exstatus);
-		// while (waitpid(-1, NULL, 0) > 0)
-		// 	;
 			dup2(1, STDIN_FILENO);
 		}
 	}
 	else if (cmdd->type == ' ')
 	{
-		//printf("****  EXEC  ******\n");
 		execcmdd = (t_execcmd *)cmdd;
 		builtins(execcmdd->argv, env, exportt);
 		while (execcmdd->path[i])
@@ -609,7 +483,7 @@ void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
 				export(execcmdd->argv, env, exportt);
 			else
 			{
-				int id = myfork();
+				int	id = myfork();
 				if (id == 0)
 				{
 					signal(SIGQUIT, handlle);
@@ -621,24 +495,20 @@ void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
 						dup2(rcmd->outfd, STDOUT_FILENO);
 					runcmd(rcmd->cmdn, env, exportt, c);
 				}
-				else
+				waitpid(id, &exstatus, 0);
+				g_status = WEXITSTATUS(exstatus);
+				if (*c == 0)
 				{
-					waitpid(id, &exstatus, 0);
-					g_status = WEXITSTATUS(exstatus);
-					if (*c == 0)
-					{
-					// wait(0);
-						if (rcmd->outfd)
-							close(rcmd->outfd);
-						if (rcmd->infd)
-							close(rcmd->infd);
-					}
+					if (rcmd->outfd)
+						close(rcmd->outfd);
+					if (rcmd->infd)
+						close(rcmd->infd);
 				}
 			}
 		}
 		else if (*c == -1)
 		{
-			int id = myfork();
+			int	id = myfork();
 			if (id == 0)
 			{
 				signal(SIGQUIT, handlle);
@@ -694,6 +564,7 @@ void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
 		}
 	}
 }
+
 void	handlle(int sig)
 {
 	rl_replace_line("", 0);
@@ -702,18 +573,18 @@ void	handlle(int sig)
 	rl_redisplay();
 }
 
-#include <string.h>
-int main(int argc, char **argv,char **envp)
+int	main(int argc, char **argv, char **envp)
 {
-	char 			*line;
-	char 			**str;
-	t_cmd				*cmd;
-	t_env			*env;
-	t_env			*exportt;
-	(void)argv;
+	int		i;
+	int		c;
+	char	*line;
+	char	**str;
+	t_cmd	*cmd;
+	t_env	*env;
+	t_env	*exportt;
 
-	int i = 0;
-	char **S = ft_split("export", ' ');
+	(void) argv;
+	i = 0;
 	env = NULL;
 	exportt = NULL;
 	signal(SIGQUIT, SIG_IGN);
@@ -721,20 +592,17 @@ int main(int argc, char **argv,char **envp)
 	if (argc == 1)
 	{
 		createnv(&env, envp);
-		createnv(&exportt, S);
-		while(1)
+		createnv(&exportt, envp);
+		while (1)
 		{
 			i = 0;
-			line =  readline("𝖒𝖎𝖓𝖎𝖘𝖍𝖊𝖑𝖑➜ ");
+			line = readline("𝖒𝖎𝖓𝖎𝖘𝖍𝖊𝖑𝖑➜ ");
 			signal(SIGINT, handlle);
-			// if (!line)
-			// 	printf("\n");
 			if (!line || ft_strcmp(line, "exit") == 0)
-				return 0;
+				return (0);
 			if (ft_strncmp(line, "\n", ft_strlen(line)))
-				continue;
+				continue ;
 			add_history(line);
-			// printenv(envp, line, env);
 			if (line[0] == 'c' && line[1] == 'd' && line[2] == ' ')
 			{
 				if (chdir(line + 3) < 0)
@@ -744,17 +612,16 @@ int main(int argc, char **argv,char **envp)
 			line = putspace(line, &env);
 			if (!line)
 				continue ;
-			//printf("-->%s<---\n", line);
 			str = ft_split(line, ' ');
 			undo(str);
 			if (!checkerrors(str))
-				continue;
-			int	p = 0,c = 0;
+				continue ;
+			c = 0;
 			runcmd(magic_time(str, &i, envp, &env), &env, &exportt, &c);
 			free(line);
 			line = NULL;
 			free_all(str);
 		}
 	}
-	return 0;
+	return (0);
 }
