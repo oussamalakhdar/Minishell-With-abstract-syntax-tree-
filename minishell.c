@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/29 16:01:41 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/29 19:53:28 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -371,14 +371,17 @@ t_cmd	*execnode(char **s, int *i, char **envp, t_env **env)
 t_cmd	*parce_pipe(char **str, int *i, char **envp, t_env **env)
 {
 	t_cmd	*cmdd;
+	char	**tmp;
 
+	tmp = parceline(str, i);
 	if (checker(str, '|', i))
 	{
-		cmdd = pipecmd(execnode(parceline(str, i), i, envp, env),
+		cmdd = pipecmd(execnode(tmp, i, envp, env),
 				parce_pipe(str, i, envp, env));
 	}
 	else
-		cmdd = execnode(parceline(str, i), i, envp, env);
+		cmdd = execnode(tmp, i, envp, env);
+	free_all(tmp);
 	return (cmdd);
 }
 
@@ -388,6 +391,7 @@ t_cmd	*magic_time(char **s, int *i, char **envp, t_env **env)
 	t_cmd	*pcmd;
 
 	cmdd = parce_pipe(s, i, envp, env);
+	// while(1);
 	return ((t_cmd *) cmdd);
 }
 
@@ -573,6 +577,63 @@ void	handlle(int sig)
 	rl_redisplay();
 }
 
+void	free_tree(t_cmd *tree, int	*r)
+{
+	t_ppipe		*pipenode;
+	t_execcmd	*execnode;
+	t_redir		*redirnode;
+
+	if (tree->type == '|')
+	{
+		(*r)++;
+		pipenode = (t_ppipe *)tree;
+		int	pid = myfork();
+		if (pid == 0)
+		{
+			free_tree(pipenode->left, r);
+		}
+		else
+		{
+			if (pipenode->right->type == '>')
+			{
+				int	pid2 = myfork();
+				if (pid2 == 0)
+				{
+					free_tree(pipenode->right, r);
+				}
+				while (waitpid(-1, NULL, 0) > 0)
+					;
+			}
+			else
+				free_tree(pipenode->right, r);
+		}
+	}
+	else if (tree->type == '>')
+	{
+		t_redir	*cmd;
+
+		cmd = (t_redir *)tree;
+		free_tree(cmd->cmdn, r);
+		free(cmd);
+		if (*r != 0)
+			exit(0);
+	}
+	else if (tree->type == ' ')
+	{
+		t_execcmd	*cmd;
+
+		cmd = (t_execcmd *)tree;
+		free_all(cmd->path);
+		if (cmd->argv != NULL)
+			free_all(cmd->argv);
+		if (cmd->infile)
+			free(cmd->infile);
+		if (cmd->outfile)
+			free(cmd->outfile);
+		free(cmd);
+	}
+}
+
 int	main(int argc, char **argv, char **envp)
 {
 	int		i;
@@ -615,12 +676,20 @@ int	main(int argc, char **argv, char **envp)
 			str = ft_split(line, ' ');
 			undo(str);
 			if (!checkerrors(str))
+			{
+				free(line);
+				line = NULL;
+				free_all(str);
 				continue ;
+			}
 			c = 0;
-			runcmd(magic_time(str, &i, envp, &env), &env, &exportt, &c);
+			cmd = magic_time(str, &i, envp, &env);
+			runcmd(cmd, &env, &exportt, &c);
 			free(line);
 			line = NULL;
 			free_all(str);
+			c = 0;
+			free_tree(cmd, &c);
 		}
 	}
 	return (0);
