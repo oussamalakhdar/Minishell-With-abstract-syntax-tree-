@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/29 19:53:28 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/29 23:31:53 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -260,7 +260,7 @@ char	*getfiles(char **s, char c, t_env **env)
 	{
 		if (s[j][0] == c && s[j][1] != c && s[j + 1][0] != c)
 		{
-			str = ft_strdup("");
+			//str = ft_strdup("");
 			free(str);
 			str = NULL;
 			str = ft_strdup(s[++j]);
@@ -277,7 +277,7 @@ char	*getfiles(char **s, char c, t_env **env)
 		else if (s[j][0] == c && s[j][1] == c
 				&& s[j][2] != c && s[j + 1][0] != c)
 		{
-			str = ft_strdup("");
+			//str = ft_strdup("");
 			free(str);
 			str = NULL;
 			str = ft_strdup(s[++j]);
@@ -363,6 +363,7 @@ t_cmd	*execnode(char **s, int *i, char **envp, t_env **env)
 	cmdd->argv = scan_arg(s);
 	cmdd->infile = getfiles(s, '<', env);
 	cmdd->outfile = getfiles(s, '>', env);
+	//printf("%s    %s\n",cmdd->infile, cmdd->outfile);
 	cmdd->path = get_path(envp);
 	cmdd = (t_execcmd *)redirect_cmd((t_cmd *)cmdd, s, i);
 	return ((t_cmd *) cmdd);
@@ -373,14 +374,17 @@ t_cmd	*parce_pipe(char **str, int *i, char **envp, t_env **env)
 	t_cmd	*cmdd;
 	char	**tmp;
 
-	tmp = parceline(str, i);
 	if (checker(str, '|', i))
 	{
+		tmp = parceline(str, i);
 		cmdd = pipecmd(execnode(tmp, i, envp, env),
 				parce_pipe(str, i, envp, env));
 	}
 	else
+	{
+		tmp = parceline(str, i);
 		cmdd = execnode(tmp, i, envp, env);
+	}
 	free_all(tmp);
 	return (cmdd);
 }
@@ -411,6 +415,7 @@ void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
 	j = 1;
 	if (cmdd->type == '|')
 	{
+		//printf("***********PIPE*************\n");
 		(*c)++;
 		pcmd = (t_ppipe *)cmdd;
 		pipe(pp);
@@ -585,41 +590,38 @@ void	free_tree(t_cmd *tree, int	*r)
 
 	if (tree->type == '|')
 	{
+		//printf("***************PIPE******************\n");
 		(*r)++;
 		pipenode = (t_ppipe *)tree;
-		int	pid = myfork();
-		if (pid == 0)
-		{
-			free_tree(pipenode->left, r);
-		}
-		else
-		{
-			if (pipenode->right->type == '>')
-			{
-				int	pid2 = myfork();
-				if (pid2 == 0)
-				{
-					free_tree(pipenode->right, r);
-				}
-				while (waitpid(-1, NULL, 0) > 0)
-					;
-			}
-			else
-				free_tree(pipenode->right, r);
-		}
+		free_tree(pipenode->left, r);
+			//free(pipenode->left);
+		// if (pipenode->right->type == '>')
+		// {
+		// 	free_tree(pipenode->right, r);
+		// }
+				// while (waitpid(-1, NULL, 0) > 0)
+				// 	;
+		
+		// else
+		free_tree(pipenode->right, r);
+		free(pipenode);
+			// while (1);
+			// free(tree);
 	}
 	else if (tree->type == '>')
 	{
+		//printf("***************REDIR******************\n");
 		t_redir	*cmd;
 
 		cmd = (t_redir *)tree;
 		free_tree(cmd->cmdn, r);
 		free(cmd);
-		if (*r != 0)
-			exit(0);
+		// if (*r != 0)
+		// 	exit(0);
 	}
 	else if (tree->type == ' ')
 	{
+		//printf("****************EXEC*****************\n");
 		t_execcmd	*cmd;
 
 		cmd = (t_execcmd *)tree;
@@ -630,6 +632,21 @@ void	free_tree(t_cmd *tree, int	*r)
 			free(cmd->infile);
 		if (cmd->outfile)
 			free(cmd->outfile);
+		free(cmd);
+	}
+}
+
+void	flip_free(t_cmd	*cmd)
+{
+	t_ppipe	*pcmd;
+
+	if (!cmd)
+		return ;
+	if (cmd->type == '|')
+	{
+		pcmd = (t_ppipe *)cmd;
+		if (pcmd->right != NULL)
+			flip_free(pcmd->right);
 		free(cmd);
 	}
 }
@@ -690,6 +707,8 @@ int	main(int argc, char **argv, char **envp)
 			free_all(str);
 			c = 0;
 			free_tree(cmd, &c);
+			flip_free(cmd);
+			//while(1);
 		}
 	}
 	return (0);
