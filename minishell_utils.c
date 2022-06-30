@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell_utils.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 14:13:37 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/29 12:44:50 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/30 15:14:02 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@ char	*ft_strdup(const char *s1)
 	char	*str;
 
 	i = 0;
+	if (!s1)
+		return (NULL);
 	while (s1[i])
 		i++;
 	str = malloc(sizeof(char) * (i + 1));

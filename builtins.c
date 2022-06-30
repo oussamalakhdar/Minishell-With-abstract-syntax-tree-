@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/19 14:53:09 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/30 11:20:26 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/30 15:11:01 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,13 @@ void	export(char **s, t_env **env, t_env **export)
 		printexport(export, s[0]);
 	else
 	{
+		if (!is_specialchar(s[1][0]))
+			;
+		else
+		{
+			perror("export failed");
+			return ;
+		}
 		while (s[i])
 		{
 			var = ft_split(s[i], '=');
