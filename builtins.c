@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtins.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/19 14:53:09 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/29 16:13:21 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/30 11:20:26 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,7 @@ char	check_cmd(char *s)
 	return ('a');
 }
 
-void	builtins(char **s, t_env **env, t_env **exportt)
+void	builtins(char **s, t_env **env)
 {
 	char	c;
 

@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 12:08:52 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/29 18:47:19 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/30 12:14:27 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ void	ft_lstadd_back(t_env **lst, t_env *new)
 	t_env	*new2;
 
 	temp = *lst;
-	new2 = ft_lstnew(new->var_name, new->var_value);
+	new2 = ft_lstnew(ft_strdup(new->var_name), ft_strdup(new->var_value));
 	if ((*lst) == NULL)
 	{
 		*lst = new2;
@@ -81,8 +81,9 @@ void	createnv(t_env **env, char **envp)
 {
 	int		i;
 	t_env	*new;
-	t_env	*tmp;
 	char	**var;
+	char	*pwdd;
+	
 
 	i = 0;
 	if (!envp)
@@ -92,15 +93,17 @@ void	createnv(t_env **env, char **envp)
 		var = NULL;
 		var = ft_split(envp[i], '=');
 		if (ft_strcmp(var[0], "PWD") == 0)
-			new = ft_lstnew(var[0], pwd());
+		{
+			pwdd = pwd();
+			new = ft_lstnew(var[0], pwdd);
+			free(pwdd);
+		}
 		else
 			new = ft_lstnew(var[0], var[1]);
-		// tmp = new;
 		ft_lstadd_back(env, new);
+		free_all(var);
 		free(new);
 		new = NULL;
-		free_all(var);
-		// while (1);
 		i++;
 	}
 }

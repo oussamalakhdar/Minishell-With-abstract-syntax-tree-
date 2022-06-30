@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 21:37:16 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/29 18:53:33 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/30 14:20:31 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,30 +26,71 @@ char	*find_dollar(char *s)
 	return (NULL);
 }
 
+void	add_value_utils(char *s, int *i, char *ret)
+{
+	if (s[(*i)] == '\'' || ((*i) > 1 && s[(*i) - 1] == '<' && s[(*i) - 2] == '<'))
+	{
+		if (s[(*i) - 1] != '<')
+		{
+			(*i)++;
+			while (s[(*i)] != '\'' && s[(*i)])
+			{
+				ret = charjoin(ret, s[(*i)]);
+				(*i)++;
+			}
+		}
+		else
+		{
+			while (s[(*i)] && (s[(*i)] == SPACE2 || s[(*i)] == ' '))
+				(*i)++;
+			while (s[(*i)] && s[(*i)] != SPACE2 && s[(*i)] != ' ')
+			{
+				ret = charjoin(ret, s[(*i)]);
+				(*i)++;
+			}
+		}
+	}
+}
+
 char	*add_value(char *s, t_env **env)
 {
 	char	*ret;
 	char	*name;
 	char	*value;
-	int		i;
-	int		j;
+	int		i,j;
 	int		p;
 
 	i = 0;
-	p = 0;
 	if (!find_dollar(s))
 		return (s);
 	ret = ft_strdup("");
 	while (s[i])
 	{
+		j = i;
+		//add_value_utils(s, &i, ret);
+		if (s[i] == '\"')
+		{
+			i++;
+			while (s[i] && s[i] != '\"')
+			{
+				if (s[i] == '\'')
+					s[i] = QUOT;
+				i++;
+			}
+		}
+		i = j;
 		if (s[i] == '\'' || (i > 1 && s[i - 1] == '<' && s[i - 2] == '<'))
 		{
 			if (s[i - 1] != '<')
 			{
+				ret = charjoin(ret, s[i]);
 				i++;
 				while (s[i] != '\'' && s[i])
 				{
-					ret = charjoin(ret, s[i]);
+					if (s[i] == '\"')
+						ret = charjoin(ret, QUOT2);
+					else
+						ret = charjoin(ret, s[i]);
 					i++;
 				}
 			}
@@ -83,13 +124,13 @@ char	*add_value(char *s, t_env **env)
 			}
 			value = scan_list(name, env);
 			i++;
-			j = 0;
+			p = 0;
 			if (value != NULL)
 			{
-				while (value[j])
+				while (value[p])
 				{
-					ret = charjoin(ret, value[j]);
-					j++;
+					ret = charjoin(ret, value[p]);
+					p++;
 				}
 			}
 			else if (is_specialchar(s[i]))
@@ -97,13 +138,15 @@ char	*add_value(char *s, t_env **env)
 			while (s[i] && !is_specialchar(s[i]))
 				i++;
 			i--;
+			if (name)
+				free(name);
 		}
 		else
 			ret = charjoin(ret, s[i]);
 		i++;
 	}
-	free(name);
-	free(s);
+	if (s)
+		free(s);
 	return (ret);
 }
 
@@ -116,20 +159,25 @@ char	*putspace(char *s, t_env **env)
 	i = 0;
 	cot = 0;
 	str = ft_strdup("");
-	if (scanner(s) == -1)
-		return (NULL);
 	while (i <= ft_strlen(s))
 	{
 		s = add_value(s, env);
+		if (scanner(s) == -1)
+		{
+			g_status = 1;
+			return (NULL);
+		}
 		s = remove_space(s, '\"', &i);
 		i = 0;
 		s = remove_space(s, '\'', &i);
 		i++;
+		//printf("---->%s\n", s);
 	}
 	i = 0;
 	while (s[i])
 	{
-		if (s[i + 1] == '|' || (s[i + 1] == '<' && s[i] != '<') || (s[i + 1] == '>' && s[i] != '>'))
+		if (s[i + 1] == '|' || (s[i + 1] == '<' && s[i] != '<') \
+			|| (s[i + 1] == '>' && s[i] != '>'))
 		{
 			if (s[i] != ' ')
 			{

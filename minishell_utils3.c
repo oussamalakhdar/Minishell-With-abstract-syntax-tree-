@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell_utils3.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/29 15:53:44 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/29 15:56:46 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/30 14:18:21 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,28 +21,37 @@ int	scanner(char *s)
 	i = 0;
 	ss = 0;
 	d = 0;
+	//printf("--------%s\n",s);
 	while (s[i])
 	{
+		
 		if (s[i] == '\"')
 		{
-			if (d == 0)
-				d = 1;
-			else
-				d = 0;
+			i++;
+			while (s[i] != '\"')
+			{
+				if (s[i] == '\0')
+				{
+					perror("wa sed hadik quote ra mhandlinha");
+					return(-1);
+				}
+				i++;
+			}
 		}
 		if (s[i] == '\'')
 		{
-			if (ss == 0)
-				ss = 1;
-			else
-				ss = 0;
+			i++;
+			while (s[i] != '\'')
+			{
+				if (s[i] == '\0')
+				{
+					perror("wa sed hadik quote ra mhandlinha");
+					return(-1);
+				}
+				i++;
+			}
 		}
 		i++;
-	}
-	if (d == 1 || ss == 1)
-	{
-		perror("wa sed hadik quote ra mhandlinha");
-		return (-1);
 	}
 	return (0);
 }
