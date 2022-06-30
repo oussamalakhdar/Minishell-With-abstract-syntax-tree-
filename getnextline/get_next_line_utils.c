@@ -6,22 +6,12 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 23:25:01 by abayar            #+#    #+#             */
-/*   Updated: 2022/06/18 14:07:40 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/30 10:48:19 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 #include "../minishell.h"
-
-// int	ft_strlen(char *s)
-// {
-// 	int	i;
-
-// 	i = 0;
-// 	while (s[i])
-// 		i++;
-// 	return (i);
-// }
 
 char	*ft_strrdup(char *s1)
 {

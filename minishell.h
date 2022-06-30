@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/29 16:08:58 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/30 11:20:46 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,7 @@ void	close_read_f(int fd, char *str);
 char	*pwd(void);
 int		scanner(char *s);
 int		tablen(char **str);
-void	builtins(char **s, t_env **env, t_env **exportt);
+void	builtins(char **s, t_env **env);
 char	check_cmd(char *s);
 void	printenv(t_env **env, char *s);
 void	export(char **s, t_env **env, t_env **export);

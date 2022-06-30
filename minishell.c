@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/29 23:31:53 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/30 14:14:34 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,11 @@ int	check_exit(char **s)
 		{
 			perror("exit: too many arguments");
 			g_status = 1;
+			return (0);
+		}
+		else
+		{
+			exit(0);
 			return (0);
 		}
 	}
@@ -185,7 +190,6 @@ void	read_f(char *s, int fd, t_env **env)
 	j = 0;
 	ss = NULL;
 	str = NULL;
-	newstr = ft_strdup("");
 	if (!s)
 		return ;
 	l = ft_strlen(s);
@@ -200,6 +204,7 @@ void	read_f(char *s, int fd, t_env **env)
 			i = 0;
 			if (find_dollar(str))
 			{
+				newstr = ft_strdup("");
 				ss = ft_strdup(find_dollar(str));
 				ss = find(ss, ' ');
 				if (scan_list(ss, env))
@@ -252,6 +257,7 @@ char	*getfiles(char **s, char c, t_env **env)
 	int		j;
 	int		fd;
 	char	*str;
+	char	*name;
 
 	j = 0;
 	fd = 0;
@@ -261,7 +267,8 @@ char	*getfiles(char **s, char c, t_env **env)
 		if (s[j][0] == c && s[j][1] != c && s[j + 1][0] != c)
 		{
 			//str = ft_strdup("");
-			free(str);
+			if (str)
+				free(str);
 			str = NULL;
 			str = ft_strdup(s[++j]);
 			if (c == '<')
@@ -278,17 +285,20 @@ char	*getfiles(char **s, char c, t_env **env)
 				&& s[j][2] != c && s[j + 1][0] != c)
 		{
 			//str = ft_strdup("");
-			free(str);
+			if (str)
+				free(str);
 			str = NULL;
 			str = ft_strdup(s[++j]);
 			if (c == '>')
 				fd = open(str, O_CREAT | O_WRONLY | O_APPEND, 0644);
 			else
 			{
-				// fd = open("/tmp/str", O_CREAT | O_RDWR | O_TRUNC, 0777);
-				fd = open(str, O_CREAT | O_RDWR | O_TRUNC, 0777);
+				name = ft_strjoin(ft_strdup("/tmp/"), str);
+				fd = open(name, O_CREAT | O_RDWR | O_TRUNC, 0777);
+				// fd = open(str, O_CREAT | O_RDWR | O_TRUNC, 0777);
 				read_f(str, fd, env);
-				// str = ft_strdup("/tmp/str");
+				free(str);
+				str = name;
 			}
 			close(fd);
 		}
@@ -311,7 +321,7 @@ int	if_app(char **s, char *s1)
 	return (0);
 }
 
-t_cmd	*redirect_cmd(t_cmd *exec, char **s, int *i)
+t_cmd	*redirect_cmd(t_cmd *exec, char **s)
 {
 	t_redir		*cmdd;
 	t_execcmd	*excmd;
@@ -354,7 +364,7 @@ t_cmd	*pipecmd(t_cmd *left, t_cmd *right)
 	return ((t_cmd *) cmdd);
 }
 
-t_cmd	*execnode(char **s, int *i, char **envp, t_env **env)
+t_cmd	*execnode(char **s, char **envp, t_env **env)
 {
 	t_execcmd	*cmdd;
 
@@ -363,9 +373,8 @@ t_cmd	*execnode(char **s, int *i, char **envp, t_env **env)
 	cmdd->argv = scan_arg(s);
 	cmdd->infile = getfiles(s, '<', env);
 	cmdd->outfile = getfiles(s, '>', env);
-	//printf("%s    %s\n",cmdd->infile, cmdd->outfile);
 	cmdd->path = get_path(envp);
-	cmdd = (t_execcmd *)redirect_cmd((t_cmd *)cmdd, s, i);
+	cmdd = (t_execcmd *)redirect_cmd((t_cmd *)cmdd, s);
 	return ((t_cmd *) cmdd);
 }
 
@@ -377,13 +386,13 @@ t_cmd	*parce_pipe(char **str, int *i, char **envp, t_env **env)
 	if (checker(str, '|', i))
 	{
 		tmp = parceline(str, i);
-		cmdd = pipecmd(execnode(tmp, i, envp, env),
+		cmdd = pipecmd(execnode(tmp, envp, env),
 				parce_pipe(str, i, envp, env));
 	}
 	else
 	{
 		tmp = parceline(str, i);
-		cmdd = execnode(tmp, i, envp, env);
+		cmdd = execnode(tmp, envp, env);
 	}
 	free_all(tmp);
 	return (cmdd);
@@ -392,10 +401,8 @@ t_cmd	*parce_pipe(char **str, int *i, char **envp, t_env **env)
 t_cmd	*magic_time(char **s, int *i, char **envp, t_env **env)
 {
 	t_cmd	*cmdd;
-	t_cmd	*pcmd;
 
 	cmdd = parce_pipe(s, i, envp, env);
-	// while(1);
 	return ((t_cmd *) cmdd);
 }
 
@@ -450,7 +457,7 @@ void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
 	else if (cmdd->type == ' ')
 	{
 		execcmdd = (t_execcmd *)cmdd;
-		builtins(execcmdd->argv, env, exportt);
+		builtins(execcmdd->argv, env);
 		while (execcmdd->path[i])
 		{
 			str = ft_strjoin(execcmdd->path[i], "/");
@@ -468,6 +475,7 @@ void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
 		}
 		else
 			perror("Path Not Found!");
+		exit(1);
 	}
 	else if (cmdd->type == '>')
 	{
@@ -576,6 +584,7 @@ void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
 
 void	handlle(int sig)
 {
+	(void)sig;
 	rl_replace_line("", 0);
 	write(1, "\n", 1);
 	rl_on_new_line();
@@ -590,49 +599,29 @@ void	free_tree(t_cmd *tree, int	*r)
 
 	if (tree->type == '|')
 	{
-		//printf("***************PIPE******************\n");
 		(*r)++;
 		pipenode = (t_ppipe *)tree;
 		free_tree(pipenode->left, r);
-			//free(pipenode->left);
-		// if (pipenode->right->type == '>')
-		// {
-		// 	free_tree(pipenode->right, r);
-		// }
-				// while (waitpid(-1, NULL, 0) > 0)
-				// 	;
-		
-		// else
 		free_tree(pipenode->right, r);
 		free(pipenode);
-			// while (1);
-			// free(tree);
 	}
 	else if (tree->type == '>')
 	{
-		//printf("***************REDIR******************\n");
-		t_redir	*cmd;
-
-		cmd = (t_redir *)tree;
-		free_tree(cmd->cmdn, r);
-		free(cmd);
-		// if (*r != 0)
-		// 	exit(0);
+		redirnode = (t_redir *)tree;
+		free_tree(redirnode->cmdn, r);
+		free(redirnode);
 	}
 	else if (tree->type == ' ')
 	{
-		//printf("****************EXEC*****************\n");
-		t_execcmd	*cmd;
-
-		cmd = (t_execcmd *)tree;
-		free_all(cmd->path);
-		if (cmd->argv != NULL)
-			free_all(cmd->argv);
-		if (cmd->infile)
-			free(cmd->infile);
-		if (cmd->outfile)
-			free(cmd->outfile);
-		free(cmd);
+		execnode = (t_execcmd *)tree;
+		free_all(execnode->path);
+		if (execnode->argv != NULL)
+			free_all(execnode->argv);
+		if (execnode->infile)
+			free(execnode->infile);
+		if (execnode->outfile)
+			free(execnode->outfile);
+		free(execnode);
 	}
 }
 
@@ -676,22 +665,35 @@ int	main(int argc, char **argv, char **envp)
 			i = 0;
 			line = readline("𝖒𝖎𝖓𝖎𝖘𝖍𝖊𝖑𝖑➜ ");
 			signal(SIGINT, handlle);
-			if (!line || ft_strcmp(line, "exit") == 0)
+			if (!line)
 				return (0);
 			if (ft_strncmp(line, "\n", ft_strlen(line)))
+			{
+				free(line);
+				line = NULL;
 				continue ;
+			}
 			add_history(line);
 			if (line[0] == 'c' && line[1] == 'd' && line[2] == ' ')
 			{
 				if (chdir(line + 3) < 0)
 					perror("Error");
+				free(line);
+				line = NULL;
 				continue ;
 			}
 			line = putspace(line, &env);
 			if (!line)
 				continue ;
+			//printf("%s\n",line);
 			str = ft_split(line, ' ');
 			undo(str);
+			// int	f=0;
+			// while (str[f])
+			// {
+			// 	printf("%s\n",str[f]);
+			// 	f++;
+			// }
 			if (!checkerrors(str))
 			{
 				free(line);
@@ -707,8 +709,6 @@ int	main(int argc, char **argv, char **envp)
 			free_all(str);
 			c = 0;
 			free_tree(cmd, &c);
-			flip_free(cmd);
-			//while(1);
 		}
 	}
 	return (0);
