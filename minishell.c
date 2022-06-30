@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/30 14:46:01 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/30 14:51:50 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -458,6 +458,8 @@ void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
 	{
 		execcmdd = (t_execcmd *)cmdd;
 		builtins(execcmdd->argv, env);
+		if (access(execcmdd->argv[0], F_OK) != -1)
+			execve(execcmdd->argv[0], execcmdd->argv, NULL);
 		while (execcmdd->path[i])
 		{
 			str = ft_strjoin(execcmdd->path[i], "/");
