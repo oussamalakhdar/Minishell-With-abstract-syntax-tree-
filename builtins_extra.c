@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtins_extra.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/29 16:08:04 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/29 16:13:28 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/30 20:08:24 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,11 +62,29 @@ void	printexport(t_env **export, char *s)
 			if (temp->var_value)
 				printf("declare -x %s=\"%s\"\n", temp->var_name, temp->var_value);
 			else if (temp->flag)
-				printf("declare -x %s=\"\"\n", temp->var_name);
+				printf("declare -x %s=\'\'\n", temp->var_name);
 			else
 				printf("declare -x %s\n", temp->var_name);
 			temp = temp->next;
 		}
+	}
+}
+
+void	unset_helper(t_env *temp, t_env *tmp, char *s)
+{
+	if (ft_strcmp(temp->next->var_name, s) == 0)
+	{
+		tmp = temp->next;
+		if (temp->next->next)
+			temp->next = temp->next->next;
+		else
+			temp->next = NULL;
+		free(tmp->var_name);
+		free(tmp->var_value);
+		tmp->flag = 0;
+		tmp->next = NULL;
+		free(tmp);
+		tmp = NULL;
 	}
 }
 
@@ -92,20 +110,7 @@ void	unset(char *s, t_env **env)
 	{
 		if (!temp->next)
 			break ;
-		if (ft_strcmp(temp->next->var_name, s) == 0)
-		{
-			tmp = temp->next;
-			if (temp->next->next)
-				temp->next = temp->next->next;
-			else
-				temp->next = NULL;
-			free(tmp->var_name);
-			free(tmp->var_value);
-			tmp->flag = 0;
-			tmp->next = NULL;
-			free(tmp);
-			tmp = NULL;
-		}
+		unset_helper(temp, tmp, s);
 		temp = temp->next;
 	}
 }

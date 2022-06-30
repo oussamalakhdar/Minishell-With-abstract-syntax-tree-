@@ -6,19 +6,21 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/29 15:39:02 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/29 19:52:35 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/30 18:11:43 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-char	**get_path(char **env)
+char	**get_path(char **env, t_env *envp)
 {
 	int		i;
 	char	**tmp;
 	char	**str;
 
 	i = 0;
+	if (!scan_list("PATH", &envp))
+		return (NULL);
 	while (env[i])
 	{
 		if (env[i][0] == 'P' && env[i][2] == 'T')
@@ -36,6 +38,20 @@ char	**get_path(char **env)
 	exit(1);
 }
 
+int	count_file(char **s, int *j)
+{
+	int	count;
+
+	count = 0;
+	while (s[(*j)])
+	{
+		if ((s[(*j)][0] == '>') || (s[(*j)][0] == '<'))
+			count++;
+		(*j)++;
+	}
+	return (count);
+}
+
 char	**scan_arg(char **s)
 {
 	int		j;
@@ -44,12 +60,7 @@ char	**scan_arg(char **s)
 
 	j = 0;
 	count = 0;
-	while (s[j])
-	{
-		if ((s[j][0] == '>') || (s[j][0] == '<'))
-			count++;
-		j++;
-	}
+	count = count_file(s, &j);
 	ss = malloc(sizeof(char *) * (j - (count * 2) + 1));
 	j = 0;
 	count = 0;

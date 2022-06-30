@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 12:08:52 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/30 12:14:27 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/30 18:03:32 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@ void	free_all(char **s)
 	int	i;
 
 	i = 0;
+	if (!s)
+		return ;
 	while (s[i])
 	{
 		free(s[i]);
@@ -83,7 +85,6 @@ void	createnv(t_env **env, char **envp)
 	t_env	*new;
 	char	**var;
 	char	*pwdd;
-	
 
 	i = 0;
 	if (!envp)
@@ -103,7 +104,7 @@ void	createnv(t_env **env, char **envp)
 		ft_lstadd_back(env, new);
 		free_all(var);
 		free(new);
-		new = NULL;
 		i++;
 	}
 }
+		//new = NULL; top of i++;
