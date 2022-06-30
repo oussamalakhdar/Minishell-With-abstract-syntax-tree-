@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtins.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/19 14:53:09 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/30 15:11:01 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/30 17:01:17 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ void	export(char **s, t_env **env, t_env **export)
 		printexport(export, s[0]);
 	else
 	{
-		if (!is_specialchar(s[1][0]))
+		if (!is_specialchar(s[1][0]) && !(s[1][0] >= '0' && s[1][0] <= '9'))
 			;
 		else
 		{
@@ -56,7 +56,7 @@ void	export(char **s, t_env **env, t_env **export)
 			scan_list(var[0], export);
 			if (tablen(var) >= 2)
 			{
-				new = ft_lstnew(var[0], ft_strdup(value));
+				new = ft_lstnew(ft_strdup(var[0]), ft_strdup(value));
 				new2 = ft_lstnew(ft_strdup(var[0]), ft_strdup(value));
 				if (scan_list(var[0], env))
 					unset(var[0], env);
@@ -64,8 +64,8 @@ void	export(char **s, t_env **env, t_env **export)
 			}
 			else
 			{
-				new = ft_lstnew(var[0], NULL);
-				new2 = ft_lstnew(var[0], NULL);
+				new = ft_lstnew(ft_strdup(var[0]), NULL);
+				new2 = ft_lstnew(ft_strdup(var[0]), NULL);
 				if (ft_strchr(s[i], '=') != -1)
 				{
 					new2->flag = 1;
@@ -81,6 +81,19 @@ void	export(char **s, t_env **env, t_env **export)
 			}
 			if (!scan_list(var[0], export))
 				ft_lstadd_back(export, new2);
+			free_all(var);
+			if (new->var_name)
+				free(new->var_name);
+			if (new->var_value)
+				free(new->var_value);
+			free(new);
+			new = NULL;
+			if (new2->var_name)
+				free(new2->var_name);
+			if (new2->var_value)
+				free(new2->var_value);
+			free(new2);
+			new2 = NULL;
 			i++;
 		}
 	}
