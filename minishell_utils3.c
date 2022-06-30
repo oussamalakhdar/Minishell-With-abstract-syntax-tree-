@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell_utils3.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/29 15:53:44 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/30 15:10:20 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/30 15:44:53 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@ int	scanner(char *s)
 	i = 0;
 	ss = 0;
 	d = 0;
-	//printf("--------%s\n",s);
 	while (s[i])
 	{
 		
