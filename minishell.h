@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/30 11:20:46 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/30 22:33:08 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,15 @@ typedef struct s_env
 	int				flag;
 	struct s_env	*next;
 }	t_env;
+
+typedef struct s_ex
+{
+	char	**var;
+	char	*value;
+	t_env	*new;
+	t_env	*new2;
+	int		flag;
+}	t_ex;
 
 enum e_def
 {
@@ -101,7 +110,7 @@ void	builtins(char **s, t_env **env);
 char	check_cmd(char *s);
 void	printenv(t_env **env, char *s);
 void	export(char **s, t_env **env, t_env **export);
-void	printexport(t_env **export, char *s);
+void	printexport(t_env **export, char *s);//, t_ex *data);
 void	unset(char *s, t_env **env);
 char	*scan_list(char *s, t_env **node);
 void	handlle(int sig);
@@ -109,12 +118,16 @@ char	*ft_strjoin(char *s1, char *s2);
 char	*ft_itoa(int n);
 char	*find_dollar(char *s);
 char	*ft_strjoin(char *s1, char *s2);
-char	**get_path(char **env);
+char	**get_path(char **env, t_env *envp);
 char	**scan_arg(char **s);
 int		chrr(char **s, int *i);
 int		checker(char **s, char c, int *i);
 int		is_specialchar(char s);
 char	*pwd(void);
 void	echo(char **s);
+int		helper_scanner(char *c, char q, int *i);
+void	add_value_utils2(char *s, int i);
+void	add_value_utils3(char *s, int *i, char *ret);
+int	add_value_utils4(char *name, char *ret, char *s, int *i);
 
 #endif

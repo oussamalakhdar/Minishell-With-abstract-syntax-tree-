@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/30 14:51:50 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/30 19:02:48 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,8 @@ int	checkerrors(char **s)
 
 	i = 0;
 	j = 0;
+	if (*s == NULL)
+		return (0);
 	if (!check_exit(s))
 		return (0);
 	while (s[i])
@@ -373,7 +375,7 @@ t_cmd	*execnode(char **s, char **envp, t_env **env)
 	cmdd->argv = scan_arg(s);
 	cmdd->infile = getfiles(s, '<', env);
 	cmdd->outfile = getfiles(s, '>', env);
-	cmdd->path = get_path(envp);
+	cmdd->path = get_path(envp, *env);
 	cmdd = (t_execcmd *)redirect_cmd((t_cmd *)cmdd, s);
 	return ((t_cmd *) cmdd);
 }
@@ -458,6 +460,11 @@ void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
 	{
 		execcmdd = (t_execcmd *)cmdd;
 		builtins(execcmdd->argv, env);
+		if (execcmdd->path == NULL)
+		{
+			perror("Path not found");
+			exit(1);
+		}
 		if (access(execcmdd->argv[0], F_OK) != -1)
 			execve(execcmdd->argv[0], execcmdd->argv, NULL);
 		while (execcmdd->path[i])
@@ -643,6 +650,20 @@ void	flip_free(t_cmd	*cmd)
 	}
 }
 
+int	find_space(char *s)
+{
+	int	i;
+
+	i = 0;
+	while (s[i])
+	{
+		if (s[i] != ' ' || s[i] != '\t' || s[i] != '\v' || s[i] != '\r' || s[i] != '\b')
+			return (0);
+		i++;
+	}
+	return (1);
+}
+
 int	main(int argc, char **argv, char **envp)
 {
 	int		i;
@@ -670,6 +691,8 @@ int	main(int argc, char **argv, char **envp)
 			signal(SIGINT, handlle);
 			if (!line)
 				return (0);
+			if (find_space(line))
+				continue ;
 			if (ft_strncmp(line, "\n", ft_strlen(line)))
 			{
 				free(line);
@@ -688,15 +711,8 @@ int	main(int argc, char **argv, char **envp)
 			line = putspace(line, &env);
 			if (!line)
 				continue ;
-			//printf("%s\n",line);
 			str = ft_split(line, ' ');
 			undo(str);
-			// int	f=0;
-			// while (str[f])
-			// {
-			// 	printf("%s\n",str[f]);
-			// 	f++;
-			// }
 			if (!checkerrors(str))
 			{
 				free(line);

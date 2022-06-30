@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell_utils1.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/28 18:23:49 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/28 18:25:56 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/06/30 22:39:55 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,12 @@ int	ft_strcmp(char *s1, char *s2)
 	size_t	i;
 
 	i = 0;
+	// if (!s1 && s2)
+	// 	return (-1);
+	// if (s1 && !s2)
+	// 	return (1);
+	// if (!s1 && !s2)
+	// 	return (0);
 	while (s1[i] || s2[i])
 	{
 		if (s1[i] != s2[i])
