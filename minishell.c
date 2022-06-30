@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/30 14:14:34 by abayar           ###   ########.fr       */
+/*   Updated: 2022/06/30 14:46:01 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -475,7 +475,8 @@ void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
 		}
 		else
 			perror("Path Not Found!");
-		exit(1);
+		g_status = WEXITSTATUS(exstatus);
+		exit(g_status);
 	}
 	else if (cmdd->type == '>')
 	{
