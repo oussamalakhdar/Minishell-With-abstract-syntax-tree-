@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell_utils2.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/29 15:39:02 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/30 18:11:43 by abayar           ###   ########.fr       */
+/*   Updated: 2022/07/01 11:31:25 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,20 +97,4 @@ int	tablen(char **s)
 	while (s[i])
 		i++;
 	return (i);
-}
-
-int	checker(char **s, char c, int *i)
-{
-	int	j;
-
-	j = (*i);
-	if (tablen(s) <= (*i))
-		return (0);
-	while (s[j])
-	{
-		if (s[j][0] == c)
-			return (1);
-		j++;
-	}
-	return (0);
 }
