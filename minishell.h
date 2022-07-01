@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/07/01 15:33:41 by abayar           ###   ########.fr       */
+/*   Updated: 2022/07/01 16:33:26 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,5 +149,7 @@ int		if_app(char **s, char *s1);
 int		find_space(char *s);
 char	*read_f_utils(char *str, t_env **env, int *i);
 void	read_file(char	**str, t_env **env, int fd, char *s);
+char	*putspace_utils(char *s, char *str, int i);
+char	*remove_space_utils(char *s, char c, char *str, int i);
 
 #endif
