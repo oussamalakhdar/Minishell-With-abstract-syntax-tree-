@@ -6,11 +6,17 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/01 10:01:33 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/07/01 15:35:34 by abayar           ###   ########.fr       */
+/*   Updated: 2022/07/01 20:41:32 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+void	rednorm(t_redir *cmdd, char *s)
+{
+	cmdd->infd = open(s, O_RDWR, 0777);
+	cmdd->herd = 1;
+}
 
 t_cmd	*redirect_cmd(t_cmd *exec, char **s)
 {
@@ -25,10 +31,7 @@ t_cmd	*redirect_cmd(t_cmd *exec, char **s)
 	if (excmd->infile && !if_app(s, "<<"))
 		cmdd->infd = open(excmd->infile, O_RDONLY);
 	else if (if_app(s, "<<"))
-	{
-		cmdd->infd = open(excmd->infile, O_RDWR, 0777);
-		cmdd->herd = 1;
-	}
+		rednorm(cmdd, excmd->infile);
 	else
 		cmdd->infd = -2;
 	if (excmd->outfile && !if_app(s, ">>"))

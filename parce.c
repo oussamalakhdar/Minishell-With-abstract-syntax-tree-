@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/01 10:20:26 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/07/01 15:45:08 by abayar           ###   ########.fr       */
+/*   Updated: 2022/07/01 20:29:37 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,6 @@ char	*read_f_utils(char *str, t_env **env, int *i)
 	newstr = NULL;
 	if (find_dollar(str))
 	{
-		newstr = ft_strdup("");
 		ss = ft_strdup(find_dollar(str));
 		ss = find(ss, ' ');
 		if (scan_list(ss, env))
@@ -114,8 +113,20 @@ char	*read_f_utils(char *str, t_env **env, int *i)
 				newstr = charjoin(newstr, '$');
 			newstr = charjoin(newstr, '\n');
 		}
+		free(ss);
 	}
 	return (newstr);
+}
+
+void	free_and_wite(int i, int fd, char *newstr, char *tmp)
+{
+	if (i > 0)
+		write(fd, newstr, ft_strlen(newstr));
+	else
+		write(fd, tmp, ft_strlen(tmp));
+	free(tmp);
+	free(newstr);
+	tmp = NULL;
 }
 
 void	read_file(char **str, t_env **env, int fd, char *s)
@@ -126,24 +137,25 @@ void	read_file(char **str, t_env **env, int fd, char *s)
 	int		l;
 
 	l = ft_strlen(s);
-	newstr = NULL;
 	tmp = *str;
-	while (1)
+	if (tmp == NULL || (ft_strncmp(s, tmp, l) == 1 && tmp[l] == '\n'))
+		;
+	else
 	{
-		i = 0;
-		newstr = read_f_utils(*str, env, &i);
-		if (i > 0)
-			write(fd, newstr, ft_strlen(newstr));
-		else
-			write(fd, *str, ft_strlen(*str));
-		free(*str);
-		*str = NULL;
-		write(1, "heredoc> ", 9);
-		*str = get_next_line(0);
-		if (*str == NULL || (ft_strncmp(s, *str, l) == 1
-				&& *str[l] == '\n'))
-			break ;
+		while (1)
+		{
+			i = 0;
+			newstr = read_f_utils(tmp, env, &i);
+			free_and_wite(i, fd, newstr, tmp);
+			write(1, "heredoc> ", 9);
+			tmp = get_next_line(0);
+			if (tmp == NULL || (ft_strncmp(s, tmp, l) == 1
+					&& tmp[l] == '\n'))
+				break ;
+		}
 	}
+	free(tmp);
+	tmp = NULL;
 }
 
 void	read_f(char *s, int fd, t_env **env)
@@ -152,7 +164,6 @@ void	read_f(char *s, int fd, t_env **env)
 	int		j;
 	char	*str;
 	int		l;
-	char	*newstr;
 
 	i = 0;
 	j = 0;
@@ -162,26 +173,6 @@ void	read_f(char *s, int fd, t_env **env)
 	l = ft_strlen(s);
 	write(1, "heredoc> ", 9);
 	str = get_next_line(0);
-	if (str == NULL || (ft_strncmp(s, str, l) == 1 && str[l] == '\n'))
-		;
-	else
-	{
-		while (1)
-		{
-			i = 0;
-			newstr = read_f_utils(str, env, &i);
-			if (i > 0)
-				write(fd, newstr, ft_strlen(newstr));
-			else
-				write(fd, str, ft_strlen(str));
-			free(str);
-			str = NULL;
-			write(1, "heredoc> ", 9);
-			str = get_next_line(0);
-			if (str == NULL || (ft_strncmp(s, str, l) == 1
-					&& str[l] == '\n'))
-				break ;
-		}
-	}
+	read_file(&str, env, fd, s);
 	close_read_f(fd, str);
 }

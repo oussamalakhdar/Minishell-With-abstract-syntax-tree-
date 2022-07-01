@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/07/01 16:33:26 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/07/01 21:43:35 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ typedef struct s_ex
 	t_env	*new;
 	t_env	*new2;
 	int		flag;
+	char	c;
 }	t_ex;
 
 enum e_def
@@ -128,7 +129,7 @@ void	echo(char **s);
 int		helper_scanner(char *c, char q, int *i);
 char	*add_value(char *s, t_env **env);
 void	add_value_utils2(char *s, int i);
-void	add_value_utils3(char *s, int *i, char *ret);
+int		add_value_utils3(char *s, int i, char **ret);
 int		add_value_utils4(char *name, char **ret, char *s, int i);
 char	*cut_value(char *str);
 t_cmd	*redirect_cmd(t_cmd *exec, char **s);
@@ -151,5 +152,13 @@ char	*read_f_utils(char *str, t_env **env, int *i);
 void	read_file(char	**str, t_env **env, int fd, char *s);
 char	*putspace_utils(char *s, char *str, int i);
 char	*remove_space_utils(char *s, char c, char *str, int i);
+int		add_value_utils7(char **ret, char *s, int *i, t_env **env);
+void	free_and_wite(int i, int fd, char *newstr, char *tmp);
+void	rednorm(t_redir *cmdd, char *s);
+void	get_file_utils(char **str, char **s, char c, int *j);
+void	get_file_utils2(char **str, char **s, t_ex *data, int *j);
+void	runcmdpipe(t_cmd *cmdd, int *c, t_env **env, t_env **exportt);
+void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c);
+void	runcmdexec(t_cmd *cmdd, t_env **env);
 
 #endif

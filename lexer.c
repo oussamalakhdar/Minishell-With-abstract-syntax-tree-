@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 21:37:16 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/07/01 16:34:41 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/07/01 20:35:57 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,31 +53,32 @@ void	add_value_utils2(char *s, int i)
 	}
 }
 
-void	add_value_utils3(char *s, int *i, char *ret)
+int	add_value_utils3(char *s, int i, char **ret)
 {
-	if (s[(*i)] == '\'' \
-		|| ((*i) > 1 && s[(*i) - 1] == '<' && s[(*i) - 2] == '<'))
+	if (s[i] == '\'' || (i > 1 && s[i - 1] == '<' && s[i - 2] == '<'))
 	{
-		if (s[(*i) - 1] != '<')
+		if (s[i - 1] != '<')
 		{
-			ret = charjoin(ret, s[(*i++)]);
-			while (s[(*i)] != '\'' && s[(*i)])
+			*ret = charjoin(*ret, s[i]);
+			i++;
+			while (s[i] != '\'' && s[i])
 			{
-				if (s[(*i)] == '\"')
-					ret = charjoin(ret, QUOT2);
+				if (s[i] == '\"')
+					*ret = charjoin(*ret, QUOT2);
 				else
-					ret = charjoin(ret, s[(*i)]);
-				(*i)++;
+					*ret = charjoin(*ret, s[i]);
+				i++;
 			}
 		}
 		else
 		{
-			while (s[(*i)] && (s[(*i)] == SPACE2 || s[(*i)] == ' '))
-				(*i)++;
-			while (s[(*i)] && s[(*i)] != SPACE2 && s[(*i)] != ' ')
-				ret = charjoin(ret, s[(*i++)]);
+			while (s[i] && (s[i] == SPACE2 || s[i] == ' '))
+				i++;
+			while (s[i] && s[i] != SPACE2 && s[i] != ' ')
+				*ret = charjoin(*ret, s[i++]);
 		}
 	}
+	return (i);
 }
 
 int	add_value_utils4(char *name, char **ret, char *s, int i)
@@ -124,41 +125,47 @@ void	add_value_utils6(char *value, char **ret, char *s, int i)
 		*ret = charjoin(*ret, NL);
 }
 
+int	add_value_utils7(char **ret, char *s, int *i, t_env **env)
+{
+	char	*name;
+	char	*value;
+
+	name = NULL;
+	add_value_utils2(s, (*i));
+	(*i) = add_value_utils3(s, (*i), ret);
+	if (s[(*i)] == '$')
+	{
+		if (!add_value_utils4(name, ret, s, (*i)))
+			return (1);
+		name = ft_strdup(find_dollar(&s[(*i)]));
+		add_value_utils5(name);
+		value = scan_list(name, env);
+		(*i)++;
+		add_value_utils6(value, ret, s, (*i));
+		while (s[(*i)] && !is_specialchar(s[(*i)]))
+			(*i)++;
+		(*i)--;
+		if (name)
+			free(name);
+	}
+	else
+		*ret = charjoin(*ret, s[(*i)]);
+	return (0);
+}
+
 char	*add_value(char *s, t_env **env)
 {
 	char	*ret;
-	char	*name;
-	char	*value;
 	int		i;
-	int		p;
 
 	i = 0;
-	name = NULL;
 	if (!find_dollar(s))
 		return (s);
 	ret = ft_strdup("");
 	while (s[i])
 	{
-		add_value_utils2(s, i);
-		add_value_utils3(s, &i, ret);
-		if (s[i] == '$')
-		{
-			if (!add_value_utils4(name, &ret, s, i))
-				break ;
-			name = ft_strdup(find_dollar(&s[i]));
-			add_value_utils5(name);
-			value = scan_list(name, env);
-			i++;
-			p = 0;
-			add_value_utils6(value, &ret, s, i);
-			while (s[i] && !is_specialchar(s[i]))
-				i++;
-			i--;
-			if (name)
-				free(name);
-		}
-		else
-			ret = charjoin(ret, s[i]);
+		if (add_value_utils7(&ret, s, &i, env))
+			break ;
 		i++;
 	}
 	if (s)
