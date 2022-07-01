@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/28 18:23:49 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/07/01 15:36:09 by abayar           ###   ########.fr       */
+/*   Updated: 2022/07/01 20:29:15 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,6 @@ void	close_read_f(int fd, char *str)
 {
 	if (!str)
 		write(1, "\n", 1);
-	if (str)
-		free(str);
 	if (close(fd) == -1)
 	{
 		perror("close fail\n");
