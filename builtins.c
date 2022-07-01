@@ -3,31 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   builtins.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/19 14:53:09 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/30 19:58:09 by abayar           ###   ########.fr       */
+/*   Updated: 2022/07/01 09:59:45 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-char	*cut_value(char *str)
-{
-	int	i;
-
-	i = 0;
-	while (str[i])
-	{
-		if (str[i] == '=')
-		{
-			i++;
-			return (&str[i]);
-		}
-		i++;
-	}
-	return (NULL);
-}
 
 void	free_wkriw(char **var, t_env *new, t_env *new2)
 {

@@ -3,116 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/30 19:02:48 by abayar           ###   ########.fr       */
+/*   Updated: 2022/07/01 11:29:06 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-int	is_degit(char *s)
-{
-	int	i;
-
-	i = 0;
-	while (s[i])
-	{
-		if (s[i] > '9' || s[i] < '0')
-			return (0);
-		i++;
-	}
-	return (1);
-}
-
-int	check_exit(char **s)
-{
-	if (ft_strcmp(s[0], "exit") == 0)
-	{
-		if (tablen(s) == 2)
-		{
-			if (is_degit(s[1]))
-			{
-				g_status = atoi(s[1]);
-				exit(g_status);
-			}
-			else
-			{
-				perror("exit: numeric argument required");
-				g_status = 1;
-				exit(g_status);
-			}
-		}
-		else if (tablen(s) > 2)
-		{
-			perror("exit: too many arguments");
-			g_status = 1;
-			return (0);
-		}
-		else
-		{
-			exit(0);
-			return (0);
-		}
-	}
-	return (1);
-}
-
-int	checkerrors(char **s)
-{
-	int	i;
-	int	j;
-
-	i = 0;
-	j = 0;
-	if (*s == NULL)
-		return (0);
-	if (!check_exit(s))
-		return (0);
-	while (s[i])
-	{
-		if ((s[i][0] == '>' || s[i][0] == '<') && (tablen(s) == (i + 1)))
-		{
-			perror("minishell: No file");
-			return (0);
-		}
-		if (s[0][0] == '|' || s[tablen(s) - 1][0] == '|')
-		{
-			perror("minishell: syntax error");
-			return (0);
-		}
-		if (s[i][0] == '<' && s[i + 1][0] == '>')
-		{
-			perror("minishell: syntax error");
-			return (0);
-		}
-		if (s[i][0] == '>' && s[i + 1][0] == '<')
-		{
-			perror("minishell: error");
-			return (0);
-		}
-		if ((s[i][0] == '<' && s[i][1] == '<' && s[i + 1][0] == '<')
-			|| (s[i][0] == '<' && s[i][1] == '<' && s[i + 1][0] == '>'))
-		{
-			perror("minishell: error");
-			return (0);
-		}
-		if ((s[i][0] == '>' && s[i][1] == '>' && s[i][2] == '>')
-			|| (s[i][0] == '>' && s[i][1] == '>' && s[i + 1][0] == '<'))
-		{
-			perror("minishell: error");
-			return (0);
-		}
-		if ((s[i][0] == '>' || s[i][0] == '<') && s[i + 1][0] == '|')
-		{
-			perror("minishell: error");
-			return (0);
-		}
-		i++;
-	}
-	return (1);
-}
 
 void	printenv(t_env **env, char *s)
 {
@@ -132,126 +30,6 @@ void	printenv(t_env **env, char *s)
 			temp = temp->next;
 		}
 	}
-}
-
-char	**parceline(char **s, int *i)
-{
-	char	**n;
-	int		j;
-	int		tmp;
-	int		k;
-
-	j = 0;
-	tmp = (*i);
-	if (s[*i] == NULL || tablen(s) <= (*i))
-		return (NULL);
-	while (s[*i])
-	{
-		if (s[*i][0] == '|')
-			break ;
-		(*i)++;
-	}
-	n = malloc(sizeof(char *) * ((*i) - tmp) + 1);
-	k = (*i) - tmp;
-	while (j < k)
-	{
-		n[j] = ft_strdup(s[tmp]);
-		tmp++;
-		j++;
-	}
-	n[j] = 0;
-	(*i)++;
-	return (n);
-}
-
-char	*find(char *ss, char c)
-{
-	int	i;
-
-	i = 0;
-	while (ss[i])
-	{
-		if (ss[i] == c || ss[i] == '\n')
-			ss[i] = '\0';
-		i++;
-	}
-	return (ss);
-}
-
-void	read_f(char *s, int fd, t_env **env)
-{
-	int		i;
-	int		j;
-	char	*str;
-	int		l;
-	char	*ss;
-	char	*value;
-	char	*newstr;
-
-	i = 0;
-	j = 0;
-	ss = NULL;
-	str = NULL;
-	if (!s)
-		return ;
-	l = ft_strlen(s);
-	write(1, "heredoc> ", 9);
-	str = get_next_line(0);
-	if (str == NULL || (ft_strncmp(s, str, l) == 1 && str[l] == '\n'))
-		;
-	else
-	{
-		while (1)
-		{
-			i = 0;
-			if (find_dollar(str))
-			{
-				newstr = ft_strdup("");
-				ss = ft_strdup(find_dollar(str));
-				ss = find(ss, ' ');
-				if (scan_list(ss, env))
-				{
-					value = scan_list(ss, env);
-					while (i < ft_strlen(str))
-					{
-						if (str[i] == '$')
-						{
-							while (value[j])
-							{
-								newstr = charjoin(newstr, value[j]);
-								j++;
-							}
-							while (str[i] && str[i] != ' ')
-								i++;
-							i--;
-						}
-						else
-							newstr = charjoin(newstr, str[i]);
-						i++;
-					}
-					newstr = charjoin(newstr, '\n');
-				}
-				else if (scan_list(ss, env) == NULL)
-				{
-					i++;
-					newstr = ft_strdup(find(str, '$'));
-					newstr = charjoin(newstr, '\n');
-				}
-			}
-			if (i > 0)
-				write(fd, newstr, ft_strlen(newstr));
-			else
-				write(fd, str, ft_strlen(str));
-			free(str);
-			str = NULL;
-			write(1, "heredoc> ", 9);
-			str = get_next_line(0);
-			if (str == NULL || (ft_strncmp(s, str, l) == 1
-					&& str[l] == '\n'))
-				break ;
-		}
-	}
-	close_read_f(fd, str);
 }
 
 char	*getfiles(char **s, char c, t_env **env)
@@ -307,105 +85,6 @@ char	*getfiles(char **s, char c, t_env **env)
 		j++;
 	}
 	return (str);
-}
-
-int	if_app(char **s, char *s1)
-{
-	int	i;
-
-	i = 0;
-	while (s[i])
-	{
-		if (ft_strcmp(s[i], s1) == 0)
-			return (1);
-		i++;
-	}
-	return (0);
-}
-
-t_cmd	*redirect_cmd(t_cmd *exec, char **s)
-{
-	t_redir		*cmdd;
-	t_execcmd	*excmd;
-
-	excmd = (t_execcmd *)exec;
-	cmdd = malloc(sizeof(*cmdd));
-	cmdd->type = '>';
-	cmdd->app = 0;
-	cmdd->herd = 0;
-	if (excmd->infile && !if_app(s, "<<"))
-		cmdd->infd = open(excmd->infile, O_RDONLY);
-	else if (if_app(s, "<<"))
-	{
-		cmdd->infd = open(excmd->infile, O_RDWR, 0777);
-		cmdd->herd = 1;
-	}
-	else
-		cmdd->infd = -2;
-	if (excmd->outfile && !if_app(s, ">>"))
-		cmdd->outfd = open(excmd->outfile, O_CREAT | O_WRONLY, 0644);
-	else if (if_app(s, ">>"))
-	{
-		cmdd->outfd = open(excmd->outfile, O_CREAT | O_WRONLY | O_APPEND, 0644);
-		cmdd->app = 1;
-	}
-	else
-		cmdd->outfd = -2;
-	cmdd->cmdn = exec;
-	return ((t_cmd *)cmdd);
-}
-
-t_cmd	*pipecmd(t_cmd *left, t_cmd *right)
-{
-	t_ppipe	*cmdd;
-
-	cmdd = malloc(sizeof(*cmdd));
-	cmdd->type = '|';
-	cmdd->left = left;
-	cmdd->right = right;
-	return ((t_cmd *) cmdd);
-}
-
-t_cmd	*execnode(char **s, char **envp, t_env **env)
-{
-	t_execcmd	*cmdd;
-
-	cmdd = malloc(sizeof(*cmdd));
-	cmdd->type = ' ';
-	cmdd->argv = scan_arg(s);
-	cmdd->infile = getfiles(s, '<', env);
-	cmdd->outfile = getfiles(s, '>', env);
-	cmdd->path = get_path(envp, *env);
-	cmdd = (t_execcmd *)redirect_cmd((t_cmd *)cmdd, s);
-	return ((t_cmd *) cmdd);
-}
-
-t_cmd	*parce_pipe(char **str, int *i, char **envp, t_env **env)
-{
-	t_cmd	*cmdd;
-	char	**tmp;
-
-	if (checker(str, '|', i))
-	{
-		tmp = parceline(str, i);
-		cmdd = pipecmd(execnode(tmp, envp, env),
-				parce_pipe(str, i, envp, env));
-	}
-	else
-	{
-		tmp = parceline(str, i);
-		cmdd = execnode(tmp, envp, env);
-	}
-	free_all(tmp);
-	return (cmdd);
-}
-
-t_cmd	*magic_time(char **s, int *i, char **envp, t_env **env)
-{
-	t_cmd	*cmdd;
-
-	cmdd = parce_pipe(s, i, envp, env);
-	return ((t_cmd *) cmdd);
 }
 
 void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
@@ -592,15 +271,6 @@ void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
 	}
 }
 
-void	handlle(int sig)
-{
-	(void)sig;
-	rl_replace_line("", 0);
-	write(1, "\n", 1);
-	rl_on_new_line();
-	rl_redisplay();
-}
-
 void	free_tree(t_cmd *tree, int	*r)
 {
 	t_ppipe		*pipenode;
@@ -650,19 +320,6 @@ void	flip_free(t_cmd	*cmd)
 	}
 }
 
-int	find_space(char *s)
-{
-	int	i;
-
-	i = 0;
-	while (s[i])
-	{
-		if (s[i] != ' ' || s[i] != '\t' || s[i] != '\v' || s[i] != '\r' || s[i] != '\b')
-			return (0);
-		i++;
-	}
-	return (1);
-}
 
 int	main(int argc, char **argv, char **envp)
 {

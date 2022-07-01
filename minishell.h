@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/06/30 22:33:08 by abayar           ###   ########.fr       */
+/*   Updated: 2022/07/01 11:28:24 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,6 +128,23 @@ void	echo(char **s);
 int		helper_scanner(char *c, char q, int *i);
 void	add_value_utils2(char *s, int i);
 void	add_value_utils3(char *s, int *i, char *ret);
-int	add_value_utils4(char *name, char *ret, char *s, int *i);
+int		add_value_utils4(char *name, char *ret, char *s, int *i);
+char	*cut_value(char *str);
+t_cmd	*redirect_cmd(t_cmd *exec, char **s);
+t_cmd	*pipecmd(t_cmd *left, t_cmd *right);
+t_cmd	*execnode(char **s, char **envp, t_env **env);
+t_cmd	*parce_pipe(char **str, int *i, char **envp, t_env **env);
+t_cmd	*magic_time(char **s, int *i, char **envp, t_env **env);
+int		is_degit(char *s);
+int		check_exit(char **s);
+int		checkerrors(char **s);
+int		checkerrors_extra1(char **s, int i);
+int		checkerrors_extra2(char **s, int i);
+char	**parceline(char **s, int *i);
+char	*find(char *ss, char c);
+void	read_f(char *s, int fd, t_env **env);
+char	*getfiles(char **s, char c, t_env **env);
+int		if_app(char **s, char *s1);
+int		find_space(char *s);
 
 #endif
