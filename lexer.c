@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 21:37:16 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/07/01 11:36:18 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/07/01 15:48:46 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,13 +94,13 @@ void	add_value_utils3(char *s, int *i, char *ret)
 	}
 }
 
-int	add_value_utils4(char *name, char *ret, char *s, int *i)
+int	add_value_utils4(char *name, char **ret, char *s, int i)
 {
-	if (s[(*i) + 1] == '?')
+	if (s[(i) + 1] == '?')
 	{
 		name = ft_strdup(s);
-		name[(*i)] = '\0';
-		ret = ft_strjoin(name, ft_itoa(g_status));
+		name[(i)] = '\0';
+		*ret = ft_strjoin(name, ft_itoa(g_status));
 		return (0);
 	}
 	return (1);
@@ -119,7 +119,7 @@ void	add_value_utils5(char *name)
 	}
 }
 
-void	add_value_utils6(char *value, char *ret, char *s, int i)
+void	add_value_utils6(char *value, char **ret, char *s, int i)
 {
 	int	p;
 
@@ -128,12 +128,14 @@ void	add_value_utils6(char *value, char *ret, char *s, int i)
 	{
 		while (value[p])
 		{
-			ret = charjoin(ret, value[p]);
+			*ret = charjoin(*ret, value[p]);
 			p++;
 		}
 	}
 	else if (is_specialchar(s[i]))
-		ret = charjoin(ret, '$');
+		*ret = charjoin(*ret, '$');
+	else
+		*ret = charjoin(*ret, NL);
 }
 
 char	*add_value(char *s, t_env **env)
@@ -155,24 +157,14 @@ char	*add_value(char *s, t_env **env)
 		add_value_utils3(s, &i, ret);
 		if (s[i] == '$')
 		{
-			if (!add_value_utils4(name, ret, s, &i))
+			if (!add_value_utils4(name, &ret, s, i))
 				break ;
 			name = ft_strdup(find_dollar(&s[i]));
 			add_value_utils5(name);
 			value = scan_list(name, env);
 			i++;
 			p = 0;
-			// add_value_utils6(value, ret, s, i);
-			if (value != NULL)
-			{
-				while (value[p])
-				{
-					ret = charjoin(ret, value[p]);
-					p++;
-				}
-			}
-			else if (is_specialchar(s[i]))
-				ret = charjoin(ret, '$');
+			add_value_utils6(value, &ret, s, i);
 			while (s[i] && !is_specialchar(s[i]))
 				i++;
 			i--;
