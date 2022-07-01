@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/07/01 11:28:24 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/07/01 15:33:41 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,9 +126,10 @@ int		is_specialchar(char s);
 char	*pwd(void);
 void	echo(char **s);
 int		helper_scanner(char *c, char q, int *i);
+char	*add_value(char *s, t_env **env);
 void	add_value_utils2(char *s, int i);
 void	add_value_utils3(char *s, int *i, char *ret);
-int		add_value_utils4(char *name, char *ret, char *s, int *i);
+int		add_value_utils4(char *name, char **ret, char *s, int i);
 char	*cut_value(char *str);
 t_cmd	*redirect_cmd(t_cmd *exec, char **s);
 t_cmd	*pipecmd(t_cmd *left, t_cmd *right);
@@ -146,5 +147,7 @@ void	read_f(char *s, int fd, t_env **env);
 char	*getfiles(char **s, char c, t_env **env);
 int		if_app(char **s, char *s1);
 int		find_space(char *s);
+char	*read_f_utils(char *str, t_env **env, int *i);
+void	read_file(char	**str, t_env **env, int fd, char *s);
 
 #endif

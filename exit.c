@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exit.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/01 11:26:00 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/07/01 11:33:27 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/07/01 12:27:43 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,16 +49,13 @@ int	check_exit(char **s)
 		if (tablen(s) == 2)
 		{
 			if (is_degit(s[1]))
-			{
 				g_status = atoi(s[1]);
-				exit(g_status);
-			}
 			else
 			{
 				perror("exit: numeric argument required");
 				g_status = 1;
-				exit(g_status);
 			}
+			exit(g_status);
 		}
 		else if (tablen(s) > 2)
 		{
@@ -66,11 +63,8 @@ int	check_exit(char **s)
 			g_status = 1;
 			return (0);
 		}
-		else
-		{
-			exit(0);
-			return (0);
-		}
+		exit(0);
+		return (0);
 	}
 	return (1);
 }

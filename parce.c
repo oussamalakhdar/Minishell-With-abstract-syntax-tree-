@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parce.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
+/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/01 10:20:26 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/07/01 11:28:09 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/07/01 15:45:08 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,9 +42,8 @@ char	**parceline(char **s, int *i)
 	k = (*i) - tmp;
 	while (j < k)
 	{
-		n[j] = ft_strdup(s[tmp]);
+		n[j++] = ft_strdup(s[tmp]);
 		tmp++;
-		j++;
 	}
 	n[j] = 0;
 	(*i)++;
@@ -58,11 +57,93 @@ char	*find(char *ss, char c)
 	i = 0;
 	while (ss[i])
 	{
-		if (ss[i] == c || ss[i] == '\n')
+		if (ss[i] == c || ss[i] == '\'' || ss[i] == '\"' || ss[i] == '\n')
 			ss[i] = '\0';
 		i++;
 	}
 	return (ss);
+}
+
+char	*read_f_utils2(char *ss, t_env **env, char *str, int *i)
+{
+	char	*value;
+	char	*newstr;
+	int		j;
+
+	j = 0;
+	value = scan_list(ss, env);
+	newstr = ft_strdup("");
+	while (*i < ft_strlen(str))
+	{
+		if (str[(*i)] == '$')
+		{
+			while (value[j])
+				newstr = charjoin(newstr, value[j++]);
+			while (str[(*i)] && str[(*i)] != ' ' \
+				&& str[(*i)] != '\'' && str[(*i)] != '\"')
+				(*i)++;
+			(*i)--;
+			if (str[(*i)] == '\n')
+				newstr = charjoin(newstr, '\n');
+		}
+		else
+			newstr = charjoin(newstr, str[(*i)]);
+		(*i)++;
+	}
+	return (newstr);
+}
+
+char	*read_f_utils(char *str, t_env **env, int *i)
+{
+	char	*newstr;
+	char	*ss;
+
+	newstr = NULL;
+	if (find_dollar(str))
+	{
+		newstr = ft_strdup("");
+		ss = ft_strdup(find_dollar(str));
+		ss = find(ss, ' ');
+		if (scan_list(ss, env))
+			newstr = read_f_utils2(ss, env, str, i);
+		else if (scan_list(ss, env) == NULL)
+		{
+			(*i)++;
+			newstr = ft_strdup(find(str, '$'));
+			if (ss[0] == '\0')
+				newstr = charjoin(newstr, '$');
+			newstr = charjoin(newstr, '\n');
+		}
+	}
+	return (newstr);
+}
+
+void	read_file(char **str, t_env **env, int fd, char *s)
+{
+	char	*newstr;
+	char	*tmp;
+	int		i;
+	int		l;
+
+	l = ft_strlen(s);
+	newstr = NULL;
+	tmp = *str;
+	while (1)
+	{
+		i = 0;
+		newstr = read_f_utils(*str, env, &i);
+		if (i > 0)
+			write(fd, newstr, ft_strlen(newstr));
+		else
+			write(fd, *str, ft_strlen(*str));
+		free(*str);
+		*str = NULL;
+		write(1, "heredoc> ", 9);
+		*str = get_next_line(0);
+		if (*str == NULL || (ft_strncmp(s, *str, l) == 1
+				&& *str[l] == '\n'))
+			break ;
+	}
 }
 
 void	read_f(char *s, int fd, t_env **env)
@@ -71,13 +152,10 @@ void	read_f(char *s, int fd, t_env **env)
 	int		j;
 	char	*str;
 	int		l;
-	char	*ss;
-	char	*value;
 	char	*newstr;
 
 	i = 0;
 	j = 0;
-	ss = NULL;
 	str = NULL;
 	if (!s)
 		return ;
@@ -91,40 +169,7 @@ void	read_f(char *s, int fd, t_env **env)
 		while (1)
 		{
 			i = 0;
-			if (find_dollar(str))
-			{
-				newstr = ft_strdup("");
-				ss = ft_strdup(find_dollar(str));
-				ss = find(ss, ' ');
-				if (scan_list(ss, env))
-				{
-					value = scan_list(ss, env);
-					while (i < ft_strlen(str))
-					{
-						if (str[i] == '$')
-						{
-							while (value[j])
-							{
-								newstr = charjoin(newstr, value[j]);
-								j++;
-							}
-							while (str[i] && str[i] != ' ')
-								i++;
-							i--;
-						}
-						else
-							newstr = charjoin(newstr, str[i]);
-						i++;
-					}
-					newstr = charjoin(newstr, '\n');
-				}
-				else if (scan_list(ss, env) == NULL)
-				{
-					i++;
-					newstr = ft_strdup(find(str, '$'));
-					newstr = charjoin(newstr, '\n');
-				}
-			}
+			newstr = read_f_utils(str, env, &i);
 			if (i > 0)
 				write(fd, newstr, ft_strlen(newstr));
 			else
