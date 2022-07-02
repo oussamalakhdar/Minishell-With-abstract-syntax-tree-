@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/07/02 13:00:22 by abayar           ###   ########.fr       */
+/*   Updated: 2022/07/02 14:05:37 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,17 +100,19 @@ char	*getfiles(char **s, char c, t_env **env)
 	return (str);
 }
 
-void	runcmdexec(t_cmd *cmdd, t_env **env)
+void	run_exec_utils(t_execcmd *execcmdd)
 {
-	int			exstatus;
-	t_execcmd	*execcmdd;
-	int			i;
-	char		*str;
-	char		*temp;
-	
-	i = 0;
-	execcmdd = (t_execcmd *)cmdd;
-	builtins(execcmdd->argv, env);
+	if (execcmdd->argv[0][0] == '.' && execcmdd->argv[0][1] == '/')
+	{
+		if (access(execcmdd->argv[0] + 2, F_OK) == -1)
+			perror("Command Not Found!");
+	}
+	else
+		perror("Command Not Found!");
+}
+
+void	run_run_utils(t_execcmd *execcmdd)
+{
 	if (execcmdd->path == NULL)
 	{
 		perror("Path not found");
@@ -118,6 +120,20 @@ void	runcmdexec(t_cmd *cmdd, t_env **env)
 	}
 	if (access(execcmdd->argv[0], F_OK) != -1)
 		execve(execcmdd->argv[0], execcmdd->argv, NULL);
+}
+
+void	runcmdexec(t_cmd *cmdd, t_env **env)
+{
+	int			exstatus;
+	t_execcmd	*execcmdd;
+	int			i;
+	char		*str;
+	char		*temp;
+
+	i = 0;
+	execcmdd = (t_execcmd *)cmdd;
+	builtins(execcmdd->argv, env);
+	run_run_utils(execcmdd);
 	while (execcmdd->path[i])
 	{
 		str = ft_strjoin(execcmdd->path[i], "/");
@@ -128,57 +144,60 @@ void	runcmdexec(t_cmd *cmdd, t_env **env)
 		free(str);
 		i++;
 	}
-	if (execcmdd->argv[0][0] == '.' && execcmdd->argv[0][1] == '/')
-	{
-		if (access(execcmdd->argv[0] + 2, F_OK) == -1)
-			perror("Command Not Found!");
-	}
-	else
-		perror("Command Not Found!");
+	run_exec_utils(execcmdd);
 	g_status = WEXITSTATUS(exstatus);
 	exit(g_status);
 }
 
-// void	run_left_pipe(t_ppipe *pcmd, int *c, t_env **env, t_env **exportt)
-// {
-// 	t_redir		*rcmd;
-	
-// 	if (pcmd->right->type == '>')
-// 	{
-// 		rcmd = (t_redir *)pcmd->right;
-// 		*c = -1;
-// 	}
-// 	close(pp[1]);
-// 	dup2(pp[0], STDIN_FILENO);
-// 	runcmd(pcmd->right, env, exportt, c);
-// 	close(pp[0]);
-// 	close(pp[1]);
-// 	waitpid(pid, &exstatus, 0);
-// 	g_status = WEXITSTATUS(exstatus);
-// 	dup2(1, STDIN_FILENO);
-// }
+void	run_left_pipe(t_ppipe *pcmd, int *c, t_ex *data, int *pp)
+{
+	signal(SIGQUIT, handlle);
+	close(pp[0]);
+	dup2(pp[1], STDOUT_FILENO);
+	runcmd(pcmd->left, &data->new, &data->new2, c);
+	close(pp[1]);
+	if (*c >= 1)
+		exit(0);
+}
+
+void	run_pp_utils(int pid, int *pp)
+{
+	int	exstatus;
+
+	close(pp[0]);
+	close(pp[1]);
+	waitpid(pid, &exstatus, 0);
+	g_status = WEXITSTATUS(exstatus);
+	dup2(1, STDIN_FILENO);
+}
+
+int	pipefork(int *pp)
+{
+	int	pid;
+
+	if (pipe(pp) < 0)
+		perror("pipe failed");
+	pid = fork();
+	if (pid == -1)
+		perror("fork failed");
+	return (pid);
+}
 
 void	runcmdpipe(t_cmd *cmdd, int *c, t_env **env, t_env **exportt)
 {
 	t_ppipe		*pcmd;
 	int			pp[2];
 	t_redir		*rcmd;
-	int			exstatus;
-	
+	t_ex		data;
+	int			pid;
+
 	(*c)++;
+	data.new = *env;
+	data.new2 = *exportt;
 	pcmd = (t_ppipe *)cmdd;
-	pipe(pp);
-	int	pid = fork();
+	pid = pipefork(pp);
 	if (pid == 0)
-	{
-		signal(SIGQUIT, handlle);
-		close(pp[0]);
-		dup2(pp[1], STDOUT_FILENO);
-		runcmd(pcmd->left, env, exportt, c);
-		close(pp[1]);
-		if (*c >= 1)
-			exit(0);
-	}
+		run_left_pipe(pcmd, c, &data, pp);
 	else
 	{
 		if (pcmd->right->type == '>')
@@ -189,11 +208,7 @@ void	runcmdpipe(t_cmd *cmdd, int *c, t_env **env, t_env **exportt)
 		close(pp[1]);
 		dup2(pp[0], STDIN_FILENO);
 		runcmd(pcmd->right, env, exportt, c);
-		close(pp[0]);
-		close(pp[1]);
-		waitpid(pid, &exstatus, 0);
-		g_status = WEXITSTATUS(exstatus);
-		dup2(1, STDIN_FILENO);
+		run_pp_utils(pid, pp);
 	}
 }
 

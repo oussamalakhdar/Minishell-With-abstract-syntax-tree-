@@ -6,14 +6,14 @@
 #    By: abayar <abayar@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/06/26 14:33:38 by olakhdar          #+#    #+#              #
-#    Updated: 2022/07/01 17:58:49 by abayar           ###   ########.fr        #
+#    Updated: 2022/07/02 14:19:27 by abayar           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 
 NAME = minishell
 
-CC = gcc -g -Wall -Werror -Wextra #3-L/opt/homebrew/opt/readline/lib -I/opt/homebrew/opt/readline/include
+CC = gcc  -Wall -Werror -Wextra #-g3-L/opt/homebrew/opt/readline/lib -I/opt/homebrew/opt/readline/include
 
 READLINE = -lreadline -L/goinfre/abayar/abayar/.brew/opt/readline/lib -I/goinfre/abayar/abayar/.brew/opt/readline/include
 
