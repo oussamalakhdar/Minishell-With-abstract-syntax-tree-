@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/07/02 14:05:19 by abayar           ###   ########.fr       */
+/*   Updated: 2022/07/02 15:30:46 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,5 +169,15 @@ void	run_left_pipe(t_ppipe *pcmd, int *c, t_ex *data, int *pp);
 void	run_pp_utils(int pid, int *pp);
 void	run_exec_utils(t_execcmd *execcmdd);
 void	run_run_utils(t_execcmd *execcmdd);
+void	add_value_utils(char *s, int *i, char *ret);
+void	add_value_utils2(char *s, int i);
+int		add_value_utils3(char *s, int i, char **ret);
+int		add_value_utils4(char **name, char **ret, char *s, int i);
+void	add_value_utils5(char *name);
+void	free_tree_utils(t_cmd *tree);
+void	free_tree(t_cmd *tree, int	*r);
+void	flip_free(t_cmd	*cmd);
+void	printenv(t_env **env, char *s);
+int		minishell_utils2(char *line);
 
 #endif
