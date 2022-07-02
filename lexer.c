@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 21:37:16 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/07/02 12:22:23 by abayar           ###   ########.fr       */
+/*   Updated: 2022/07/02 14:10:30 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,7 @@ int	add_value_utils4(char **name, char **ret, char *s, int i)
 		*name = ft_strdup(s);
 		(*name)[i] = '\0';
 		stat = ft_itoa(g_status);
+		free(*ret);
 		*ret = ft_strjoin(*name, stat);
 		free(stat);
 		return (0);

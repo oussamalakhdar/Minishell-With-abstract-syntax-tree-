@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/07/02 12:55:59 by abayar           ###   ########.fr       */
+/*   Updated: 2022/07/02 14:05:19 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,5 +165,9 @@ void	run_lastcmd(t_env **env, t_env **exportt, t_redir *rcmd, int *c);
 void	run_firstone(t_env **env, t_env **exportt, t_redir *rcmd, int *c);
 void	run_cmd_first_utils(t_redir *r, t_env **env, t_env **exportt, int *c);
 void	run_motherfucker_run(t_redir *rcmd, t_env **env, t_env **t, int *c);
+void	run_left_pipe(t_ppipe *pcmd, int *c, t_ex *data, int *pp);
+void	run_pp_utils(int pid, int *pp);
+void	run_exec_utils(t_execcmd *execcmdd);
+void	run_run_utils(t_execcmd *execcmdd);
 
 #endif
