@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/09 21:37:16 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/07/01 20:35:57 by abayar           ###   ########.fr       */
+/*   Updated: 2022/07/02 12:22:23 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,13 +81,17 @@ int	add_value_utils3(char *s, int i, char **ret)
 	return (i);
 }
 
-int	add_value_utils4(char *name, char **ret, char *s, int i)
+int	add_value_utils4(char **name, char **ret, char *s, int i)
 {
-	if (s[(i) + 1] == '?')
+	char	*stat;
+
+	if (s[i + 1] == '?')
 	{
-		name = ft_strdup(s);
-		name[(i)] = '\0';
-		*ret = ft_strjoin(name, ft_itoa(g_status));
+		*name = ft_strdup(s);
+		(*name)[i] = '\0';
+		stat = ft_itoa(g_status);
+		*ret = ft_strjoin(*name, stat);
+		free(stat);
 		return (0);
 	}
 	return (1);
@@ -135,7 +139,7 @@ int	add_value_utils7(char **ret, char *s, int *i, t_env **env)
 	(*i) = add_value_utils3(s, (*i), ret);
 	if (s[(*i)] == '$')
 	{
-		if (!add_value_utils4(name, ret, s, (*i)))
+		if (!add_value_utils4(&name, ret, s, (*i)))
 			return (1);
 		name = ft_strdup(find_dollar(&s[(*i)]));
 		add_value_utils5(name);

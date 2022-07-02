@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/03 11:19:14 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/07/01 21:43:35 by abayar           ###   ########.fr       */
+/*   Updated: 2022/07/02 12:55:59 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,7 +130,7 @@ int		helper_scanner(char *c, char q, int *i);
 char	*add_value(char *s, t_env **env);
 void	add_value_utils2(char *s, int i);
 int		add_value_utils3(char *s, int i, char **ret);
-int		add_value_utils4(char *name, char **ret, char *s, int i);
+int		add_value_utils4(char **name, char **ret, char *s, int i);
 char	*cut_value(char *str);
 t_cmd	*redirect_cmd(t_cmd *exec, char **s);
 t_cmd	*pipecmd(t_cmd *left, t_cmd *right);
@@ -160,5 +160,10 @@ void	get_file_utils2(char **str, char **s, t_ex *data, int *j);
 void	runcmdpipe(t_cmd *cmdd, int *c, t_env **env, t_env **exportt);
 void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c);
 void	runcmdexec(t_cmd *cmdd, t_env **env);
+void	run_mid_cmd(t_redir *r, int *c, t_env **env, t_env **exportt);
+void	run_lastcmd(t_env **env, t_env **exportt, t_redir *rcmd, int *c);
+void	run_firstone(t_env **env, t_env **exportt, t_redir *rcmd, int *c);
+void	run_cmd_first_utils(t_redir *r, t_env **env, t_env **exportt, int *c);
+void	run_motherfucker_run(t_redir *rcmd, t_env **env, t_env **t, int *c);
 
 #endif

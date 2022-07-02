@@ -6,7 +6,7 @@
 /*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/07/01 21:36:59 by abayar           ###   ########.fr       */
+/*   Updated: 2022/07/02 13:00:22 by abayar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,13 +131,32 @@ void	runcmdexec(t_cmd *cmdd, t_env **env)
 	if (execcmdd->argv[0][0] == '.' && execcmdd->argv[0][1] == '/')
 	{
 		if (access(execcmdd->argv[0] + 2, F_OK) == -1)
-			perror("Path Not Found!");
+			perror("Command Not Found!");
 	}
 	else
-		perror("Path Not Found!");
+		perror("Command Not Found!");
 	g_status = WEXITSTATUS(exstatus);
 	exit(g_status);
 }
+
+// void	run_left_pipe(t_ppipe *pcmd, int *c, t_env **env, t_env **exportt)
+// {
+// 	t_redir		*rcmd;
+	
+// 	if (pcmd->right->type == '>')
+// 	{
+// 		rcmd = (t_redir *)pcmd->right;
+// 		*c = -1;
+// 	}
+// 	close(pp[1]);
+// 	dup2(pp[0], STDIN_FILENO);
+// 	runcmd(pcmd->right, env, exportt, c);
+// 	close(pp[0]);
+// 	close(pp[1]);
+// 	waitpid(pid, &exstatus, 0);
+// 	g_status = WEXITSTATUS(exstatus);
+// 	dup2(1, STDIN_FILENO);
+// }
 
 void	runcmdpipe(t_cmd *cmdd, int *c, t_env **env, t_env **exportt)
 {
@@ -178,14 +197,133 @@ void	runcmdpipe(t_cmd *cmdd, int *c, t_env **env, t_env **exportt)
 	}
 }
 
+void	run_mid_cmd(t_redir *rcmd, int *c, t_env **env, t_env **exportt)
+{
+	t_execcmd	*execcmdd;
+	int			j;
+
+	execcmdd = (t_execcmd *)rcmd->cmdn;
+	if (rcmd->infd != -2)
+		dup2(rcmd->infd, STDIN_FILENO);
+	if (rcmd->outfd != -2)
+		dup2(rcmd->outfd, STDOUT_FILENO);
+	if (check_cmd(execcmdd->argv[0]) == 'u')
+	{
+		j = 1;
+		while (execcmdd->argv[j])
+		{
+			unset(execcmdd->argv[j], env);
+			unset(execcmdd->argv[j], exportt);
+			j++;
+		}
+	}
+	else if (check_cmd(execcmdd->argv[0]) == 'x')
+		export(execcmdd->argv, env, exportt);
+	else
+		runcmd(rcmd->cmdn, env, exportt, c);
+}
+
+void	run_lastcmd(t_env **env, t_env **exportt, t_redir *rcmd, int *c)
+{
+	t_execcmd	*execcmdd;
+	int			j;
+
+	execcmdd = (t_execcmd *)rcmd->cmdn;
+	signal(SIGQUIT, handlle);
+	if (rcmd->infd != -2)
+		dup2(rcmd->infd, STDIN_FILENO);
+	if (rcmd->outfd != -2)
+		dup2(rcmd->outfd, STDOUT_FILENO);
+	if (check_cmd(execcmdd->argv[0]) == 'u')
+	{
+		j = 1;
+		while (execcmdd->argv[j])
+		{
+			unset(execcmdd->argv[j], env);
+			unset(execcmdd->argv[j], exportt);
+			j++;
+		}
+	}
+	else if (check_cmd(execcmdd->argv[0]) == 'x')
+		export(execcmdd->argv, env, exportt);
+	else
+		runcmd(rcmd->cmdn, env, exportt, c);
+}
+
+void	run_firstone(t_env **env, t_env **exportt, t_redir *rcmd, int *c)
+{
+	int	id;
+	int	exstatus;
+
+	id = myfork();
+	if (id == 0)
+	{
+		signal(SIGQUIT, handlle);
+		if (rcmd->infd == -1)
+			exit(1);
+		if (rcmd->infd != -2)
+			dup2(rcmd->infd, STDIN_FILENO);
+		if (rcmd->outfd != -2)
+			dup2(rcmd->outfd, STDOUT_FILENO);
+		runcmd(rcmd->cmdn, env, exportt, c);
+	}
+	waitpid(id, &exstatus, 0);
+	g_status = WEXITSTATUS(exstatus);
+	if (*c == 0)
+	{
+		if (rcmd->outfd)
+			close(rcmd->outfd);
+		if (rcmd->infd)
+			close(rcmd->infd);
+	}
+}
+
+void	run_cmd_first_utils(t_redir *rcmd, t_env **env, t_env **exportt, int *c)
+{
+	t_execcmd	*execcmdd;
+	int			j;
+
+	execcmdd = (t_execcmd *)rcmd->cmdn;
+	if (check_cmd(execcmdd->argv[0]) == 'u')
+	{
+		j = 1;
+		while (execcmdd->argv[j])
+		{
+			unset(execcmdd->argv[j], env);
+			unset(execcmdd->argv[j], exportt);
+			j++;
+		}
+	}
+	else if (check_cmd(execcmdd->argv[0]) == 'x')
+		export(execcmdd->argv, env, exportt);
+	else
+		run_firstone(env, exportt, rcmd, c);
+}
+
+void	run_motherfucker_run(t_redir *rcmd, t_env **env, t_env **rtt, int *c)
+{
+	int	id;
+	int	exstatus;
+
+	id = myfork();
+	if (id == 0)
+		run_lastcmd(env, rtt, rcmd, c);
+	else
+	{
+		waitpid(id, &exstatus, 0);
+		g_status = WEXITSTATUS(exstatus);
+		if (rcmd->outfd)
+			close(rcmd->outfd);
+		if (rcmd->infd)
+			close(rcmd->infd);
+	}
+}
+
 void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
 {
 	t_execcmd	*execcmdd;
 	t_redir		*rcmd;
-	int			j;
-	int			exstatus;
 
-	j = 1;
 	if (cmdd->type == '|')
 		runcmdpipe(cmdd, c, env, exportt);
 	else if (cmdd->type == ' ')
@@ -197,107 +335,35 @@ void	runcmd(t_cmd *cmdd, t_env **env, t_env **exportt, int *c)
 		if (rcmd->outfd != -2 && rcmd->app == 0)
 			open(execcmdd->outfile, O_CREAT | O_WRONLY | O_TRUNC, 0644);
 		if (*c == 0 || *c == 1)
-		{
-			if (check_cmd(execcmdd->argv[0]) == 'u')
-			{
-				j = 1;
-				while (execcmdd->argv[j])
-				{
-					unset(execcmdd->argv[j], env);
-					unset(execcmdd->argv[j], exportt);
-					j++;
-				}
-			}
-			else if (check_cmd(execcmdd->argv[0]) == 'x')
-				export(execcmdd->argv, env, exportt);
-			else
-			{
-				int	id = myfork();
-				if (id == 0)
-				{
-					signal(SIGQUIT, handlle);
-					if (rcmd->infd == -1)
-						exit(1);
-					if (rcmd->infd != -2)
-						dup2(rcmd->infd, STDIN_FILENO);
-					if (rcmd->outfd != -2)
-						dup2(rcmd->outfd, STDOUT_FILENO);
-					runcmd(rcmd->cmdn, env, exportt, c);
-				}
-				waitpid(id, &exstatus, 0);
-				g_status = WEXITSTATUS(exstatus);
-				if (*c == 0)
-				{
-					if (rcmd->outfd)
-						close(rcmd->outfd);
-					if (rcmd->infd)
-						close(rcmd->infd);
-				}
-			}
-		}
+			run_cmd_first_utils(rcmd, env, exportt, c);
 		else if (*c == -1)
-		{
-			int	id = myfork();
-			if (id == 0)
-			{
-				signal(SIGQUIT, handlle);
-				if (rcmd->infd != -2)
-					dup2(rcmd->infd, STDIN_FILENO);
-				if (rcmd->outfd != -2)
-					dup2(rcmd->outfd, STDOUT_FILENO);
-				if (check_cmd(execcmdd->argv[0]) == 'u')
-				{
-					j = 1;
-					while (execcmdd->argv[j])
-					{
-						unset(execcmdd->argv[j], env);
-						unset(execcmdd->argv[j], exportt);
-						j++;
-					}
-				}
-				else if (check_cmd(execcmdd->argv[0]) == 'x')
-					export(execcmdd->argv, env, exportt);
-				else
-					runcmd(rcmd->cmdn, env, exportt, c);
-			}
-			else
-			{
-				waitpid(id, &exstatus, 0);
-				g_status = WEXITSTATUS(exstatus);
-				if (rcmd->outfd)
-					close(rcmd->outfd);
-				if (rcmd->infd)
-					close(rcmd->infd);
-			}
-		}
+			run_motherfucker_run(rcmd, env, exportt, c);
 		if (*c > 1)
-		{
-			if (rcmd->infd != -2)
-				dup2(rcmd->infd, STDIN_FILENO);
-			if (rcmd->outfd != -2)
-				dup2(rcmd->outfd, STDOUT_FILENO);
-			if (check_cmd(execcmdd->argv[0]) == 'u')
-			{
-				j = 1;
-				while (execcmdd->argv[j])
-				{
-					unset(execcmdd->argv[j], env);
-					unset(execcmdd->argv[j], exportt);
-					j++;
-				}
-			}
-			else if (check_cmd(execcmdd->argv[0]) == 'x')
-				export(execcmdd->argv, env, exportt);
-			else
-				runcmd(rcmd->cmdn, env, exportt, c);
-		}
+			run_mid_cmd(rcmd, c, env, exportt);
+	}
+}
+
+void	free_tree_utils(t_cmd *tree)
+{
+	t_execcmd	*execnode;
+
+	if (tree->type == ' ')
+	{
+		execnode = (t_execcmd *)tree;
+		free_all(execnode->path);
+		if (execnode->argv != NULL)
+			free_all(execnode->argv);
+		if (execnode->infile)
+			free(execnode->infile);
+		if (execnode->outfile)
+			free(execnode->outfile);
+		free(execnode);
 	}
 }
 
 void	free_tree(t_cmd *tree, int	*r)
 {
 	t_ppipe		*pipenode;
-	t_execcmd	*execnode;
 	t_redir		*redirnode;
 
 	if (tree->type == '|')
@@ -314,18 +380,7 @@ void	free_tree(t_cmd *tree, int	*r)
 		free_tree(redirnode->cmdn, r);
 		free(redirnode);
 	}
-	else if (tree->type == ' ')
-	{
-		execnode = (t_execcmd *)tree;
-		free_all(execnode->path);
-		if (execnode->argv != NULL)
-			free_all(execnode->argv);
-		if (execnode->infile)
-			free(execnode->infile);
-		if (execnode->outfile)
-			free(execnode->outfile);
-		free(execnode);
-	}
+	free_tree_utils(tree);
 }
 
 void	flip_free(t_cmd	*cmd)
@@ -342,7 +397,6 @@ void	flip_free(t_cmd	*cmd)
 		free(cmd);
 	}
 }
-
 
 void	minishell(char **str, char **envp, t_ex *data, char *line)
 {
@@ -361,10 +415,80 @@ void	minishell(char **str, char **envp, t_ex *data, char *line)
 	free_tree(cmd, &c);
 }
 
-int	main(int argc, char **argv, char **envp)
+int	minishell_utils(char **line, t_env **env, char ***str)
+{
+	if (*line[0] == 'c' && *line[1] == 'd' && *line[2] == ' ')
+	{
+		if (chdir(*line + 3) < 0)
+			perror("Error");
+		free(*line);
+		*line = NULL;
+		return (0);
+	}
+	*line = putspace(*line, env);
+	if (!*line)
+		return (0);
+	*str = ft_split(*line, ' ');
+	undo(*str);
+	if (!checkerrors(*str))
+	{
+		free(*line);
+		*line = NULL;
+		free_all(*str);
+		return (0);
+	}
+	return (1);
+}
+
+int	minishell_utils2(char *line)
+{
+	if (!line)
+		return (0);
+	if (ft_strncmp(line, "\n", ft_strlen(line)))
+	{
+		free(line);
+		line = NULL;
+		return (1);
+	}
+	if (line && find_space(line))
+	{
+		free(line);
+		line = NULL;
+		return (1);
+	}
+	add_history(line);
+	return (-1);
+}
+
+void	my_signal(void)
+{
+	signal(SIGQUIT, SIG_IGN);
+	signal(SIGINT, handlle);
+}
+
+int	micro_shell(t_ex *data, t_env **env, char **envp)
 {
 	char	*line;
 	char	**str;
+
+	str = NULL;
+	while (1)
+	{
+		line = readline("𝖒𝖎𝖓𝖎𝖘𝖍𝖊𝖑𝖑➜ ");
+		signal(SIGINT, handlle);
+		if (minishell_utils2(line) == 1)
+			continue ;
+		if (minishell_utils2(line) == 0)
+			return (0);
+		if (!minishell_utils(&line, env, &str))
+			continue ;
+		minishell(str, envp, data, line);
+	}
+	return (1);
+}
+
+int	main(int argc, char **argv, char **envp)
+{
 	t_env	*env;
 	t_env	*exportt;
 	t_ex	data;
@@ -372,51 +496,15 @@ int	main(int argc, char **argv, char **envp)
 	(void) argv;
 	env = NULL;
 	exportt = NULL;
-	signal(SIGQUIT, SIG_IGN);
-	signal(SIGINT, handlle);
+	my_signal();
 	if (argc == 1)
 	{
 		createnv(&env, envp);
 		createnv(&exportt, envp);
 		data.new = env;
 		data.new2 = exportt;
-		while (1)
-		{
-			line = readline("𝖒𝖎𝖓𝖎𝖘𝖍𝖊𝖑𝖑➜ ");
-			signal(SIGINT, handlle);
-			if (!line)
-				return (0);
-			if (find_space(line))
-				continue ;
-			if (ft_strncmp(line, "\n", ft_strlen(line)))
-			{
-				free(line);
-				line = NULL;
-				continue ;
-			}
-			add_history(line);
-			if (line[0] == 'c' && line[1] == 'd' && line[2] == ' ')
-			{
-				if (chdir(line + 3) < 0)
-					perror("Error");
-				free(line);
-				line = NULL;
-				continue ;
-			}
-			line = putspace(line, &env);
-			if (!line)
-				continue ;
-			str = ft_split(line, ' ');
-			undo(str);
-			if (!checkerrors(str))
-			{
-				free(line);
-				line = NULL;
-				free_all(str);
-				continue ;
-			}
-			minishell(str, envp, &data, line);
-		}
+		if (!micro_shell(&data, &env, envp))
+			return (0);
 	}
 	return (0);
 }
