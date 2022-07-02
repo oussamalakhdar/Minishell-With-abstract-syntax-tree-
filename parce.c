@@ -3,66 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   parce.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abayar <abayar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/01 10:20:26 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/07/01 20:29:37 by abayar           ###   ########.fr       */
+/*   Updated: 2022/07/02 15:34:47 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-void	handlle(int sig)
-{
-	(void)sig;
-	rl_replace_line("", 0);
-	write(1, "\n", 1);
-	rl_on_new_line();
-	rl_redisplay();
-}
-
-char	**parceline(char **s, int *i)
-{
-	char	**n;
-	int		j;
-	int		tmp;
-	int		k;
-
-	j = 0;
-	tmp = (*i);
-	if (s[*i] == NULL || tablen(s) <= (*i))
-		return (NULL);
-	while (s[*i])
-	{
-		if (s[*i][0] == '|')
-			break ;
-		(*i)++;
-	}
-	n = malloc(sizeof(char *) * ((*i) - tmp) + 1);
-	k = (*i) - tmp;
-	while (j < k)
-	{
-		n[j++] = ft_strdup(s[tmp]);
-		tmp++;
-	}
-	n[j] = 0;
-	(*i)++;
-	return (n);
-}
-
-char	*find(char *ss, char c)
-{
-	int	i;
-
-	i = 0;
-	while (ss[i])
-	{
-		if (ss[i] == c || ss[i] == '\'' || ss[i] == '\"' || ss[i] == '\n')
-			ss[i] = '\0';
-		i++;
-	}
-	return (ss);
-}
 
 char	*read_f_utils2(char *ss, t_env **env, char *str, int *i)
 {
