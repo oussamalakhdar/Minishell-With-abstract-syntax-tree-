@@ -6,7 +6,7 @@
 /*   By: olakhdar <olakhdar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 11:44:54 by olakhdar          #+#    #+#             */
-/*   Updated: 2022/07/02 15:30:57 by olakhdar         ###   ########.fr       */
+/*   Updated: 2022/07/02 16:03:35 by olakhdar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ void	minishell(char **str, char **envp, t_ex *data, char *line)
 
 int	minishell_utils(char **line, t_env **env, char ***str)
 {
-	if (*line[0] == 'c' && *line[1] == 'd' && *line[2] == ' ')
+	if ((*line)[0] == 'c' && (*line)[1] == 'd' && (*line)[2] == ' ')
 	{
 		if (chdir(*line + 3) < 0)
 			perror("Error");
