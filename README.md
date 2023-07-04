@@ -38,7 +38,6 @@ Implementing built-in commands: Minishell can implement built-in commands, which
   - `env` with no options or arguments.
   - `exit` with no options.
 
-
 Here are some additional features that minishell can support:
 
 Line editing: Minishell can support line editing, which allows you to edit the command line before it is executed. This can be useful for correcting mistakes or for entering long commands.
