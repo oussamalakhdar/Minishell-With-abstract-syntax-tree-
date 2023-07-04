@@ -7,7 +7,7 @@ Handling input/output redirection: Minishell can handle input/output redirection
 Managing background processes: Minishell can manage background processes, which allows you to run commands in the background so that you can continue to use the shell while the commands are running.
 Implementing built-in commands: Minishell can implement built-in commands, which are commands that are executed by the shell itself. This allows you to create custom commands that are specific to your shell.
 
-##All the Features:
+## All the Features:
 
 - Display a prompt when waiting for a new command.
 - Working history functionality.
